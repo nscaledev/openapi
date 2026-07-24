@@ -1,0 +1,8 @@
+extends:
+  - recommended
+rules:
+  # Not every service has a confirmed public base URL yet (see
+  # scripts/public-servers.json) — several of Nscale's own specs don't carry
+  # one today either. Warn rather than fail until that's tracked down
+  # per-service; revisit as a hard error once every service has an entry.
+  no-empty-servers: warn

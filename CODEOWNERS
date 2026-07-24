@@ -1,0 +1,8 @@
+# specs/ is owned exclusively by the publish pipeline.
+# Human PRs touching specs/** are failed by .github/workflows/protect-specs.yml
+# regardless of CODEOWNERS review state — that check is the actual enforcement.
+#
+# No "nscaledev/openapi-bot" team exists yet (checked: it isn't among the
+# org's current teams). Owner is set to a real account so this file is valid
+# in the meantime — repoint at a dedicated bot/team once one exists.
+/specs/ @AdamFlanagan-Nscale

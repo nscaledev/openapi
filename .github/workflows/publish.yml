@@ -1,0 +1,126 @@
+name: Publish spec
+
+# Two ways in:
+#   - repository_dispatch: the real mechanism. A source service repo's own
+#     release CI bundles and sanitizes nothing itself — it just POSTs its
+#     raw, already-bundled spec content here as base64 in client_payload.
+#     This repo never needs read credentials for any source repo; the
+#     source repo only needs a token scoped to *write* (dispatch) to this
+#     one. That token/wiring doesn't exist yet — creating it means adding a
+#     dispatch step to each of the 7 source repos' CI, which is explicitly
+#     gated on a human decision (org-level blast radius).
+#   - workflow_dispatch: how to run/test this pipeline right now, without
+#     waiting on that wiring, by pasting in a raw spec URL directly.
+on:
+  repository_dispatch:
+    types: [publish-spec]
+  workflow_dispatch:
+    inputs:
+      service:
+        description: Service id (matches specs/<service>/)
+        required: true
+      raw_spec_url:
+        description: HTTPS URL to the raw (un-bundled) spec YAML
+        required: true
+      source_commit:
+        description: Source repo commit this spec was built from
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Resolve inputs
+        id: in
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "service=${{ github.event.client_payload.service }}" >> "$GITHUB_OUTPUT"
+            echo "source_commit=${{ github.event.client_payload.sourceCommit }}" >> "$GITHUB_OUTPUT"
+            echo '${{ github.event.client_payload.specYamlBase64 }}' | base64 -d > raw-spec.yaml
+          else
+            echo "service=${{ github.event.inputs.service }}" >> "$GITHUB_OUTPUT"
+            echo "source_commit=${{ github.event.inputs.source_commit }}" >> "$GITHUB_OUTPUT"
+            curl -sL "${{ github.event.inputs.raw_spec_url }}" -o raw-spec.yaml
+          fi
+
+      - name: Bundle (dereference external $refs)
+        run: npx --yes @redocly/cli@2 bundle raw-spec.yaml -o bundled-spec.yaml --ext yaml
+
+      - name: Snapshot previous published version, if any
+        id: prev
+        run: |
+          SERVICE="${{ steps.in.outputs.service }}"
+          if [ -f "specs/$SERVICE/openapi.yaml" ]; then
+            cp "specs/$SERVICE/openapi.yaml" previous-spec.yaml
+            echo "had_previous=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "had_previous=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sanitize
+        run: |
+          mkdir -p "specs/${{ steps.in.outputs.service }}"
+          node scripts/sanitize.mjs bundled-spec.yaml "specs/${{ steps.in.outputs.service }}/openapi.yaml" "${{ steps.in.outputs.service }}"
+
+      - name: Validate (lint + forbidden-string scan)
+        run: scripts/validate.sh "specs/${{ steps.in.outputs.service }}/openapi.yaml"
+
+      # Breaking-change diff + semver enforcement is intentionally not
+      # wired up yet — oasdiff isn't installed anywhere in this pipeline
+      # today (Phase 2 item; see README/spec). Once added, this is where a
+      # `previous-spec.yaml` vs the freshly sanitized spec diff, plus a
+      # semver-bump check, would run and fail the publish if unmet.
+
+      - name: Generate JSON
+        run: npx --yes @redocly/cli@2 bundle "specs/${{ steps.in.outputs.service }}/openapi.yaml" -o "specs/${{ steps.in.outputs.service }}/openapi.json" --ext json
+
+      - name: Write publish metadata
+        run: |
+          SERVICE="${{ steps.in.outputs.service }}"
+          PUBLISHED_AT="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+          cat > "specs/$SERVICE/.publish-meta.json" <<EOF
+          {
+            "sourceCommit": "${{ steps.in.outputs.source_commit }}",
+            "publishedAt": "$PUBLISHED_AT"
+          }
+          EOF
+
+      - name: Append changelog entry
+        run: |
+          SERVICE="${{ steps.in.outputs.service }}"
+          VERSION="$(node -e "console.log(require('yaml').parse(require('fs').readFileSync('specs/$SERVICE/openapi.yaml','utf8')).info.version)")"
+          TODAY="$(date -u +%Y-%m-%d)"
+          {
+            echo ""
+            echo "## v$VERSION — $TODAY"
+            echo ""
+            echo "Source: \`${{ steps.in.outputs.source_commit }}\`."
+          } >> "specs/$SERVICE/CHANGELOG.md"
+
+      - name: Rebuild index.json
+        run: node scripts/build-index.mjs
+
+      - name: Commit and tag
+        run: |
+          SERVICE="${{ steps.in.outputs.service }}"
+          VERSION="$(node -e "console.log(require('yaml').parse(require('fs').readFileSync('specs/$SERVICE/openapi.yaml','utf8')).info.version)")"
+          git config user.name "nscale-openapi-bot"
+          git config user.email "nscale-openapi-bot@users.noreply.github.com"
+          git add "specs/$SERVICE" index.json
+          git commit -m "publish($SERVICE): v$VERSION [source ${{ steps.in.outputs.source_commit }}]"
+          git tag "$SERVICE/v$VERSION"
+          git push origin HEAD:main
+          git push origin "$SERVICE/v$VERSION"

@@ -1,0 +1,17 @@
+{
+  "_comment": "Public base URL(s) to inject into a service's sanitized spec when its raw spec carries none (these repos are mounted behind a gateway and don't self-describe a public host). Seeded from what Mintlify's existing (manual) pipeline already publishes today — confirm with each service owner before treating as authoritative, and add the rest here as they're confirmed.",
+  "compute": [
+    { "url": "https://compute.nks.europe-west4.nscale.com", "description": "Production" }
+  ],
+  "identity": [
+    { "url": "https://identity.nks.europe-west4.nscale.com", "description": "Production" }
+  ],
+  "kubernetes": [
+    { "url": "https://api.nks.europe-west4.nscale.com", "description": "Production" }
+  ],
+  "reservation": [
+    { "url": "https://reservation.nks.europe-west4.nscale.com", "description": "Production" },
+    { "url": "https://reservation.nks-stg.europe-west2.nscale.com", "description": "Staging" },
+    { "url": "https://reservation.nks-dev.glo1.nscale.com", "description": "Development" }
+  ]
+}

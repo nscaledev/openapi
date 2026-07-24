@@ -1,0 +1,19 @@
+{
+  "$schema": "./index.schema.json",
+  "generated": "2026-07-24T08:26:28.867Z",
+  "services": [
+    {
+      "id": "compute",
+      "title": "Compute Service API",
+      "version": "1.13.0",
+      "spec": {
+        "yaml": "https://openapi.nscale.com/specs/compute/openapi.yaml",
+        "json": "https://openapi.nscale.com/specs/compute/openapi.json"
+      },
+      "docs": "https://docs.nscale.com/api-reference/compute",
+      "reference": "https://openapi.nscale.com/reference.html?service=compute",
+      "sourceCommit": "fb95db4",
+      "publishedAt": "2026-07-24T08:26:21.000Z"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "nscaledev-openapi-pipeline",
+  "private": true,
+  "type": "module",
+  "description": "Publish pipeline scripts for nscaledev/openapi. Not published, not a runtime dependency of the site.",
+  "scripts": {
+    "test": "node --test scripts/__tests__/*.test.mjs",
+    "build-site": "scripts/build-site.sh",
+    "serve": "scripts/build-site.sh && python3 -m http.server 4173 --directory .site-build"
+  },
+  "devDependencies": {
+    "yaml": "^2.6.1"
+  }
+}

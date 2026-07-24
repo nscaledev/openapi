@@ -1,0 +1,60 @@
+openapi: 3.0.3
+info:
+  title: Fixture API
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+  - url: http://svc.internal.cluster.local
+  - url: http://localhost:8080
+paths:
+  /public:
+    get:
+      summary: Public op
+      responses:
+        '200':
+          description: ok
+  /hidden:
+    get:
+      x-hidden: true
+      summary: Hidden op
+      responses:
+        '200':
+          description: ok
+  /internal-only:
+    post:
+      x-internal: true
+      summary: Internal op
+      responses:
+        '200':
+          description: ok
+  /mixed:
+    get:
+      summary: Public method on a path that also has a hidden method
+      responses:
+        '200':
+          description: ok
+    post:
+      x-hidden: true
+      summary: Hidden method sharing a path with a public one
+      responses:
+        '200':
+          description: ok
+components:
+  schemas:
+    PublicThing:
+      type: object
+      properties:
+        id:
+          type: string
+    HiddenThing:
+      x-hidden: true
+      type: object
+      properties:
+        secret:
+          type: string
+    Codegen:
+      type: object
+      x-go-type: string
+      properties:
+        id:
+          type: string

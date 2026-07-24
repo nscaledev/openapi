@@ -1,0 +1,12 @@
+openapi: 3.0.3
+info:
+  title: Unhandled Marker Fixture
+  version: 1.0.0
+paths:
+  /thing:
+    get:
+      summary: An operation whose hidden marker sits somewhere sanitize.mjs doesn't scan for removal
+      responses:
+        '200':
+          x-hidden: true
+          description: a response variant, not an operation or a components.* entry

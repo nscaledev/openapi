@@ -1,0 +1,1719 @@
+openapi: 3.0.3
+info:
+  title: Compute Service API
+  description: >-
+    The Compute Service API provides services that allows provisioning and life
+    cycle
+
+    management of Compute instances.
+  version: 1.13.0
+paths:
+  /api/version:
+    description: Service build version information.
+    get:
+      summary: Get the deployed service version
+      description: |-
+        Returns the build version stamped into the running binary at release
+        time, allowing clients and CI gates to verify exactly which release is
+        deployed.
+      tags:
+        - Version
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/serviceVersionResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v1/organizations/{organizationID}/regions:
+    description: Accesses a filtered list of regions for use with compute resources.
+    parameters:
+      - $ref: "#/components/parameters/organizationIDParameter"
+    get:
+      description: Lists compute service compatible regions.
+      summary: List regions
+      tags:
+        - Regions
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/regionsResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v1/organizations/{organizationID}/regions/{regionID}/flavors:
+    description: Compute flavor services.
+    parameters:
+      - $ref: "#/components/parameters/organizationIDParameter"
+      - $ref: "#/components/parameters/regionIDParameter"
+    get:
+      description: Lists all compute compatible flavors that the user has access to.
+      summary: List flavors
+      tags:
+        - Flavors
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/flavorsResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v1/organizations/{organizationID}/regions/{regionID}/images:
+    description: Compute image services.
+    parameters:
+      - $ref: "#/components/parameters/organizationIDParameter"
+      - $ref: "#/components/parameters/regionIDParameter"
+    get:
+      description: Lists all compute compatible images that the user has access to.
+      summary: List images
+      tags:
+        - Images
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/imagesResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances:
+    description: Compute instance services.
+    get:
+      description: List compute instances.
+      summary: List instances
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      parameters:
+        - $ref: "#/components/parameters/tagSelectorParameter"
+        - $ref: "#/components/parameters/organizationIDQueryParameter"
+        - $ref: "#/components/parameters/projectIDQueryParameter"
+        - $ref: "#/components/parameters/regionIDQueryParameter"
+        - $ref: "#/components/parameters/networkIDQueryParameter"
+      responses:
+        "200":
+          $ref: "#/components/responses/instancesResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+    post:
+      description: Create an instance.
+      summary: Create instance
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      requestBody:
+        $ref: "#/components/requestBodies/instanceCreateRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/instanceResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableContentResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances/{instanceID}:
+    description: Compute instance services.
+    parameters:
+      - $ref: "#/components/parameters/instanceIDParameter"
+    get:
+      description: Get an instance.
+      summary: Get instance
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/instanceResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+    put:
+      description: Update an instance.
+      summary: Update instance
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      requestBody:
+        $ref: "#/components/requestBodies/instanceUpdateRequest"
+      responses:
+        "202":
+          $ref: "#/components/responses/instanceResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableContentResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+    delete:
+      description: Delete an instance.
+      summary: Delete instance
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      responses:
+        "202":
+          $ref: "#/components/responses/acceptedResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances/{instanceID}/reboot:
+    description: Compute instance services.
+    parameters:
+      - $ref: "#/components/parameters/instanceIDParameter"
+      - $ref: "#/components/parameters/hardRebootParameter"
+    post:
+      description: >-
+        Reboot an instance.  By default this will perform a software ACPI
+        reboot.
+
+        You can specifiy a hard power cycle as a query parameter.
+      summary: Reboot instance
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      responses:
+        "202":
+          $ref: "#/components/responses/acceptedResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances/{instanceID}/sshkey:
+    description: Compute instance services.
+    parameters:
+      - $ref: "#/components/parameters/instanceIDParameter"
+    get:
+      description: Retrieve the SSH key for an instance.
+      summary: Get instance SSH key
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/sshKeyResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances/{instanceID}/start:
+    description: Compute instance services.
+    parameters:
+      - $ref: "#/components/parameters/instanceIDParameter"
+    post:
+      description: Start a stopped instance.
+      summary: Start instance
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      responses:
+        "202":
+          $ref: "#/components/responses/acceptedResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances/{instanceID}/stop:
+    description: Compute instance services.
+    parameters:
+      - $ref: "#/components/parameters/instanceIDParameter"
+    post:
+      description: Stop a running instnace.
+      summary: Stop instance
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      responses:
+        "202":
+          $ref: "#/components/responses/acceptedResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances/{instanceID}/snapshot:
+    description: Create an image from a compute instance.
+    parameters:
+      - $ref: "#/components/parameters/instanceIDParameter"
+    post:
+      description: Take a snapshot of an instance and create an image from it.
+      summary: Snapshot instance
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      requestBody:
+        $ref: "#/components/requestBodies/instanceSnapshotRequest"
+      responses:
+        "201":
+          $ref: "#/components/responses/imageResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances/{instanceID}/consolesession:
+    description: Compute instance services.
+    parameters:
+      - $ref: "#/components/parameters/instanceIDParameter"
+    get:
+      description: Create a new console session for an instance.
+      summary: Get instance console VNC
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/consoleSessionResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/instances/{instanceID}/consoleoutput:
+    description: Compute instance services.
+    parameters:
+      - $ref: "#/components/parameters/instanceIDParameter"
+      - $ref: "#/components/parameters/lengthParameter"
+    get:
+      description: Get the console output for an instance.
+      summary: Get instance console output
+      tags:
+        - Instances
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/consoleOutputResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+components:
+  parameters:
+    organizationIDParameter:
+      name: organizationID
+      in: path
+      description: The organization ID.
+      required: true
+      schema:
+        $ref: "#/components/schemas/organizationId"
+    projectIDParameter:
+      name: projectID
+      in: path
+      description: The project ID.
+      required: true
+      schema:
+        $ref: "#/components/schemas/projectId"
+    regionIDParameter:
+      name: regionID
+      in: path
+      description: The region ID.
+      required: true
+      schema:
+        $ref: "#/components/schemas/regionId"
+    instanceIDParameter:
+      name: instanceID
+      in: path
+      description: The instance ID.
+      required: true
+      schema:
+        $ref: "#/components/schemas/instanceId"
+    lengthParameter:
+      name: length
+      in: query
+      description: The requested output length.
+      schema:
+        type: integer
+    hardRebootParameter:
+      name: hard
+      in: query
+      description: Whether the reboot is hard.
+      schema:
+        type: boolean
+    organizationIDQueryParameter:
+      name: organizationID
+      in: query
+      description: Allows resources to be filtered by organization.
+      schema:
+        type: array
+        items:
+          type: string
+    projectIDQueryParameter:
+      name: projectID
+      in: query
+      description: Allows resources to be filtered by project.
+      schema:
+        type: array
+        items:
+          type: string
+    regionIDQueryParameter:
+      name: regionID
+      in: query
+      description: Allows resources to be filtered by region.
+      schema:
+        type: array
+        items:
+          type: string
+    networkIDQueryParameter:
+      name: networkID
+      in: query
+      description: Allows resources to be filtered by network.
+      schema:
+        type: array
+        items:
+          type: string
+    tagSelectorParameter:
+      name: tag
+      in: query
+      description: |-
+        A set of tags to match against resources in the form "name=value",
+        thus when encoded you get "?tag=foo%3Dcat&tag=bar%3Ddog".
+      schema:
+        type: array
+        items:
+          type: string
+  schemas:
+    kubernetesNameParameter:
+      description: A Kubernetes name. Must be a valid DNS containing only lower case
+        characters, numbers or hyphens, start and end with a character or
+        number, and be at most 63 characters in length.
+      type: string
+      minLength: 1
+      maxLength: 63
+    instanceId:
+      description: A compute instance ID.
+      type: string
+      format: uuid
+    volume:
+      description: A volume.  This is currently only valid for VM based flavors.
+      type: object
+      required:
+        - size
+      properties:
+        size:
+          description: Disk size in GiB.
+          type: integer
+    allowedSourceAddresses:
+      description: >-
+        A list of network prefixes that are allowed to egress from the server.
+
+        By default, only packets from the server's network interface's IP
+        address
+
+        are allowed to enter the network.  Use of this option allows the server
+
+        to act as a router without SNAT rules.
+      type: array
+      items:
+        description: An allowed source address prefix.
+        type: string
+    securityGroupIDList:
+      description: A list of security group IDs.
+      type: array
+      items:
+        description: A security group ID.
+        type: string
+    instanceNetworking:
+      description: A compute instance's network  configuration.
+      type: object
+      properties:
+        securityGroups:
+          $ref: "#/components/schemas/securityGroupIDList"
+        publicIP:
+          description: Whether or not to provision a public IP.
+          type: boolean
+        allowedSourceAddresses:
+          $ref: "#/components/schemas/allowedSourceAddresses"
+    instanceSpec:
+      description: >-
+        A compute instance.
+
+        Some stored desired-state changes only take effect on the backing server
+        when that server is
+
+        rebuilt or recreated. Currently, changing flavorId or imageId causes the
+        backing server to
+
+        be rebuilt or recreated. In those cases, backing server IP addresses are
+        not preserved and
+
+        may change when the replacement server is created. Instance names are
+        immutable; rename
+
+        attempts are rejected with HTTP 422.
+
+        The imageId field may reference any image that Region reports as
+        available to the
+
+        organization in the target region; it is not limited to images returned
+        by the curated
+
+        Compute image catalog.
+      type: object
+      required:
+        - flavorId
+        - imageId
+      properties:
+        flavorId:
+          $ref: "#/components/schemas/flavorId"
+        imageId:
+          $ref: "#/components/schemas/imageId"
+        networking:
+          $ref: "#/components/schemas/instanceNetworking"
+        sshCertificateAuthorityId:
+          $ref: "#/components/schemas/sshCertificateAuthorityId"
+        userData:
+          description: >-
+            Contains base64-encoded configuration information or scripts to use
+            upon launch.
+
+            The format of the data is governed by the cloud-init standard, and
+            may be a script,
+
+            a MIME multipart archive, etc.
+          type: string
+          format: byte
+    instanceCreateSpec:
+      description: A compute instance.
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/instanceSpec"
+        - type: object
+          required:
+            - organizationId
+            - projectId
+            - networkId
+          properties:
+            organizationId:
+              $ref: "#/components/schemas/organizationId"
+            projectId:
+              $ref: "#/components/schemas/projectId"
+            networkId:
+              $ref: "#/components/schemas/networkId"
+    instanceStatus:
+      description: Read only status information about a compute instance.
+      type: object
+      required:
+        - regionId
+        - networkId
+      properties:
+        regionId:
+          description: The region a security group belongs to.
+          type: string
+        networkId:
+          description: The network a security group belongs to.
+          type: string
+        powerState:
+          $ref: "#/components/schemas/instanceLifecyclePhase"
+        privateIP:
+          description: The private IP address of the server.
+          type: string
+        publicIP:
+          description: The public IP address of the server.
+          type: string
+        macAddress:
+          description: The MAC address of the server.
+          type: string
+    instanceRead:
+      description: A compute instance.
+      type: object
+      required:
+        - metadata
+        - spec
+        - status
+      properties:
+        metadata:
+          $ref: "#/components/schemas/projectScopedResourceReadMetadata"
+        spec:
+          $ref: "#/components/schemas/instanceSpec"
+        status:
+          $ref: "#/components/schemas/instanceStatus"
+    instancesRead:
+      description: A list of compute instances.
+      type: array
+      items:
+        $ref: "#/components/schemas/instanceRead"
+    instanceCreate:
+      description: A compute instance creation request.
+      type: object
+      required:
+        - metadata
+        - spec
+      properties:
+        metadata:
+          $ref: "#/components/schemas/resourceMetadata"
+        spec:
+          $ref: "#/components/schemas/instanceCreateSpec"
+    instanceUpdate:
+      description: A compute instance update request.
+      type: object
+      required:
+        - metadata
+        - spec
+      properties:
+        metadata:
+          $ref: "#/components/schemas/resourceMetadata"
+        spec:
+          $ref: "#/components/schemas/instanceSpec"
+    allowedAddressPairList:
+      description: A list of allowed address pairs.
+      type: array
+      items:
+        $ref: "#/components/schemas/allowedAddressPair"
+    allowedAddressPair:
+      description: >-
+        Allow multiple MAC/IP address (range) pairs to pass through this network
+        port.
+
+        Typically required when the machine is operating as a router.
+      type: object
+      required:
+        - cidr
+      properties:
+        cidr:
+          description: The CIDR to allow.
+          type: string
+        macAddress:
+          description: The MAC address to allow.
+          type: string
+    firewallRules:
+      description: A list of firewall rules applied to a workload pool.
+      type: array
+      items:
+        $ref: "#/components/schemas/firewallRule"
+    firewallRule:
+      description: A firewall rule applied to a workload pool.
+      type: object
+      required:
+        - direction
+        - protocol
+        - port
+        - prefixes
+      properties:
+        direction:
+          description: The direction of network traffic to apply the rule to.
+          type: string
+          enum:
+            - ingress
+            - egress
+        protocol:
+          description: The protocol to allow.
+          type: string
+          enum:
+            - tcp
+            - udp
+        port:
+          description: The port to allow, or start of a port range.
+          type: integer
+        portMax:
+          description: The end of a port range, inclusive of this this port, if specified.
+          type: integer
+        prefixes:
+          description: A list of CIDR prefixes to allow, it might be any IPv4 or IPv6 in
+            CIDR notation.
+          type: array
+          items:
+            type: string
+    publicIPAllocation:
+      description: A public IP allocation settings.
+      type: object
+      required:
+        - enabled
+      properties:
+        enabled:
+          description: Enable public IP allocation.
+          type: boolean
+    computeImage:
+      description: The image to use for a server.
+      type: object
+      properties:
+        id:
+          description: The image ID.
+          type: string
+        selector:
+          $ref: "#/components/schemas/imageSelector"
+      oneOf:
+        - required:
+            - id
+        - required:
+            - selector
+    imageSelector:
+      description: A server image selector.
+      type: object
+      required:
+        - distro
+        - version
+      properties:
+        distro:
+          $ref: "#/components/schemas/osDistro"
+        variant:
+          description: The operating system variant.
+          type: string
+        version:
+          description: The operating system version to use.
+          type: string
+    instanceSnapshotCreate:
+      description: A compute instance snapshot request.
+      type: object
+      required:
+        - metadata
+      properties:
+        metadata:
+          $ref: "#/components/schemas/resourceMetadata"
+    authorizationServerList:
+      description: List of authorization servers that can grant access to the resource.
+      type: array
+      items:
+        description: An authorization server's scheme and hostname.
+        type: string
+    scopeList:
+      description: A set of OIDC scopes that are required for authorization.
+      type: array
+      items:
+        type: string
+    bearerMethod:
+      description: Bearer token transport method
+      type: string
+      enum:
+        - header
+        - body
+        - query
+    bearerMethodList:
+      description: A set of bearer token transport methods supported by the protected
+        endpoint.
+      type: array
+      items:
+        $ref: "#/components/schemas/bearerMethod"
+    openidProtectedResource:
+      description: OpenID athentication server discovery configuration.
+      type: object
+      required:
+        - resource
+        - authorization_servers
+        - scopes_supported
+        - bearer_methods_supported
+      properties:
+        resource:
+          description: The protected resource's scheme and hostname.
+          type: string
+        authorization_servers:
+          $ref: "#/components/schemas/authorizationServerList"
+        scopes_supported:
+          $ref: "#/components/schemas/scopeList"
+        bearer_methods_supported:
+          $ref: "#/components/schemas/bearerMethodList"
+    serviceVersionRead:
+      description: |-
+        Build version information for the running service, stamped into the
+        binary at release time.  Developer builds report version 0.0.0.
+      type: object
+      required:
+        - name
+        - version
+      properties:
+        name:
+          description: The service application name.
+          type: string
+        version:
+          description: The service release version, e.g. v1.2.3.
+          type: string
+    error:
+      description: Generic error message, compatible with oauth2.
+      type: object
+      required:
+        - error
+        - error_description
+      properties:
+        error:
+          description: A terse error string expanding on the HTTP error code. Errors are
+            based on the OAuth 2.02 specification, but are expanded with
+            proprietary status codes for APIs other than those specified by
+            OAuth 2.02.
+          type: string
+          enum:
+            - invalid_request
+            - server_error
+            - access_denied
+            - not_found
+            - conflict
+            - method_not_allowed
+            - unsupported_media_type
+            - request_entity_too_large
+            - unprocessable_content
+            - forbidden
+        error_description:
+          description: Verbose message describing the error.
+          type: string
+        trace_id:
+          description: Unique trace identifier for the request.
+          type: string
+    organizationId:
+      description: An organization ID.
+      type: string
+      format: uuid
+    kubernetesLabelValue:
+      description: >-
+        A valid Kubernetes label value, typically used for resource names that
+        can be
+
+        indexed in the database.
+      type: string
+      pattern: ^[0-9A-Za-z](?:[0-9A-Za-z-_.]{0,61}[0-9A-Za-z])?$
+    tag:
+      description: >-
+        A tag mapping arbitrary names to values.  These have no special meaning
+
+        for any component are are intended for use by end users to add
+        additional
+
+        context to a resource, for example to categorize it.
+      type: object
+      required:
+        - name
+        - value
+      properties:
+        name:
+          description: A unique tag name.
+          type: string
+        value:
+          description: The value of the tag.
+          type: string
+    tagList:
+      description: A list of tags.
+      type: array
+      items:
+        $ref: "#/components/schemas/tag"
+    resourceMetadata:
+      description: Metadata required for all API resource reads and writes.
+      required:
+        - name
+      properties:
+        name:
+          $ref: "#/components/schemas/kubernetesLabelValue"
+        description:
+          description: The resource description, this optionally augments the name with
+            more context.
+          type: string
+        tags:
+          $ref: "#/components/schemas/tagList"
+    staticResourceMetadata:
+      description: |
+        This metadata is for resources that just exist, and don't require
+        any provisioning and health status, but benefit from a standardized
+        metadata format.
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/resourceMetadata"
+        - type: object
+          required:
+            - id
+            - creationTime
+          properties:
+            id:
+              description: The unique resource ID.
+              type: string
+            creationTime:
+              description: The time the resource was created.
+              type: string
+              format: date-time
+            createdBy:
+              description: The user who created the resource.
+              type: string
+            modifiedTime:
+              description: The time a resource was updated.
+              type: string
+              format: date-time
+            modifiedBy:
+              description: The user who updated the resource.
+              type: string
+    resourceProvisioningStatus:
+      description: The provisioning state of a resource.
+      type: string
+      enum:
+        - unknown
+        - pending
+        - provisioning
+        - provisioned
+        - deprovisioning
+        - error
+    resourceHealthStatus:
+      description: The health state of a resource.
+      type: string
+      enum:
+        - unknown
+        - healthy
+        - degraded
+        - error
+    resourceReadMetadata:
+      description: Metadata required by all resource reads.
+      allOf:
+        - $ref: "#/components/schemas/staticResourceMetadata"
+        - type: object
+          required:
+            - provisioningStatus
+            - healthStatus
+          properties:
+            deletionTime:
+              description: The time the resource was deleted.
+              type: string
+              format: date-time
+            provisioningStatus:
+              $ref: "#/components/schemas/resourceProvisioningStatus"
+            healthStatus:
+              $ref: "#/components/schemas/resourceHealthStatus"
+    regionType:
+      description: The region's provider type.
+      type: string
+      enum:
+        - openstack
+        - kubernetes
+        - simulated
+    regionFeatures:
+      description: A set of features the region may provide to clients.
+      type: object
+      required:
+        - physicalNetworks
+      properties:
+        physicalNetworks:
+          description: >
+            If set, this indicates that the region supports physical networks
+            and
+
+            one should be provisioned for clusters to use.  The implication here
+            is
+
+            the region supports base-metal machines, and these must be
+            provisioned
+
+            on a physical VLAN etc.
+          type: boolean
+    regionSpec:
+      description: Information about the region.
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          $ref: "#/components/schemas/regionType"
+        features:
+          $ref: "#/components/schemas/regionFeatures"
+    regionRead:
+      description: A region.
+      type: object
+      required:
+        - metadata
+        - spec
+      properties:
+        metadata:
+          $ref: "#/components/schemas/resourceReadMetadata"
+        spec:
+          $ref: "#/components/schemas/regionSpec"
+    regions:
+      description: A list of regions.
+      type: array
+      items:
+        $ref: "#/components/schemas/regionRead"
+    regionId:
+      description: A region ID.
+      type: string
+      format: uuid
+    architecture:
+      type: string
+      description: CPU architecture.
+      enum:
+        - x86_64
+        - aarch64
+    gpuVendor:
+      description: The GPU vendor.
+      type: string
+      enum:
+        - NVIDIA
+        - AMD
+    gpuSpec:
+      description: GPU specification.
+      type: object
+      required:
+        - vendor
+        - model
+        - memory
+        - physicalCount
+        - logicalCount
+      properties:
+        vendor:
+          $ref: "#/components/schemas/gpuVendor"
+        model:
+          description: A GPU model.
+          type: string
+        memory:
+          description: GPU memory in GiB.
+          type: integer
+        physicalCount:
+          description: The physical number of GPUs (cards) available.
+          type: integer
+        logicalCount:
+          description: The logical number of GPUs available as seen in the OS.
+          type: integer
+    flavorSpec:
+      description: A flavor.
+      type: object
+      required:
+        - cpus
+        - memory
+        - disk
+        - architecture
+      properties:
+        baremetal:
+          description: Whether the flavor is for a dedicated machine.
+          type: boolean
+        cpus:
+          description: The number of CPUs.
+          type: integer
+        cpuFamily:
+          description: A free form CPU family description e.g. model number, architecture.
+          type: string
+        memory:
+          description: The amount of memory in GiB.
+          type: integer
+        disk:
+          description: The amount of ephemeral disk in GB.
+          type: integer
+        architecture:
+          $ref: "#/components/schemas/architecture"
+        gpu:
+          $ref: "#/components/schemas/gpuSpec"
+        pinnedOnly:
+          description: When true, a server using this flavor must specify an
+            infrastructureRef to identify the target host.
+          type: boolean
+    flavor:
+      description: A flavor.
+      type: object
+      required:
+        - metadata
+        - spec
+      properties:
+        metadata:
+          $ref: "#/components/schemas/staticResourceMetadata"
+        spec:
+          $ref: "#/components/schemas/flavorSpec"
+    flavors:
+      description: A list of flavors.
+      type: array
+      items:
+        $ref: "#/components/schemas/flavor"
+    imageVirtualization:
+      description: What type of machine the image is for.
+      type: string
+      enum:
+        - virtualized
+        - baremetal
+        - any
+    osKernel:
+      description: A kernel type.
+      type: string
+      enum:
+        - linux
+    osFamily:
+      description: A family of operating systems.  This typically defines the package
+        format.
+      type: string
+    osDistro:
+      description: A distribution name.
+      type: string
+    imageOS:
+      description: An operating system description.
+      type: object
+      required:
+        - kernel
+        - family
+        - distro
+        - version
+      properties:
+        kernel:
+          $ref: "#/components/schemas/osKernel"
+        family:
+          $ref: "#/components/schemas/osFamily"
+        distro:
+          $ref: "#/components/schemas/osDistro"
+        variant:
+          description: A free form variant e.g. desktop/server.
+          type: string
+        codename:
+          description: A free form code name e.g. warty/bionic.
+          type: string
+        version:
+          description: Version of the operating system e.g. "24.04".
+          type: string
+    semver:
+      description: |-
+        A semantic version in the form v1.2.3.
+        Pre-releases and variants are not currently supported.
+      type: string
+      pattern: ^v\d+\.\d+\.\d+$
+    softwareVersions:
+      description: Image preinstalled version version metadata.
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/semver"
+    gpuModel:
+      description: A GPU model number.
+      type: string
+    gpuModelList:
+      description: A list of GPU model numbers.
+      type: array
+      items:
+        $ref: "#/components/schemas/gpuModel"
+    imageGpu:
+      description: The GPU driver if installed.
+      type: object
+      required:
+        - vendor
+        - driver
+      properties:
+        vendor:
+          $ref: "#/components/schemas/gpuVendor"
+        driver:
+          description: The GPU driver version, this is vendor specific.
+          type: string
+        models:
+          $ref: "#/components/schemas/gpuModelList"
+    imageSpec:
+      description: An image.
+      type: object
+      required:
+        - sizeGiB
+        - virtualization
+        - os
+        - architecture
+      properties:
+        architecture:
+          $ref: "#/components/schemas/architecture"
+        sizeGiB:
+          description: Minimum disk size required to use the image in GiB.
+          type: integer
+        virtualization:
+          $ref: "#/components/schemas/imageVirtualization"
+        os:
+          $ref: "#/components/schemas/imageOS"
+        softwareVersions:
+          $ref: "#/components/schemas/softwareVersions"
+        gpu:
+          $ref: "#/components/schemas/imageGpu"
+    imageState:
+      description: The images's lifecycle state.
+      type: string
+      enum:
+        - pending
+        - creating
+        - ready
+        - failed
+    imageStatus:
+      description: The image's status.
+      type: object
+      required:
+        - state
+      properties:
+        state:
+          $ref: "#/components/schemas/imageState"
+    image:
+      description: An image.
+      type: object
+      required:
+        - metadata
+        - spec
+        - status
+      properties:
+        metadata:
+          $ref: "#/components/schemas/staticResourceMetadata"
+        spec:
+          $ref: "#/components/schemas/imageSpec"
+        status:
+          $ref: "#/components/schemas/imageStatus"
+    images:
+      description: A list of images that are compatible with this platform.
+      type: array
+      items:
+        $ref: "#/components/schemas/image"
+    organizationScopedResourceReadMetadata:
+      description: Metadata required by organization scoped resource reads.
+      allOf:
+        - $ref: "#/components/schemas/resourceReadMetadata"
+        - type: object
+          required:
+            - organizationId
+          properties:
+            organizationId:
+              description: The organization identifier the resource belongs to.
+              type: string
+    projectScopedResourceReadMetadata:
+      description: Metadata required by project scoped resource reads.
+      allOf:
+        - $ref: "#/components/schemas/organizationScopedResourceReadMetadata"
+        - type: object
+          required:
+            - projectId
+          properties:
+            projectId:
+              description: The project identifier the resource belongs to.
+              type: string
+    flavorId:
+      description: A flavor ID.
+      type: string
+      format: uuid
+    imageId:
+      description: An image ID.
+      type: string
+      format: uuid
+    sshCertificateAuthorityId:
+      description: An SSH certificate authority ID.
+      type: string
+      format: uuid
+    instanceLifecyclePhase:
+      description: |
+        The lifecycle phase of an instance. Once provisioning_status reaches
+        provisioned, this becomes the live readiness signal: API consumers
+        should treat Running (not provisioned) as the "ready to use" state.
+        Queued and Building are observed during create — Queued for
+        baremetal servers waiting on hardware, Building for servers the
+        provider is actively bringing up.
+      type: string
+      enum:
+        - Pending
+        - Queued
+        - Building
+        - Running
+        - Stopping
+        - Stopped
+    projectId:
+      description: A project ID.
+      type: string
+      format: uuid
+    networkId:
+      description: A network ID.
+      type: string
+      format: uuid
+    sshKey:
+      description: An SSH key.
+      type: object
+      required:
+        - privateKey
+      properties:
+        privateKey:
+          description: The SSH private key.
+          type: string
+    consoleSession:
+      description: A console session response.
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          description: The URL to access the console session.
+          type: string
+    consoleOutput:
+      description: Console output
+      type: object
+      required:
+        - contents
+      properties:
+        contents:
+          description: Console output.
+          type: string
+  requestBodies:
+    instanceCreateRequest:
+      description: A compute instance creation request.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/instanceCreate"
+          example:
+            metadata:
+              name: my-host
+            spec:
+              organizationId: d4600d6e-e965-4b44-a808-84fb2fa36702
+              projectId: cae219d7-10e5-4601-8c2c-ee7e066b93ce
+              networkId: b059b3e6-9ae5-42b7-94b4-f42fb7a6baee
+              flavorId: c7568e2d-f9ab-453d-9a3a-51375f78426b
+              imageId: a10e30e8-006a-48e6-a3c7-3c9416891f31
+              networking:
+                securityGroups:
+                  - dd5954af-1d71-4abf-bb16-5729c7163886
+    instanceUpdateRequest:
+      description: A compute instance update request.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/instanceUpdate"
+          example:
+            metadata:
+              name: my-host
+            spec:
+              flavorId: c7568e2d-f9ab-453d-9a3a-51375f78426b
+              imageId: a10e30e8-006a-48e6-a3c7-3c9416891f31
+              networking:
+                securityGroups:
+                  - dd5954af-1d71-4abf-bb16-5729c7163886
+    instanceSnapshotRequest:
+      description: A request to snapshot an instance.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/instanceSnapshotCreate"
+          example:
+            metadata:
+              name: my-instance-snapshot
+  responses:
+    instanceResponse:
+      description: A compute instance.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/instanceRead"
+          example:
+            metadata:
+              id: c7568e2d-f9ab-453d-9a3a-51375f78426b
+              name: my-host
+              organizationId: d4600d6e-e965-4b44-a808-84fb2fa36702
+              projectId: cae219d7-10e5-4601-8c2c-ee7e066b93ce
+              creationTime: 2023-07-31T10:45:45Z
+              provisioningStatus: provisioned
+              healthStatus: healthy
+            spec:
+              flavorId: c7568e2d-f9ab-453d-9a3a-51375f78426b
+              imageId: a10e30e8-006a-48e6-a3c7-3c9416891f31
+              networking:
+                publicIP: true
+                securityGroups:
+                  - dd5954af-1d71-4abf-bb16-5729c7163886
+            status:
+              regionId: bb518c64-6856-4d67-a799-314ba668649f
+              networkId: b059b3e6-9ae5-42b7-94b4-f42fb7a6baee
+              privateIP: 192.168.0.3
+              publicIP: 183.45.68.162
+              macAddress: fa:16:3e:12:34:56
+              powerState: Running
+    instancesResponse:
+      description: A list of compute instances.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/instancesRead"
+          example:
+            - metadata:
+                id: c7568e2d-f9ab-453d-9a3a-51375f78426b
+                name: my-host
+                organizationId: d4600d6e-e965-4b44-a808-84fb2fa36702
+                projectId: cae219d7-10e5-4601-8c2c-ee7e066b93ce
+                creationTime: 2023-07-31T10:45:45Z
+                provisioningStatus: provisioned
+                healthStatus: healthy
+              spec:
+                flavorId: c7568e2d-f9ab-453d-9a3a-51375f78426b
+                imageId: a10e30e8-006a-48e6-a3c7-3c9416891f31
+                networking:
+                  publicIP: true
+                  securityGroups:
+                    - dd5954af-1d71-4abf-bb16-5729c7163886
+              status:
+                regionId: bb518c64-6856-4d67-a799-314ba668649f
+                networkId: b059b3e6-9ae5-42b7-94b4-f42fb7a6baee
+                privateIP: 192.168.0.3
+                publicIP: 183.45.68.162
+                macAddress: fa:16:3e:12:34:56
+                powerState: Running
+    openidProtectedResourceResponse:
+      description: >-
+        OpenID configuration used to discover authentication servers when
+        hitting
+
+        a protected endpoint.  This is returned to the client when an
+        authorization
+
+        error is encountered so they can discover how to authenticate.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/openidProtectedResource"
+          example:
+            resource: https://endpoint.acme.com
+            authorization_servers:
+              - http://auth.acme.com
+            scopes_supported:
+              - openid
+              - profile
+              - email
+            bearer_methods_supported:
+              - header
+    serviceVersionResponse:
+      description: Build version information for the running service.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/serviceVersionRead"
+          example:
+            name: unikorn-region-server
+            version: v1.16.7
+    unauthorizedResponse:
+      description: Authentication failed or the access token has expired.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+          example:
+            error: access_denied
+            error_description: authentication failed
+            trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    internalServerErrorResponse:
+      description: >-
+        An unexpected or unhandled error occurred. This may be a transient error
+        and
+
+        may succeed on a retry.  If this isn't the case, please report it as an
+        issue.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+          example:
+            error: server_error
+            error_description: failed to token claim
+            trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    regionsResponse:
+      description: A list of regions.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/regions"
+          example:
+            - metadata:
+                id: c7568e2d-f9ab-453d-9a3a-51375f78426b
+                name: uk-west-1
+                description: A top secret datacenter somewhere in the UK
+                creationTime: 2023-07-31T10:45:45Z
+                provisioningStatus: provisioned
+                healthStatus: healthy
+              spec:
+                type: openstack
+                features:
+                  physicalNetworks: true
+    badRequestResponse:
+      description: |-
+        Request body failed schema validation, or the request does not contain
+        all the required fields.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+          example:
+            error: invalid_request
+            error_description: request body invalid
+            trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    forbiddenResponse:
+      description: >-
+        Request was denied by authorization, this may be caused by the
+        authorization
+
+        token not having the required scope for an API, or the user doesn't have
+        the
+
+        necessary privileges on the provider platform.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+          example:
+            error: forbidden
+            error_description: user credentials do not have the required privileges
+            trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    flavorsResponse:
+      description: A list of flavors.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/flavors"
+          example:
+            - metadata:
+                id: 9a8c6370-4065-4d4a-9da0-7678df40cd9d
+                name: g.4.highmem.a100.1g.10gb
+                creationTime: 1970-01-01T00:00:00Z
+              spec:
+                architecture: x86_64
+                cpus: 4
+                cpuFamily: Intel Xeon Platinum 8160T (Skylake)
+                disk: 20
+                memory: 32
+                gpu:
+                  vendor: AMD
+                  model: Instinct MI250
+                  memory: 64
+                  physicalCount: 1
+                  logicalCount: 2
+    notFoundResponse:
+      description: Unable to find a resource.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+          example:
+            error: not_found
+            error_description: the requested resource does not exist
+            trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    imagesResponse:
+      description: A list of images that are compatible with this platform.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/images"
+          example:
+            - metadata:
+                id: a64f9269-36e0-4312-b8d1-52d93d569b7b
+                name: ubu2204-v1.25.6-gpu-525.85.05-7ced4154
+                creationTime: 2023-02-22T12:04:13Z
+              spec:
+                architecture: x86_64
+                sizeGiB: 10
+                virtualization: virtualized
+                os:
+                  kernel: linux
+                  family: debian
+                  distro: ubuntu
+                  variant: server
+                  codename: noble
+                  version: "24.04"
+                softwareVersions:
+                  kubernetes: v1.25.6
+                gpu:
+                  vendor: NVIDIA
+                  driver: 525.85.05
+                  models:
+                    - A100
+                    - H100
+                    - H200
+              status:
+                state: ready
+    conflictResponse:
+      description: Resource conflicts with another, usually this means they have the
+        same name.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+          example:
+            error: conflict
+            error_description: a resource with the same name already exists
+            trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    unprocessableContentResponse:
+      description: >-
+        The provided request was syntactically correct but the instruction was
+        unable to
+
+        be processed due to semantic errors.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+          example:
+            error: unprocessable_content
+            error_description: the request body was in the wrong format
+            trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    acceptedResponse:
+      description: |-
+        The request has been accepted and will be fulfilled asynchronously.
+        You may poll the resource and monitor its provisioning and health status
+        to await completion of the operation.
+    sshKeyResponse:
+      description: An SSH key.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/sshKey"
+          example:
+            privateKey: |-
+              -----BEGIN OPENSSH PRIVATE KEY-----
+              b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz
+              c2gtZWQyNTUxOQAAACCtvR5BFiAX6+UGoPw/uG/U1Da+iN1lNHYWzk8YhPOeUwAA
+              AKAhzCVJIcwlSQAAAAtzc2gtZWQyNTUxOQAAACCtvR5BFiAX6+UGoPw/uG/U1Da+
+              iN1lNHYWzk8YhPOeUwAAAEClYjYgxFjEM4qh3sl7IS2dpBzSxkRT0NTy9ILygiaA
+              tq29HkEWIBfr5Qag/D+4b9TUNr6I3WU0dhbOTxiE855TAAAAHXVuaWtvcm4gZXBo
+              ZW1lcmFsIGVkMjU1MTkga2V5
+              -----END OPENSSH PRIVATE KEY-----
+    imageResponse:
+      description: An image that can be used on this platform.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/image"
+          example:
+            metadata:
+              id: a64f9269-36e0-4312-b8d1-52d93d569b7b
+              name: ubu2204-v1.25.6-gpu-525.85.05-7ced4154
+              creationTime: 2023-02-22T12:04:13Z
+            spec:
+              architecture: x86_64
+              sizeGiB: 10
+              virtualization: virtualized
+              os:
+                kernel: linux
+                family: debian
+                distro: ubuntu
+                variant: server
+                codename: noble
+                version: "24.04"
+              softwareVersions:
+                kubernetes: v1.25.6
+              gpu:
+                vendor: NVIDIA
+                driver: 525.85.05
+                models:
+                  - A100
+                  - H100
+                  - H200
+            status:
+              state: ready
+    consoleSessionResponse:
+      description: A console session response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/consoleSession"
+          example:
+            url: https://compute.glo1.dev.nscale.com:6080/vnc_lite.html?path=%3Ftoken%3Dc64ef8be-2e90-4914-83a8-61728664b770
+    consoleOutputResponse:
+      description: A console output response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/consoleOutput"
+          example:
+            contents: >-
+              Linux version 5.15.0-1086-kvm (buildd@lcy02-amd64-053) (gcc
+              (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, GNU ld (GNU Binutils for
+              Ubuntu) 2.38) #91-Ubuntu SMP Mon Aug 4 18:41:47 UTC 2025 (Ubuntu
+              5.15.0-1086.91-kvm 5.15.185)
+
+              Command line: BOOT_IMAGE=/boot/vmlinuz-5.15.0-1086-kvm
+              root=PARTUUID=16a95af3-5f57-4321-a6af-d006cccb7d04 ro console=tty1
+              console=ttyS0 panic=-1
+  securitySchemes:
+    oauth2Authentication:
+      description: Operation requires OAuth 2.0 bearer token authentication.
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://identity.nks.europe-west4.nscale.com/oauth2/v2/authorization
+          tokenUrl: https://identity.nks.europe-west4.nscale.com/oauth2/v2/token
+          scopes: {}
+servers:
+  - url: https://compute.nks.europe-west4.nscale.com
+    description: Production
