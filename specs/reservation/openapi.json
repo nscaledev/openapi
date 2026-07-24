@@ -1,0 +1,2499 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Unikorn Reservation API",
+    "description": "Reservation service provides topology-aware bare metal GPU reservation and\nplacement, sitting atop UNI Region service resources.",
+    "version": "0.5.0"
+  },
+  "servers": [
+    {
+      "url": "https://reservation.nks.europe-west4.nscale.com",
+      "description": "Production"
+    },
+    {
+      "url": "https://reservation.nks-stg.europe-west2.nscale.com",
+      "description": "Staging"
+    },
+    {
+      "url": "https://reservation.nks-dev.glo1.nscale.com",
+      "description": "Development"
+    }
+  ],
+  "paths": {
+    "/api/v2/reservation-units": {
+      "description": "Lists regional accelerator reservation units and their current aggregate\ncapacity. Reservation units are the public capacity shapes that the\nservice maps to Region machine flavors and Fleet Manager topology.",
+      "get": {
+        "operationId": "listReservationUnits",
+        "description": "List reservation units.",
+        "summary": "List reservation units",
+        "tags": [
+          "Reservation Units"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/acceleratorQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/reservationUnitQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/reservationUnitsV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/organizations/{organizationID}/topology": {
+      "description": "Organization allocated topology with Reservation and Placement overlays\nredacted according to project-scoped permissions.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/organizationIDParameter"
+        }
+      ],
+      "get": {
+        "operationId": "getOrganizationTopology",
+        "description": "Get organization topology.",
+        "summary": "Get organization topology",
+        "tags": [
+          "Topology"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/topologyRegionIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/topologyAcceleratorQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/topologyUnitQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/topologyProjectIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/topologyReservationIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/organizationTopologyV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/organizations/{organizationID}/reservation-units": {
+      "description": "Lists accelerator reservation units and their current capacity for one\norganization. Capacity is calculated inside the organization's active\nFleet Manager allocation scope for each region.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/organizationIDParameter"
+        }
+      ],
+      "get": {
+        "operationId": "listOrganizationReservationUnits",
+        "description": "List organization reservation units.",
+        "summary": "List organization reservation units",
+        "tags": [
+          "Reservation Units"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/acceleratorQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/reservationUnitQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/reservationUnitsV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/reservations": {
+      "description": "Manages project scoped reservations of one or more contiguous accelerator\nreservation units in a region.",
+      "get": {
+        "operationId": "listReservations",
+        "description": "List reservations.",
+        "summary": "List reservations",
+        "tags": [
+          "Reservations"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/projectIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/reservationsV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createReservation",
+        "description": "Create a reservation.",
+        "summary": "Create reservation",
+        "tags": [
+          "Reservations"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/reservationV2CreateRequest"
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/reservationV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          },
+          "507": {
+            "$ref": "#/components/responses/insufficientCapacityResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/reservations/{reservationID}": {
+      "description": "Manages project scoped reservations of one or more contiguous accelerator\nreservation units in a region.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/reservationIDParameter"
+        }
+      ],
+      "get": {
+        "operationId": "getReservation",
+        "description": "Get a reservation.",
+        "summary": "Get reservation",
+        "tags": [
+          "Reservations"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/reservationV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteReservation",
+        "description": "Delete a reservation and all placements allocated from it.",
+        "summary": "Delete reservation",
+        "tags": [
+          "Reservations"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted and will be fulfilled asynchronously."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/placements": {
+      "description": "Manages project scoped placements of hosts from reservations. A placement\nconsumes capacity from a reservation and drives pinned Region server\ncreation for each selected host.",
+      "get": {
+        "operationId": "listPlacements",
+        "description": "List placements.",
+        "summary": "List placements",
+        "tags": [
+          "Placements"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/projectIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/reservationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/networkIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/placementsV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPlacement",
+        "description": "Create a placement.",
+        "summary": "Create placement",
+        "tags": [
+          "Placements"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/placementV2CreateRequest"
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/placementV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/placements/{placementID}": {
+      "description": "Manages project scoped placements of hosts from reservations. A placement\nconsumes capacity from a reservation and drives pinned Region server\ncreation for each selected host.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/placementIDParameter"
+        }
+      ],
+      "get": {
+        "operationId": "getPlacement",
+        "description": "Get a placement.",
+        "summary": "Get placement",
+        "tags": [
+          "Placements"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/placementV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deletePlacement",
+        "description": "Delete a placement and all Region servers created for it.",
+        "summary": "Delete placement",
+        "tags": [
+          "Placements"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted and will be fulfilled asynchronously."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/placements/{placementID}/servers": {
+      "description": "Lists the public server read models for the hosts allocated by a\nPlacement. Placement servers expose Reservation-owned identities and\nruntime Region server state without exposing backing infrastructure IDs.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/placementIDParameter"
+        }
+      ],
+      "get": {
+        "operationId": "listPlacementServers",
+        "description": "List placement servers.",
+        "summary": "List placement servers",
+        "tags": [
+          "Placement Servers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/placementServersV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/placements/{placementID}/servers/{serverID}": {
+      "description": "Reads one public server model for a host allocated by a Placement. This\nendpoint is the stable polling target for server-specific operations.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/placementIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/serverIDParameter"
+        }
+      ],
+      "get": {
+        "operationId": "getPlacementServer",
+        "description": "Get a placement server.",
+        "summary": "Get placement server",
+        "tags": [
+          "Placement Servers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/placementServerV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/placements/{placementID}/servers/{serverID}/reboot": {
+      "description": "Reboots one public server owned by a Placement. A soft reboot is used by\ndefault; pass hard=true to request a hard power cycle.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/placementIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/serverIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/hardRebootParameter"
+        }
+      ],
+      "post": {
+        "operationId": "rebootPlacementServer",
+        "description": "Reboot a placement server.",
+        "summary": "Reboot placement server",
+        "tags": [
+          "Placement Servers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted and will be fulfilled asynchronously."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/placements/{placementID}/servers/{serverID}/stop": {
+      "description": "Stops one public server owned by a Placement.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/placementIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/serverIDParameter"
+        }
+      ],
+      "post": {
+        "operationId": "stopPlacementServer",
+        "description": "Stop a placement server.",
+        "summary": "Stop placement server",
+        "tags": [
+          "Placement Servers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted and will be fulfilled asynchronously."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "reservationIDParameter": {
+        "name": "reservationID",
+        "in": "path",
+        "description": "The reservation ID.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63
+        }
+      },
+      "placementIDParameter": {
+        "name": "placementID",
+        "in": "path",
+        "description": "The placement ID.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63
+        }
+      },
+      "serverIDParameter": {
+        "name": "serverID",
+        "in": "path",
+        "description": "The public Placement server ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/placementServerIDParameter"
+        }
+      },
+      "hardRebootParameter": {
+        "name": "hard",
+        "in": "query",
+        "description": "Whether the reboot is hard. Defaults to false.",
+        "schema": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "organizationIDParameter": {
+        "name": "organizationID",
+        "in": "path",
+        "description": "The organization ID.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 63
+        }
+      },
+      "organizationIDQueryParameter": {
+        "name": "organizationID",
+        "in": "query",
+        "description": "Allows resources to be filtered by organization.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "projectIDQueryParameter": {
+        "name": "projectID",
+        "in": "query",
+        "description": "Allows resources to be filtered by project.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "regionIDQueryParameter": {
+        "name": "regionID",
+        "in": "query",
+        "description": "Allows resources to be filtered by region.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "acceleratorQueryParameter": {
+        "name": "accelerator",
+        "in": "query",
+        "description": "Allows reservation units to be filtered by accelerator model or family.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "reservationUnitQueryParameter": {
+        "name": "unit",
+        "in": "query",
+        "description": "Allows reservation units to be filtered by reservation granularity.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "reservationIDQueryParameter": {
+        "name": "reservationID",
+        "in": "query",
+        "description": "Allows placements to be filtered by reservation.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "topologyRegionIDQueryParameter": {
+        "name": "regionID",
+        "in": "query",
+        "description": "Limits topology to one region.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "topologyAcceleratorQueryParameter": {
+        "name": "accelerator",
+        "in": "query",
+        "description": "Limits topology to one accelerator projection.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "topologyUnitQueryParameter": {
+        "name": "unit",
+        "in": "query",
+        "description": "Limits topology to one ReservationUnit projection.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "topologyProjectIDQueryParameter": {
+        "name": "projectID",
+        "in": "query",
+        "description": "Limits Reservation and Placement overlays to one project.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "topologyReservationIDQueryParameter": {
+        "name": "reservationID",
+        "in": "query",
+        "description": "Limits Reservation and Placement overlays to one reservation.",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "networkIDQueryParameter": {
+        "name": "networkID",
+        "in": "query",
+        "description": "Allows placements to be filtered by network.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "tagSelectorParameter": {
+        "name": "tag",
+        "in": "query",
+        "description": "A set of tags to match against resources in the form \"name=value\",\nthus when encoded you get \"?tag=foo%3Dcat&tag=bar%3Ddog\".",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "oauth2Authentication": {
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "/oauth2/v2/authorization",
+            "tokenUrl": "/oauth2/v2/token",
+            "scopes": {}
+          }
+        }
+      }
+    },
+    "schemas": {
+      "placementServerIDParameter": {
+        "description": "An opaque public Placement server ID.",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "gpuVendorV2": {
+        "description": "The GPU vendor.",
+        "type": "string",
+        "enum": [
+          "UNKNOWN",
+          "NVIDIA",
+          "AMD"
+        ]
+      },
+      "reservationUnitGpuV2": {
+        "description": "GPU specification for one host in a reservation unit.",
+        "type": "object",
+        "required": [
+          "vendor",
+          "model",
+          "physicalCount",
+          "logicalCount",
+          "memory"
+        ],
+        "properties": {
+          "vendor": {
+            "$ref": "#/components/schemas/gpuVendorV2"
+          },
+          "model": {
+            "description": "A GPU model.",
+            "type": "string"
+          },
+          "physicalCount": {
+            "description": "The physical number of GPUs available on one host.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "logicalCount": {
+            "description": "The logical number of GPUs available on one host.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "memory": {
+            "description": "GPU memory in GiB for one GPU.",
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "reservationUnitHostV2": {
+        "description": "Region flavor capacity for one host in a reservation unit.",
+        "type": "object",
+        "required": [
+          "cpus",
+          "memory",
+          "disk",
+          "gpu"
+        ],
+        "properties": {
+          "cpus": {
+            "description": "The number of CPUs on one host.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "memory": {
+            "description": "The amount of memory in GiB on one host.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "disk": {
+            "description": "The amount of ephemeral disk in GB on one host.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "gpu": {
+            "$ref": "#/components/schemas/reservationUnitGpuV2"
+          }
+        }
+      },
+      "reservationUnitV2": {
+        "description": "A regional accelerator reservation unit offering.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "accelerator",
+          "unit",
+          "machineFlavorId",
+          "deviceTypeResourceClass",
+          "hostsPerUnit",
+          "cpusPerUnit",
+          "gpusPerUnit",
+          "gpuMemoryPerUnit",
+          "memoryPerUnit",
+          "host",
+          "availableUnitCount",
+          "largestContiguousUnitCount",
+          "totalCount"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region where this reservation unit is offered.",
+            "type": "string"
+          },
+          "accelerator": {
+            "description": "Public accelerator model or family, for example GB300.",
+            "type": "string"
+          },
+          "unit": {
+            "description": "Public reservation granularity, for example NVL72.",
+            "type": "string"
+          },
+          "machineFlavorId": {
+            "description": "Region machine flavor resolved for this reservation unit.",
+            "type": "string"
+          },
+          "deviceTypeResourceClass": {
+            "description": "Expected Fleet Manager device type resource class for selected hosts.",
+            "type": "string"
+          },
+          "hostsPerUnit": {
+            "description": "Number of hosts claimed by one reservation unit.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "cpusPerUnit": {
+            "description": "Total CPUs claimed by one reservation unit.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "gpusPerUnit": {
+            "description": "Total GPUs claimed by one reservation unit.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "gpuMemoryPerUnit": {
+            "description": "Total GPU memory in GiB claimed by one reservation unit.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "memoryPerUnit": {
+            "description": "Total memory in GiB claimed by one reservation unit.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "host": {
+            "$ref": "#/components/schemas/reservationUnitHostV2"
+          },
+          "availableUnitCount": {
+            "description": "Number of complete, currently unclaimed reservation units.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "largestContiguousUnitCount": {
+            "description": "Largest contiguous reservation-unit count currently satisfiable.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalCount": {
+            "description": "Number of complete reservation units in the regional offering.",
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "reservationUnitsV2": {
+        "description": "A list of regional accelerator reservation unit offerings.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/reservationUnitV2"
+        }
+      },
+      "reservationV2Spec": {
+        "description": "A reservation's specification.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "accelerator",
+          "unit",
+          "count"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region to reserve capacity in.",
+            "type": "string"
+          },
+          "accelerator": {
+            "description": "Public accelerator model or family to reserve.",
+            "type": "string"
+          },
+          "unit": {
+            "description": "Public reservation granularity to reserve.",
+            "type": "string"
+          },
+          "count": {
+            "description": "Number of reservation units to reserve.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "reservationV2CreateSpec": {
+        "description": "A reservation creation specification.",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/reservationV2Spec"
+          },
+          {
+            "type": "object",
+            "required": [
+              "organizationId",
+              "projectId"
+            ],
+            "properties": {
+              "organizationId": {
+                "description": "The organization to provision the reservation in.",
+                "type": "string"
+              },
+              "projectId": {
+                "description": "The project to provision the reservation in.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "reservationV2Status": {
+        "description": "Read only status information about a reservation.",
+        "type": "object",
+        "required": [
+          "machineFlavorId",
+          "claimedUnitCount"
+        ],
+        "properties": {
+          "machineFlavorId": {
+            "description": "Resolved Region machine flavor used for pinned servers.",
+            "type": "string"
+          },
+          "claimedUnitCount": {
+            "description": "Number of reservation units successfully claimed.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "topologyHash": {
+            "description": "Hash of the claimed topology projection accepted by the reservation.",
+            "type": "string"
+          },
+          "topologyObservedAt": {
+            "description": "Time when the claimed topology projection was last observed.",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "reservationV2Read": {
+        "description": "A reservation.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/reservationV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/reservationV2Status"
+          }
+        }
+      },
+      "reservationsV2Read": {
+        "description": "A list of reservations.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/reservationV2Read"
+        }
+      },
+      "reservationV2Create": {
+        "description": "A reservation creation request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/reservationV2CreateSpec"
+          }
+        }
+      },
+      "placementPolicyV2": {
+        "description": "Pack fills domains sequentially, maximising locality. Spread\ndistributes hosts as evenly as possible across domains.",
+        "type": "string",
+        "enum": [
+          "pack",
+          "spread"
+        ]
+      },
+      "whenUnsatisfiableV2": {
+        "description": "Fail returns an error if the constraint cannot be fully satisfied.\nBest effort applies the constraint as closely as it can.",
+        "type": "string",
+        "enum": [
+          "fail",
+          "bestEffort"
+        ]
+      },
+      "placementReadinessModeV2": {
+        "description": "Require only selects hosts that pass current readiness preflight. Prefer\nselects ready hosts first but may use structurally claimable hosts to\nsatisfy the request. Ignore does not use readiness when selecting hosts.",
+        "type": "string",
+        "enum": [
+          "Require",
+          "Prefer",
+          "Ignore"
+        ]
+      },
+      "placementReadinessPolicyV2": {
+        "description": "Controls how current host readiness affects Placement selection.",
+        "type": "object",
+        "default": {
+          "mode": "Prefer"
+        },
+        "required": [
+          "mode"
+        ],
+        "properties": {
+          "mode": {
+            "$ref": "#/components/schemas/placementReadinessModeV2"
+          }
+        }
+      },
+      "placementConstraintsV2": {
+        "description": "Scheduling policy applied when selecting hosts from the reservation.",
+        "type": "object",
+        "required": [
+          "policy"
+        ],
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/placementPolicyV2"
+          },
+          "maxSkew": {
+            "description": "Maximum difference in host count between any two domains.\nApplicable only when policy is spread.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "minDomains": {
+            "description": "Minimum number of domains that must receive at least one selected\nhost. Applicable only when policy is spread. Must be less than or\nequal to count.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "whenUnsatisfiable": {
+            "$ref": "#/components/schemas/whenUnsatisfiableV2"
+          }
+        }
+      },
+      "placementServerNetworkingV2": {
+        "description": "Region server networking options applied to each pinned server.",
+        "type": "object",
+        "properties": {
+          "allowedSourceAddresses": {
+            "description": "A list of network prefixes that are allowed to egress from the\nserver. By default, only packets from the server's network\ninterface's IP address are allowed to enter the network.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "publicIP": {
+            "description": "Whether or not to provision a public IP.",
+            "type": "boolean"
+          },
+          "securityGroups": {
+            "description": "A list of security group IDs.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "placementServerSpecV2": {
+        "description": "Region server options applied to each pinned server.",
+        "type": "object",
+        "required": [
+          "imageId"
+        ],
+        "properties": {
+          "imageId": {
+            "description": "The image to use for each pinned server.",
+            "type": "string"
+          },
+          "networking": {
+            "$ref": "#/components/schemas/placementServerNetworkingV2"
+          },
+          "sshCertificateAuthorityId": {
+            "description": "The SSH certificate authority ID. Omit to create pinned Region\nservers with SSH injection disabled.",
+            "type": "string"
+          },
+          "userData": {
+            "description": "Contains base64-encoded configuration information or scripts to\nuse upon launch.",
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      },
+      "placementV2Spec": {
+        "description": "A placement's specification.",
+        "type": "object",
+        "required": [
+          "count",
+          "constraints",
+          "serverSpec"
+        ],
+        "properties": {
+          "count": {
+            "description": "Number of hosts to allocate from the reservation.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "constraints": {
+            "$ref": "#/components/schemas/placementConstraintsV2"
+          },
+          "readinessPolicy": {
+            "$ref": "#/components/schemas/placementReadinessPolicyV2"
+          },
+          "serverSpec": {
+            "$ref": "#/components/schemas/placementServerSpecV2"
+          }
+        }
+      },
+      "placementV2CreateSpec": {
+        "description": "A placement creation specification.",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/placementV2Spec"
+          },
+          {
+            "type": "object",
+            "required": [
+              "reservationId",
+              "networkId"
+            ],
+            "properties": {
+              "reservationId": {
+                "description": "The reservation to allocate hosts from.",
+                "type": "string"
+              },
+              "networkId": {
+                "description": "Network to attach instances to. Also determines the InfiniBand\npartition boundary; all hosts in a placement share a single\npartition key.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "placementV2Status": {
+        "description": "Read only status information about a placement.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "reservationId",
+          "networkId"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region the placement belongs to.",
+            "type": "string"
+          },
+          "reservationId": {
+            "description": "The reservation the placement allocates from.",
+            "type": "string"
+          },
+          "networkId": {
+            "description": "The network the placement belongs to.",
+            "type": "string"
+          },
+          "readyHostCount": {
+            "description": "Number of hosts whose Region server resources are ready.",
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "placementV2Read": {
+        "description": "A placement.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/placementV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/placementV2Status"
+          }
+        }
+      },
+      "placementsV2Read": {
+        "description": "A list of placements.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/placementV2Read"
+        }
+      },
+      "placementV2Create": {
+        "description": "A placement creation request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/placementV2CreateSpec"
+          }
+        }
+      },
+      "placementServerV2Status": {
+        "description": "Read only runtime status information about a placement server.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "reservationId",
+          "placementId",
+          "networkId",
+          "infrastructureRef"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region the placement server belongs to.",
+            "type": "string"
+          },
+          "reservationId": {
+            "description": "The reservation the placement server allocates from.",
+            "type": "string"
+          },
+          "placementId": {
+            "description": "The placement that owns this server.",
+            "type": "string"
+          },
+          "networkId": {
+            "description": "The network the placement server belongs to.",
+            "type": "string"
+          },
+          "infrastructureRef": {
+            "description": "The normalized infrastructure reference Reservation used as the\npinned Region Server boot target.",
+            "type": "string"
+          },
+          "powerState": {
+            "$ref": "#/components/schemas/instanceLifecyclePhase"
+          },
+          "privateIP": {
+            "description": "The private IP address of the server.",
+            "type": "string"
+          },
+          "publicIP": {
+            "description": "The public IP address of the server.",
+            "type": "string"
+          },
+          "macAddress": {
+            "description": "The MAC address of the server.",
+            "type": "string"
+          }
+        }
+      },
+      "placementServerV2Read": {
+        "description": "A placement server.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "status": {
+            "$ref": "#/components/schemas/placementServerV2Status"
+          }
+        }
+      },
+      "placementServersV2Read": {
+        "description": "A list of placement servers.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/placementServerV2Read"
+        }
+      },
+      "topologyHostV2": {
+        "type": "object",
+        "required": [
+          "infrastructureRef",
+          "reserved"
+        ],
+        "properties": {
+          "infrastructureRef": {
+            "description": "Ironic node UUID for this host. This identifies the host in the topology tree and is present regardless of Reservation or Placement state.\n",
+            "type": "string"
+          },
+          "reserved": {
+            "description": "Whether this host is claimed by any Reservation.",
+            "type": "boolean"
+          },
+          "reservationRef": {
+            "description": "Key into the projection's reservations overlay. Present only when this host is reserved and the caller can read the owning Reservation.\n",
+            "type": "string"
+          },
+          "placementRef": {
+            "description": "Key into the projection's placements overlay. Present only when this host is placed and the caller can read the owning Placement.\n",
+            "type": "string"
+          },
+          "server": {
+            "description": "Readable server occupying this host. Present only when this host has a server and the caller can read server state for the owning project.\n",
+            "$ref": "#/components/schemas/placementServerV2Read"
+          }
+        }
+      },
+      "topologyDomainV2": {
+        "type": "object",
+        "required": [
+          "id",
+          "hosts"
+        ],
+        "properties": {
+          "id": {
+            "description": "Opaque identifier for this NVLink domain. Clients should compare it for equality only; it does not expose provider topology group IDs or facility-internal naming.\n",
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable topology name for this NVLink domain when the provider supplies one, for example nvl-a7. Clients should use it as a response-local display coordinate, not as a provider object ID.\n",
+            "type": "string"
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/topologyHostV2"
+            }
+          }
+        }
+      },
+      "topologyPodV2": {
+        "type": "object",
+        "required": [
+          "id",
+          "domains"
+        ],
+        "properties": {
+          "id": {
+            "description": "Opaque identifier for this pod group. Clients should compare it for equality only; it does not expose provider topology group IDs or facility-internal naming.\n",
+            "type": "string"
+          },
+          "name": {
+            "description": "Human-readable topology name for this pod when the provider supplies one, for example pod-1. Clients should use it as a response-local display coordinate, not as a provider object ID.\n",
+            "type": "string"
+          },
+          "domains": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/topologyDomainV2"
+            }
+          }
+        }
+      },
+      "topologyReservationUnitV2": {
+        "type": "object",
+        "required": [
+          "accelerator",
+          "unit",
+          "machineFlavorId",
+          "deviceTypeResourceClass",
+          "hostsPerUnit"
+        ],
+        "properties": {
+          "accelerator": {
+            "description": "Public accelerator model or family for this projection.",
+            "type": "string"
+          },
+          "unit": {
+            "description": "Public reservation granularity for this projection.",
+            "type": "string"
+          },
+          "machineFlavorId": {
+            "description": "Region machine flavor resolved for this projection.",
+            "type": "string"
+          },
+          "deviceTypeResourceClass": {
+            "description": "Expected Fleet Manager device type resource class for this projection.",
+            "type": "string"
+          },
+          "hostsPerUnit": {
+            "description": "Number of hosts claimed by one reservation unit.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "topologyOverlaysV2": {
+        "type": "object",
+        "required": [
+          "reservations",
+          "placements"
+        ],
+        "properties": {
+          "reservations": {
+            "description": "Readable Reservation overlays keyed by host reservationRef values. Empty when no Reservation overlays are visible in this projection.\n",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/reservationV2Read"
+            }
+          },
+          "placements": {
+            "description": "Readable Placement overlays keyed by host placementRef values. Empty when no Placement overlays are visible in this projection.\n",
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/placementV2Read"
+            }
+          }
+        }
+      },
+      "topologyProjectionV2": {
+        "type": "object",
+        "required": [
+          "reservationUnit",
+          "topology",
+          "overlays"
+        ],
+        "properties": {
+          "reservationUnit": {
+            "description": "Public ReservationUnit offer represented by this topology.",
+            "$ref": "#/components/schemas/topologyReservationUnitV2"
+          },
+          "topology": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/topologyPodV2"
+            }
+          },
+          "overlays": {
+            "description": "Readable Reservation and Placement overlays for this projection. Hosts reference entries from these maps only when the caller can read the corresponding object.\n",
+            "$ref": "#/components/schemas/topologyOverlaysV2"
+          }
+        }
+      },
+      "topologyRegionV2": {
+        "type": "object",
+        "required": [
+          "regionId",
+          "projections"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "Region that owns this disjoint topology set.",
+            "type": "string"
+          },
+          "projections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/topologyProjectionV2"
+            }
+          }
+        }
+      },
+      "organizationTopologyV2Read": {
+        "description": "Allocated topology visible to one organization.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/topologyRegionV2"
+        }
+      },
+      "error": {
+        "description": "Generic error message, compatible with oauth2.",
+        "type": "object",
+        "required": [
+          "error",
+          "error_description"
+        ],
+        "properties": {
+          "error": {
+            "description": "A terse error string expanding on the HTTP error code. Errors are based on the OAuth 2.02 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth 2.02.",
+            "type": "string",
+            "enum": [
+              "invalid_request",
+              "server_error",
+              "access_denied",
+              "not_found",
+              "conflict",
+              "method_not_allowed",
+              "unsupported_media_type",
+              "request_entity_too_large",
+              "unprocessable_content",
+              "forbidden"
+            ]
+          },
+          "error_description": {
+            "description": "Verbose message describing the error.",
+            "type": "string"
+          },
+          "trace_id": {
+            "description": "Unique trace identifier for the request.",
+            "type": "string"
+          }
+        }
+      },
+      "kubernetesLabelValue": {
+        "description": "A valid Kubernetes label value, typically used for resource names that can be\nindexed in the database.",
+        "type": "string",
+        "pattern": "^[0-9A-Za-z](?:[0-9A-Za-z-_.]{0,61}[0-9A-Za-z])?$"
+      },
+      "tag": {
+        "description": "A tag mapping arbitrary names to values.  These have no special meaning\nfor any component are are intended for use by end users to add additional\ncontext to a resource, for example to categorize it.",
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "description": "A unique tag name.",
+            "type": "string"
+          },
+          "value": {
+            "description": "The value of the tag.",
+            "type": "string"
+          }
+        }
+      },
+      "tagList": {
+        "description": "A list of tags.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/tag"
+        }
+      },
+      "resourceMetadata": {
+        "description": "Metadata required for all API resource reads and writes.",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/kubernetesLabelValue"
+          },
+          "description": {
+            "description": "The resource description, this optionally augments the name with more context.",
+            "type": "string"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/tagList"
+          }
+        }
+      },
+      "staticResourceMetadata": {
+        "description": "This metadata is for resources that just exist, and don't require\nany provisioning and health status, but benefit from a standardized\nmetadata format.\n",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "creationTime"
+            ],
+            "properties": {
+              "id": {
+                "description": "The unique resource ID.",
+                "type": "string"
+              },
+              "creationTime": {
+                "description": "The time the resource was created.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "createdBy": {
+                "description": "The user who created the resource.",
+                "type": "string"
+              },
+              "modifiedTime": {
+                "description": "The time a resource was updated.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "modifiedBy": {
+                "description": "The user who updated the resource.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "resourceProvisioningStatus": {
+        "description": "The provisioning state of a resource.",
+        "type": "string",
+        "enum": [
+          "pending",
+          "provisioning",
+          "provisioned",
+          "deprovisioning",
+          "error"
+        ]
+      },
+      "provisioningStatusReason": {
+        "description": "A closed, generic classification of a resource's provisioning state,\nfiner-grained than provisioningStatus. This vocabulary is owned by the\nplatform and is the same across all resources; domain-specific state\n(e.g. an instance's lifecycle phase) is carried on other mechanisms and\nnever appears here.",
+        "type": "string",
+        "enum": [
+          "Provisioning",
+          "Provisioned",
+          "Errored",
+          "Deprovisioning",
+          "Deprovisioned",
+          "DependencyNotReady",
+          "DependencyFailed",
+          "DependencyNotFound"
+        ]
+      },
+      "provisioningStatusDetail": {
+        "description": "Human-facing detail about the current provisioning state: a\nmachine-classifiable reason drawn from a closed vocabulary, and a\nuser-safe human-readable message. Derived from the resource's status and\nsupplements the coarse provisioningStatus; never stored.",
+        "type": "object",
+        "required": [
+          "reason",
+          "message"
+        ],
+        "properties": {
+          "reason": {
+            "$ref": "#/components/schemas/provisioningStatusReason"
+          },
+          "message": {
+            "description": "A user-safe, human-readable description of the provisioning state.",
+            "type": "string"
+          }
+        }
+      },
+      "resourceHealthStatus": {
+        "description": "The health state of a resource.",
+        "type": "string",
+        "enum": [
+          "unknown",
+          "healthy",
+          "degraded",
+          "error"
+        ]
+      },
+      "healthStatusReason": {
+        "description": "A closed, generic classification of a resource's health — the raw health\ncondition reason, finer-grained than the coarse healthStatus. Owned by the\nplatform and the same across all resources.",
+        "type": "string",
+        "enum": [
+          "Healthy",
+          "Degraded",
+          "Unknown"
+        ]
+      },
+      "healthStatusDetail": {
+        "description": "Human-facing detail about the current health state: a machine-classifiable\nreason drawn from a closed vocabulary, and a user-safe human-readable\nmessage (e.g. \"2/12 nodes are down\"). Derived from the resource's status and\nsupplements the coarse healthStatus; never stored.",
+        "type": "object",
+        "required": [
+          "reason",
+          "message"
+        ],
+        "properties": {
+          "reason": {
+            "$ref": "#/components/schemas/healthStatusReason"
+          },
+          "message": {
+            "description": "A user-safe, human-readable description of the health state.",
+            "type": "string"
+          }
+        }
+      },
+      "resourceReadMetadata": {
+        "description": "Metadata required by all resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/staticResourceMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "provisioningStatus",
+              "healthStatus"
+            ],
+            "properties": {
+              "deletionTime": {
+                "description": "The time the resource was deleted.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "provisioningStatus": {
+                "$ref": "#/components/schemas/resourceProvisioningStatus"
+              },
+              "provisioningStatusDetail": {
+                "$ref": "#/components/schemas/provisioningStatusDetail"
+              },
+              "healthStatus": {
+                "$ref": "#/components/schemas/resourceHealthStatus"
+              },
+              "healthStatusDetail": {
+                "$ref": "#/components/schemas/healthStatusDetail"
+              }
+            }
+          }
+        ]
+      },
+      "organizationScopedResourceReadMetadata": {
+        "description": "Metadata required by organization scoped resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/resourceReadMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "organizationId"
+            ],
+            "properties": {
+              "organizationId": {
+                "description": "The organization identifier the resource belongs to.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "projectScopedResourceReadMetadata": {
+        "description": "Metadata required by project scoped resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/organizationScopedResourceReadMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "projectId"
+            ],
+            "properties": {
+              "projectId": {
+                "description": "The project identifier the resource belongs to.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "instanceLifecyclePhase": {
+        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up.\n",
+        "type": "string",
+        "enum": [
+          "Pending",
+          "Queued",
+          "Building",
+          "Running",
+          "Stopping",
+          "Stopped"
+        ]
+      }
+    },
+    "requestBodies": {
+      "reservationV2CreateRequest": {
+        "description": "A request to create a reservation.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationV2Create"
+            },
+            "example": {
+              "metadata": {
+                "name": "gb300-nvl72",
+                "description": "Reserved accelerator units for training",
+                "tags": [
+                  {
+                    "name": "workload",
+                    "value": "training"
+                  }
+                ]
+              },
+              "spec": {
+                "organizationId": "161b9d5a-701d-4fea-848d-0e345edf16e9",
+                "projectId": "f113be96-4dd2-4c14-9c0e-e96c500f21e0",
+                "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                "accelerator": "GB300",
+                "unit": "NVL72",
+                "count": 2
+              }
+            }
+          }
+        }
+      },
+      "placementV2CreateRequest": {
+        "description": "A request to create a placement.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/placementV2Create"
+            },
+            "example": {
+              "metadata": {
+                "name": "training-workers",
+                "description": "Host placement for a training job",
+                "tags": [
+                  {
+                    "name": "workload",
+                    "value": "training"
+                  }
+                ]
+              },
+              "spec": {
+                "reservationId": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                "serverSpec": {
+                  "imageId": "ubuntu-24.04",
+                  "sshCertificateAuthorityId": "00de8f3c-77d6-424a-93c3-baf9153c7f21",
+                  "networking": {
+                    "securityGroups": [
+                      "7ddfdbf0-bdbf-4630-9220-f1e6876f2dd0"
+                    ]
+                  }
+                },
+                "count": 8,
+                "constraints": {
+                  "policy": "spread",
+                  "maxSkew": 1,
+                  "minDomains": 3,
+                  "whenUnsatisfiable": "fail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "reservationUnitsV2Response": {
+        "description": "A list of reservation units.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationUnitsV2"
+            },
+            "example": [
+              {
+                "regionId": "uk-lon-1",
+                "accelerator": "GB300",
+                "unit": "NVL72",
+                "machineFlavorId": "g.72.gb300.pinned",
+                "deviceTypeResourceClass": "GB300_HOST",
+                "hostsPerUnit": 18,
+                "cpusPerUnit": 2592,
+                "gpusPerUnit": 72,
+                "gpuMemoryPerUnit": 20736,
+                "memoryPerUnit": 17280,
+                "host": {
+                  "cpus": 144,
+                  "memory": 960,
+                  "disk": 0,
+                  "gpu": {
+                    "vendor": "NVIDIA",
+                    "model": "GB300",
+                    "physicalCount": 4,
+                    "logicalCount": 4,
+                    "memory": 288
+                  }
+                },
+                "availableUnitCount": 4,
+                "largestContiguousUnitCount": 3,
+                "totalCount": 8
+              },
+              {
+                "regionId": "us-chi-1",
+                "accelerator": "GB300",
+                "unit": "NVL72",
+                "machineFlavorId": "gb300-nvl72-metal",
+                "deviceTypeResourceClass": "GB300_HOST",
+                "hostsPerUnit": 18,
+                "cpusPerUnit": 2592,
+                "gpusPerUnit": 72,
+                "gpuMemoryPerUnit": 20736,
+                "memoryPerUnit": 17280,
+                "host": {
+                  "cpus": 144,
+                  "memory": 960,
+                  "disk": 0,
+                  "gpu": {
+                    "vendor": "NVIDIA",
+                    "model": "GB300",
+                    "physicalCount": 4,
+                    "logicalCount": 4,
+                    "memory": 288
+                  }
+                },
+                "availableUnitCount": 2,
+                "largestContiguousUnitCount": 2,
+                "totalCount": 6
+              }
+            ]
+          }
+        }
+      },
+      "reservationV2Response": {
+        "description": "A reservation.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "gb300-nvl72",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2026-04-28T10:45:45Z",
+                "createdBy": "john.doe@example.com",
+                "provisioningStatus": "pending",
+                "healthStatus": "healthy",
+                "tags": [
+                  {
+                    "name": "workload",
+                    "value": "training"
+                  }
+                ]
+              },
+              "spec": {
+                "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                "accelerator": "GB300",
+                "unit": "NVL72",
+                "count": 2
+              },
+              "status": {
+                "machineFlavorId": "g.72.gb300.pinned",
+                "claimedUnitCount": 2,
+                "topologyHash": "sha256:4fd768f7a87c07aa81e7af8a765cdeaa0f7fe671052f3acbeec918522d026d2e",
+                "topologyObservedAt": "2026-05-14T10:00:00Z"
+              }
+            }
+          }
+        }
+      },
+      "reservationsV2Response": {
+        "description": "A list of reservations.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationsV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "gb300-nvl72",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2026-04-28T10:45:45Z",
+                  "createdBy": "john.doe@example.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy",
+                  "tags": [
+                    {
+                      "name": "workload",
+                      "value": "training"
+                    }
+                  ]
+                },
+                "spec": {
+                  "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                  "accelerator": "GB300",
+                  "unit": "NVL72",
+                  "count": 2
+                },
+                "status": {
+                  "machineFlavorId": "g.72.gb300.pinned",
+                  "claimedUnitCount": 2,
+                  "topologyHash": "sha256:4fd768f7a87c07aa81e7af8a765cdeaa0f7fe671052f3acbeec918522d026d2e",
+                  "topologyObservedAt": "2026-05-14T10:00:00Z"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "placementV2Response": {
+        "description": "A placement.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/placementV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "b8ce034e-fccb-4d6c-a0e0-af3e3f346715",
+                "name": "training-workers",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2026-04-28T11:03:12Z",
+                "createdBy": "john.doe@example.com",
+                "provisioningStatus": "pending",
+                "healthStatus": "healthy",
+                "tags": [
+                  {
+                    "name": "workload",
+                    "value": "training"
+                  }
+                ]
+              },
+              "spec": {
+                "count": 8,
+                "serverSpec": {
+                  "imageId": "ubuntu-24.04",
+                  "sshCertificateAuthorityId": "00de8f3c-77d6-424a-93c3-baf9153c7f21",
+                  "networking": {
+                    "securityGroups": [
+                      "7ddfdbf0-bdbf-4630-9220-f1e6876f2dd0"
+                    ]
+                  }
+                },
+                "constraints": {
+                  "policy": "spread",
+                  "maxSkew": 1,
+                  "minDomains": 3,
+                  "whenUnsatisfiable": "fail"
+                }
+              },
+              "status": {
+                "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                "reservationId": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                "readyHostCount": 0
+              }
+            }
+          }
+        }
+      },
+      "placementsV2Response": {
+        "description": "A list of placements.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/placementsV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "b8ce034e-fccb-4d6c-a0e0-af3e3f346715",
+                  "name": "training-workers",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2026-04-28T11:03:12Z",
+                  "createdBy": "john.doe@example.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy",
+                  "tags": [
+                    {
+                      "name": "workload",
+                      "value": "training"
+                    }
+                  ]
+                },
+                "spec": {
+                  "count": 8,
+                  "serverSpec": {
+                    "imageId": "ubuntu-24.04",
+                    "sshCertificateAuthorityId": "00de8f3c-77d6-424a-93c3-baf9153c7f21",
+                    "networking": {
+                      "securityGroups": [
+                        "7ddfdbf0-bdbf-4630-9220-f1e6876f2dd0"
+                      ]
+                    }
+                  },
+                  "constraints": {
+                    "policy": "spread",
+                    "maxSkew": 1,
+                    "minDomains": 3,
+                    "whenUnsatisfiable": "fail"
+                  }
+                },
+                "status": {
+                  "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                  "reservationId": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                  "readyHostCount": 8
+                }
+              }
+            ]
+          }
+        }
+      },
+      "placementServerV2Response": {
+        "description": "A placement server.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/placementServerV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "psrv-7f3d9d5d2a7c4e32",
+                "name": "training-workers-0",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2026-04-28T11:04:00Z",
+                "createdBy": "john.doe@example.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "status": {
+                "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                "reservationId": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "placementId": "b8ce034e-fccb-4d6c-a0e0-af3e3f346715",
+                "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                "infrastructureRef": "00000000-0000-0000-0000-000000000002",
+                "powerState": "Running",
+                "privateIP": "10.0.0.12",
+                "publicIP": "203.0.113.12",
+                "macAddress": "fa:16:3e:7c:11:8a"
+              }
+            }
+          }
+        }
+      },
+      "placementServersV2Response": {
+        "description": "A list of placement servers.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/placementServersV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "psrv-7f3d9d5d2a7c4e32",
+                  "name": "training-workers-0",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2026-04-28T11:04:00Z",
+                  "createdBy": "john.doe@example.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "status": {
+                  "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                  "reservationId": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "placementId": "b8ce034e-fccb-4d6c-a0e0-af3e3f346715",
+                  "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                  "infrastructureRef": "00000000-0000-0000-0000-000000000002",
+                  "powerState": "Running",
+                  "privateIP": "10.0.0.12",
+                  "publicIP": "203.0.113.12",
+                  "macAddress": "fa:16:3e:7c:11:8a"
+                }
+              },
+              {
+                "metadata": {
+                  "id": "psrv-950ab3259a1443da",
+                  "name": "training-workers-1",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2026-04-28T11:04:02Z",
+                  "createdBy": "john.doe@example.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "status": {
+                  "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                  "reservationId": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "placementId": "b8ce034e-fccb-4d6c-a0e0-af3e3f346715",
+                  "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                  "infrastructureRef": "00000000-0000-0000-0000-000000000003",
+                  "powerState": "Running",
+                  "privateIP": "10.0.0.13",
+                  "macAddress": "fa:16:3e:11:70:2f"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "insufficientCapacityResponse": {
+        "description": "Insufficient capacity to satisfy the reservation. No contiguous set of\nreservation units of the requested size is available in the region.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
+      "organizationTopologyV2Response": {
+        "description": "Organization topology view.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/organizationTopologyV2Read"
+            }
+          }
+        }
+      },
+      "badRequestResponse": {
+        "description": "Request body failed schema validation, or the request does not contain\nall the required fields.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "invalid_request",
+              "error_description": "request body invalid",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "unauthorizedResponse": {
+        "description": "Authentication failed or the access token has expired.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "access_denied",
+              "error_description": "authentication failed",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "forbiddenResponse": {
+        "description": "Request was denied by authorization, this may be caused by the authorization\ntoken not having the required scope for an API, or the user doesn't have the\nnecessary privileges on the provider platform.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "forbidden",
+              "error_description": "user credentials do not have the required privileges",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "internalServerErrorResponse": {
+        "description": "An unexpected or unhandled error occurred. This may be a transient error and\nmay succeed on a retry.  If this isn't the case, please report it as an issue.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "server_error",
+              "error_description": "failed to token claim",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "notFoundResponse": {
+        "description": "Unable to find a resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "not_found",
+              "error_description": "the requested resource does not exist",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "conflictResponse": {
+        "description": "Resource conflicts with another, usually this means they have the same name.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "conflict",
+              "error_description": "a resource with the same name already exists",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "unprocessableContentResponse": {
+        "description": "The provided request was syntactically correct but the instruction was unable to\nbe processed due to semantic errors.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "unprocessable_content",
+              "error_description": "the request body was in the wrong format",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      }
+    }
+  }
+}

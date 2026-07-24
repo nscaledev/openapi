@@ -1,0 +1,5976 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Region Service API",
+    "description": "Cloud region discovery and routing service.  This is service not intended for direct access\nby end users.  Region related functionality is typically exposed by higher level services\ne.g. Compute and Kubernetes, that provide subsets of resources that are compatible with\nthat service.",
+    "version": "1.13.0"
+  },
+  "paths": {
+    "/api/v1/organizations/{organizationID}/regions/{regionID}/images": {
+      "description": "Compute image services.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/organizationIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/regionIDParameter"
+        }
+      ],
+      "post": {
+        "summary": "Create a compute image from a disk image URL.",
+        "tags": [
+          "Images"
+        ],
+        "description": "Create a compute image from a public URL.  Only raw images are supported, other container\nformats such as qcow2 must be first converted to a raw image.",
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/imageCreateRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/imageResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organizationID}/regions/{regionID}/images/{imageID}": {
+      "description": "Compute image services.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/organizationIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/regionIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/imageIDParameter"
+        }
+      ],
+      "delete": {
+        "summary": "Delete a compute image.",
+        "tags": [
+          "Images"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/version": {
+      "description": "Service build version information.",
+      "get": {
+        "summary": "Get the deployed service version",
+        "description": "Returns the build version stamped into the running binary at release\ntime, allowing clients and CI gates to verify exactly which release is\ndeployed.",
+        "tags": [
+          "Version"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/serviceVersionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/networks": {
+      "description": "Manages region scoped layer 3 networks.  Networks by default come with a default route to\nthe internet that performs masquerading.  This version of the API requires at least a\n/24 CIDR range.  A portion of the network may be reserved for infrastructure use such as\nfile storage and internal platform requirements as directed by the infrastructure provider.",
+      "get": {
+        "description": "List networks.",
+        "summary": "List networks",
+        "tags": [
+          "Networks"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/projectIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/networksV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new network.",
+        "summary": "Create network",
+        "tags": [
+          "Networks"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/networkV2CreateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/networkV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/networks/{networkID}": {
+      "description": "Manages region scoped layer 3 networks.  Networks by default come with a default route to\nthe internet that performs masquerading.  This version of the API requires at least a\n/24 CIDR range.  A portion of the network may be reserved for infrastructure use such as\nfile storage and internal platform requirements as directed by the infrastructure provider.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/networkIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Get a network.",
+        "summary": "Get network",
+        "tags": [
+          "Networks"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/networkV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Update a network's mutable fields.",
+        "summary": "Update network",
+        "tags": [
+          "Networks"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/networkV2UpdateRequest"
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/networkV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a network.",
+        "summary": "Delete network",
+        "tags": [
+          "Networks"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/securitygroups": {
+      "description": "Manages network scoped security groups.  By default, security groups allow\nall egress traffic from a server, ingress traffic must be explcitly allowed.",
+      "get": {
+        "description": "List security groups.",
+        "summary": "List security groups",
+        "tags": [
+          "Security groups"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/projectIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/networkIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/securityGroupsV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new security group.",
+        "summary": "Create security group",
+        "tags": [
+          "Security groups"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/securityGroupV2CreateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/securityGroupV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/securitygroups/{securityGroupID}": {
+      "description": "Manages network scoped security groups.  By default, security groups allow\nall egress traffic from a server, ingress traffic must be explcitly allowed.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/securityGroupIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Get a security group.",
+        "summary": "Get security group",
+        "tags": [
+          "Security groups"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/securityGroupV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Update a security group.",
+        "summary": "Update security group",
+        "tags": [
+          "Security groups"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/securityGroupV2UpdateRequest"
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/securityGroupV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a security groups.",
+        "summary": "Delete security group",
+        "tags": [
+          "Security groups"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/loadbalancers": {
+      "description": "Manages network scoped layer 4 load balancers.",
+      "get": {
+        "description": "List load balancers.",
+        "summary": "List load balancers",
+        "tags": [
+          "Load balancers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/projectIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/networkIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/loadBalancersV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new load balancer.",
+        "summary": "Create load balancer",
+        "tags": [
+          "Load balancers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/loadBalancerV2CreateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/loadBalancerV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/loadbalancers/{loadBalancerID}": {
+      "description": "Manages network scoped layer 4 load balancers.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/loadBalancerIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Get a load balancer.",
+        "summary": "Get load balancer",
+        "tags": [
+          "Load balancers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/loadBalancerV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Update a load balancer.",
+        "summary": "Update load balancer",
+        "tags": [
+          "Load balancers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/loadBalancerV2UpdateRequest"
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/loadBalancerV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a load balancer.",
+        "summary": "Delete load balancer",
+        "tags": [
+          "Load balancers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/sshcertificateauthorities": {
+      "description": "Manages project scoped OpenSSH user certificate authorities.",
+      "get": {
+        "description": "List SSH certificate authorities.",
+        "summary": "List SSH certificate authorities",
+        "tags": [
+          "SSH certificate authorities"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/projectIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/sshCertificateAuthoritiesV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new SSH certificate authority.",
+        "summary": "Create SSH certificate authority",
+        "tags": [
+          "SSH certificate authorities"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/sshCertificateAuthorityV2CreateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/sshCertificateAuthorityV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/sshcertificateauthorities/{sshCertificateAuthorityID}": {
+      "description": "Manages project scoped OpenSSH user certificate authorities.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/sshCertificateAuthorityIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Get an SSH certificate authority.",
+        "summary": "Get SSH certificate authority",
+        "tags": [
+          "SSH certificate authorities"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/sshCertificateAuthorityV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete an SSH certificate authority.",
+        "summary": "Delete SSH certificate authority",
+        "tags": [
+          "SSH certificate authorities"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/regions/{regionID}/images": {
+      "description": "Manage compute disk images",
+      "get": {
+        "summary": "List compute disk images",
+        "tags": [
+          "Images"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/regionIDParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/imageScopeQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/imageStatusQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/imagesResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/filestorage": {
+      "description": "Manages project scoped storage. Returns a list of all storage, regardless of type. ",
+      "get": {
+        "description": "List storage for project.",
+        "summary": "List file storage",
+        "tags": [
+          "File storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/projectIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/storageListV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Create a new storage. Snapshot Policies are managed as inline parent File Storage\ndesired state. Omitted or empty spec.snapshotPolicies stores no user-managed\npolicies, and a non-empty list persists exactly the caller-supplied policies.\nDefault Snapshot Protection is controlled separately by\nspec.defaultSnapshotProtectionEnabled.",
+        "summary": "Create file storage",
+        "tags": [
+          "File storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/storageV2CreateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/storageV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/filestorage/{filestorageID}": {
+      "description": "Manages project scoped storage. ",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/filestorageIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Get all storage information this ID.",
+        "summary": "Get file storage",
+        "tags": [
+          "File storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/storageV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Update this storage. Snapshot Policies are managed as inline parent File Storage\ndesired state. Omitted spec.snapshotPolicies preserves existing user-managed\npolicies, an empty list clears all user-managed policies, and a non-empty list\nreplaces the full user-managed policy list. Default Snapshot Protection is\ncontrolled separately by spec.defaultSnapshotProtectionEnabled.",
+        "summary": "Update file storage",
+        "tags": [
+          "File storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/storageV2UpdateRequest"
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/storageV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Delete a storage.",
+        "summary": "Delete file storage",
+        "tags": [
+          "File storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/filestorageclasses": {
+      "description": "Lists all available storage classes, detailing supported protocols, capacity limits, and service characteristics. Enables users to discover storage options suitable for their workloads.",
+      "get": {
+        "description": "List storage classes.",
+        "summary": "List file storage classes",
+        "tags": [
+          "File storage classes"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/storageClassListV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "organizationIDParameter": {
+        "name": "organizationID",
+        "in": "path",
+        "description": "An organization ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/organizationId"
+        }
+      },
+      "projectIDParameter": {
+        "name": "projectID",
+        "in": "path",
+        "description": "The project ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/projectId"
+        }
+      },
+      "regionIDParameter": {
+        "name": "regionID",
+        "in": "path",
+        "description": "The region ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/regionId"
+        }
+      },
+      "identityIDParameter": {
+        "name": "identityID",
+        "in": "path",
+        "description": "The identity ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/identityId"
+        }
+      },
+      "imageIDParameter": {
+        "name": "imageID",
+        "in": "path",
+        "description": "The image ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/imageId"
+        }
+      },
+      "networkIDParameter": {
+        "name": "networkID",
+        "in": "path",
+        "description": "The network ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/networkId"
+        }
+      },
+      "securityGroupIDParameter": {
+        "name": "securityGroupID",
+        "in": "path",
+        "description": "The security group ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/securityGroupId"
+        }
+      },
+      "loadBalancerIDParameter": {
+        "name": "loadBalancerID",
+        "in": "path",
+        "description": "The load balancer ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/loadBalancerId"
+        }
+      },
+      "sshCertificateAuthorityIDParameter": {
+        "name": "sshCertificateAuthorityID",
+        "in": "path",
+        "description": "The SSH certificate authority ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/sshCertificateAuthorityId"
+        }
+      },
+      "serverIDParameter": {
+        "name": "serverID",
+        "in": "path",
+        "description": "The server ID.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/serverId"
+        }
+      },
+      "referenceParameter": {
+        "name": "reference",
+        "in": "path",
+        "description": "A resource reference.",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      },
+      "lengthParameter": {
+        "name": "length",
+        "in": "query",
+        "description": "The requested output length.",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "organizationIDQueryParameter": {
+        "name": "organizationID",
+        "in": "query",
+        "description": "Allows resources to be filtered by organization.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "filestorageIDParameter": {
+        "name": "filestorageID",
+        "in": "path",
+        "description": "The storage unique identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/fileStorageId"
+        }
+      },
+      "projectIDQueryParameter": {
+        "name": "projectID",
+        "in": "query",
+        "description": "Allows resources to be filtered by project.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "regionIDQueryParameter": {
+        "name": "regionID",
+        "in": "query",
+        "description": "Allows resources to be filtered by region.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "networkIDQueryParameter": {
+        "name": "networkID",
+        "in": "query",
+        "description": "Allows resources to be filtered by network.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "imageScopeQueryParameter": {
+        "name": "scope",
+        "in": "query",
+        "description": "Filter for images owned by the organization specified, or available (either globally or to the organization given).",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "owned",
+            "available"
+          ]
+        }
+      },
+      "imageStatusQueryParameter": {
+        "name": "status",
+        "in": "query",
+        "description": "Filter for images by status",
+        "schema": {
+          "type": "array",
+          "items": {
+            "$ref": "#/components/schemas/imageState"
+          }
+        }
+      },
+      "tagSelectorParameter": {
+        "name": "tag",
+        "in": "query",
+        "description": "A set of tags to match against resources in the form \"name=value\",\nthus when encoded you get \"?tag=foo%3Dcat&tag=bar%3Ddog\".",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "schemas": {
+      "kubernetesNameParameter": {
+        "description": "A Kubernetes name. Must be a valid DNS containing only lower case characters, numbers or hyphens, start and end with a character or number, and be at most 63 characters in length.",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 63
+      },
+      "regionId": {
+        "description": "A region ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "identityId": {
+        "description": "A cloud identity ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "networkId": {
+        "description": "A network ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "securityGroupId": {
+        "description": "A security group ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "loadBalancerId": {
+        "description": "A load balancer ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "serverId": {
+        "description": "A server ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "sshCertificateAuthorityId": {
+        "description": "An SSH certificate authority ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "fileStorageId": {
+        "description": "A file storage ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "imageId": {
+        "description": "An image ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "flavorId": {
+        "description": "A flavor ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "regionType": {
+        "description": "The region's provider type.",
+        "type": "string",
+        "enum": [
+          "openstack",
+          "kubernetes",
+          "simulated"
+        ]
+      },
+      "regionFeatures": {
+        "description": "A set of features the region may provide to clients.",
+        "type": "object",
+        "required": [
+          "physicalNetworks"
+        ],
+        "properties": {
+          "physicalNetworks": {
+            "description": "If set, this indicates that the region supports physical networks and\none should be provisioned for clusters to use.  The implication here is\nthe region supports base-metal machines, and these must be provisioned\non a physical VLAN etc.\n",
+            "type": "boolean"
+          }
+        }
+      },
+      "regionSpec": {
+        "description": "Information about the region.",
+        "type": "object",
+        "required": [
+          "type",
+          "features"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/regionType"
+          },
+          "features": {
+            "$ref": "#/components/schemas/regionFeatures"
+          }
+        }
+      },
+      "regionDetailKubernetes": {
+        "description": "Region specific information when the type is \"kubernetes\".",
+        "type": "object",
+        "required": [
+          "kubeconfig"
+        ],
+        "properties": {
+          "kubeconfig": {
+            "description": "The region's base64 encoded Kubernetes configuration file.",
+            "type": "string"
+          },
+          "domainName": {
+            "description": "The region's requested domain name for consuming services.",
+            "type": "string"
+          }
+        }
+      },
+      "regionDetailSpec": {
+        "description": "Information about the region.",
+        "type": "object",
+        "required": [
+          "type",
+          "features"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/regionType"
+          },
+          "kubernetes": {
+            "$ref": "#/components/schemas/regionDetailKubernetes"
+          },
+          "features": {
+            "$ref": "#/components/schemas/regionFeatures"
+          }
+        }
+      },
+      "regionRead": {
+        "description": "A region.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/regionSpec"
+          }
+        }
+      },
+      "regionDetailRead": {
+        "description": "A region.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/regionDetailSpec"
+          }
+        }
+      },
+      "regions": {
+        "description": "A list of regions.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/regionRead"
+        }
+      },
+      "imageVirtualization": {
+        "description": "What type of machine the image is for.",
+        "type": "string",
+        "enum": [
+          "virtualized",
+          "baremetal",
+          "any"
+        ]
+      },
+      "softwareVersions": {
+        "description": "Image preinstalled version version metadata.",
+        "type": "object",
+        "additionalProperties": {
+          "$ref": "#/components/schemas/semver"
+        }
+      },
+      "gpuVendor": {
+        "description": "The GPU vendor.",
+        "type": "string",
+        "enum": [
+          "NVIDIA",
+          "AMD"
+        ]
+      },
+      "gpuModel": {
+        "description": "A GPU model number.",
+        "type": "string"
+      },
+      "gpuModelList": {
+        "description": "A list of GPU model numbers.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/gpuModel"
+        }
+      },
+      "architecture": {
+        "type": "string",
+        "description": "CPU architecture.",
+        "enum": [
+          "x86_64",
+          "aarch64"
+        ]
+      },
+      "imageGpu": {
+        "description": "The GPU driver if installed.",
+        "type": "object",
+        "required": [
+          "vendor",
+          "driver"
+        ],
+        "properties": {
+          "vendor": {
+            "$ref": "#/components/schemas/gpuVendor"
+          },
+          "driver": {
+            "description": "The GPU driver version, this is vendor specific.",
+            "type": "string"
+          },
+          "models": {
+            "$ref": "#/components/schemas/gpuModelList"
+          }
+        }
+      },
+      "osKernel": {
+        "description": "A kernel type.",
+        "type": "string",
+        "enum": [
+          "linux"
+        ]
+      },
+      "osFamily": {
+        "description": "A family of operating systems.  This typically defines the package format.",
+        "type": "string"
+      },
+      "osDistro": {
+        "description": "A distribution name.",
+        "type": "string"
+      },
+      "imageOS": {
+        "description": "An operating system description.",
+        "type": "object",
+        "required": [
+          "kernel",
+          "family",
+          "distro",
+          "version"
+        ],
+        "properties": {
+          "kernel": {
+            "$ref": "#/components/schemas/osKernel"
+          },
+          "family": {
+            "$ref": "#/components/schemas/osFamily"
+          },
+          "distro": {
+            "$ref": "#/components/schemas/osDistro"
+          },
+          "variant": {
+            "description": "A free form variant e.g. desktop/server.",
+            "type": "string"
+          },
+          "codename": {
+            "description": "A free form code name e.g. warty/bionic.",
+            "type": "string"
+          },
+          "version": {
+            "description": "Version of the operating system e.g. \"24.04\".",
+            "type": "string"
+          }
+        }
+      },
+      "imageSpec": {
+        "description": "An image.",
+        "type": "object",
+        "required": [
+          "sizeGiB",
+          "virtualization",
+          "os",
+          "architecture"
+        ],
+        "properties": {
+          "architecture": {
+            "$ref": "#/components/schemas/architecture"
+          },
+          "sizeGiB": {
+            "description": "Minimum disk size required to use the image in GiB.",
+            "type": "integer"
+          },
+          "virtualization": {
+            "$ref": "#/components/schemas/imageVirtualization"
+          },
+          "os": {
+            "$ref": "#/components/schemas/imageOS"
+          },
+          "softwareVersions": {
+            "$ref": "#/components/schemas/softwareVersions"
+          },
+          "gpu": {
+            "$ref": "#/components/schemas/imageGpu"
+          }
+        }
+      },
+      "imageState": {
+        "description": "The images's lifecycle state.",
+        "type": "string",
+        "enum": [
+          "pending",
+          "creating",
+          "ready",
+          "failed"
+        ]
+      },
+      "imageStatus": {
+        "description": "The image's status.",
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/imageState"
+          }
+        }
+      },
+      "image": {
+        "description": "An image.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/staticResourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/imageSpec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/imageStatus"
+          }
+        }
+      },
+      "images": {
+        "description": "A list of images that are compatible with this platform.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/image"
+        }
+      },
+      "imageCreateSpec": {
+        "description": "A compute image specification.",
+        "type": "object",
+        "required": [
+          "uri",
+          "virtualization",
+          "os",
+          "architecture"
+        ],
+        "properties": {
+          "uri": {
+            "description": "A URI to upload the image from.",
+            "type": "string",
+            "format": "uri"
+          },
+          "architecture": {
+            "$ref": "#/components/schemas/architecture"
+          },
+          "virtualization": {
+            "$ref": "#/components/schemas/imageVirtualization"
+          },
+          "os": {
+            "$ref": "#/components/schemas/imageOS"
+          },
+          "softwareVersions": {
+            "$ref": "#/components/schemas/softwareVersions"
+          },
+          "gpu": {
+            "$ref": "#/components/schemas/imageGpu"
+          }
+        }
+      },
+      "imageCreate": {
+        "description": "A compute image create request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/imageCreateSpec"
+          }
+        }
+      },
+      "snapshotCreateSpec": {
+        "description": "A compute image snapshot specification.",
+        "type": "object",
+        "properties": {}
+      },
+      "snapshotCreate": {
+        "description": "A compute image create request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/snapshotCreateSpec"
+          }
+        }
+      },
+      "gpuSpec": {
+        "description": "GPU specification.",
+        "type": "object",
+        "required": [
+          "vendor",
+          "model",
+          "memory",
+          "physicalCount",
+          "logicalCount"
+        ],
+        "properties": {
+          "vendor": {
+            "$ref": "#/components/schemas/gpuVendor"
+          },
+          "model": {
+            "description": "A GPU model.",
+            "type": "string"
+          },
+          "memory": {
+            "description": "GPU memory in GiB.",
+            "type": "integer"
+          },
+          "physicalCount": {
+            "description": "The physical number of GPUs (cards) available.",
+            "type": "integer"
+          },
+          "logicalCount": {
+            "description": "The logical number of GPUs available as seen in the OS.",
+            "type": "integer"
+          }
+        }
+      },
+      "flavorSpec": {
+        "description": "A flavor.",
+        "type": "object",
+        "required": [
+          "cpus",
+          "memory",
+          "disk",
+          "architecture"
+        ],
+        "properties": {
+          "baremetal": {
+            "description": "Whether the flavor is for a dedicated machine.",
+            "type": "boolean"
+          },
+          "cpus": {
+            "description": "The number of CPUs.",
+            "type": "integer"
+          },
+          "cpuFamily": {
+            "description": "A free form CPU family description e.g. model number, architecture.",
+            "type": "string"
+          },
+          "memory": {
+            "description": "The amount of memory in GiB.",
+            "type": "integer"
+          },
+          "disk": {
+            "description": "The amount of ephemeral disk in GB.",
+            "type": "integer"
+          },
+          "architecture": {
+            "$ref": "#/components/schemas/architecture"
+          },
+          "gpu": {
+            "$ref": "#/components/schemas/gpuSpec"
+          },
+          "pinnedOnly": {
+            "description": "When true, a server using this flavor must specify an infrastructureRef to identify the target host.",
+            "type": "boolean"
+          }
+        }
+      },
+      "flavor": {
+        "description": "A flavor.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/staticResourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/flavorSpec"
+          }
+        }
+      },
+      "flavors": {
+        "description": "A list of flavors.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/flavor"
+        }
+      },
+      "identityWriteSpec": {
+        "description": "Request parameters for creating an identity.",
+        "type": "object",
+        "required": [
+          "regionId"
+        ],
+        "properties": {
+          "regionId": {
+            "$ref": "#/components/schemas/regionId"
+          }
+        }
+      },
+      "identityWrite": {
+        "description": "An identity request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/identityWriteSpec"
+          }
+        }
+      },
+      "identitySpecOpenStack": {
+        "description": "Everything an OpenStack client needs to function.",
+        "type": "object",
+        "properties": {
+          "cloud": {
+            "description": "The name of the cloud in the cloud config.",
+            "type": "string"
+          },
+          "cloudConfig": {
+            "description": "A base64 encoded cloud config file.",
+            "type": "string"
+          },
+          "userId": {
+            "description": "User identitifer allocated for the infrastructure.",
+            "type": "string"
+          },
+          "projectId": {
+            "description": "Project identifier allocated for the infrastructure.",
+            "type": "string"
+          },
+          "serverGroupId": {
+            "description": "Server group identifier allocated for the intrastructure.",
+            "type": "string"
+          },
+          "sshKeyName": {
+            "description": "Ephemeral SSH key generated for the identity.",
+            "type": "string"
+          },
+          "sshPrivateKey": {
+            "description": "Ephemeral SSH private key to be used by higher order services.",
+            "type": "string"
+          }
+        }
+      },
+      "identitySpec": {
+        "description": "A provider specific identity.",
+        "type": "object",
+        "required": [
+          "type",
+          "regionId"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/regionType"
+          },
+          "regionId": {
+            "description": "The region an identity is provisioned in.",
+            "type": "string"
+          },
+          "openstack": {
+            "$ref": "#/components/schemas/identitySpecOpenStack"
+          }
+        }
+      },
+      "identityRead": {
+        "description": "A provider specific identity.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/identitySpec"
+          }
+        }
+      },
+      "identitiesRead": {
+        "description": "A list of provider specific identities.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/identityRead"
+        }
+      },
+      "ipv4Address": {
+        "description": "An IPv4 address.",
+        "type": "string",
+        "format": "ipv4"
+      },
+      "ipv4AddressList": {
+        "description": "A list of IPv4 addresses.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ipv4Address"
+        }
+      },
+      "networkReadSpec": {
+        "description": "A physical network's specification.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "prefix",
+          "dnsNameservers"
+        ],
+        "properties": {
+          "prefix": {
+            "description": "An IPv4 prefix for the network.",
+            "type": "string"
+          },
+          "dnsNameservers": {
+            "$ref": "#/components/schemas/ipv4AddressList"
+          },
+          "regionId": {
+            "description": "The region an identity is provisioned in.",
+            "type": "string"
+          },
+          "openstack": {
+            "$ref": "#/components/schemas/networkSpecOpenstack"
+          }
+        }
+      },
+      "networkSpecOpenstack": {
+        "description": "An openstack network.",
+        "properties": {
+          "vlanId": {
+            "description": "The allocated VLAN ID.",
+            "type": "integer"
+          },
+          "networkId": {
+            "description": "The openstack network ID.",
+            "type": "string"
+          },
+          "subnetId": {
+            "description": "The openstack subnet ID.",
+            "type": "string"
+          },
+          "routerId": {
+            "description": "The openstack router ID.",
+            "type": "string"
+          }
+        }
+      },
+      "networkWriteSpec": {
+        "description": "A physical network's specification.",
+        "type": "object",
+        "required": [
+          "prefix",
+          "dnsNameservers"
+        ],
+        "properties": {
+          "prefix": {
+            "description": "An IPv4 prefix for the network.",
+            "type": "string"
+          },
+          "dnsNameservers": {
+            "$ref": "#/components/schemas/ipv4AddressList"
+          }
+        }
+      },
+      "networkWrite": {
+        "description": "A network request.",
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/networkWriteSpec"
+          }
+        }
+      },
+      "networkRead": {
+        "description": "A network.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/networkReadSpec"
+          }
+        }
+      },
+      "networksRead": {
+        "description": "A list of networks.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/networkRead"
+        }
+      },
+      "route": {
+        "description": "A network route.",
+        "type": "object",
+        "required": [
+          "prefix",
+          "nexthop"
+        ],
+        "properties": {
+          "prefix": {
+            "description": "An IPv4 prefix for the route.",
+            "type": "string"
+          },
+          "nexthop": {
+            "description": "An IPv4 address for the route's next hop.",
+            "type": "string"
+          }
+        }
+      },
+      "routes": {
+        "description": "A list of network routes.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/route"
+        }
+      },
+      "networkReservations": {
+        "description": "Network reservations carve a prefix from the start of the network CIDR\nfor infrastructure use such as file storage and internal platform\nservices as directed by the infrastructure provider.\nFor example, on a /24 network a reservation prefix length of 25\nreserves 192.168.0.0/25, leaving 192.168.0.128-192.168.0.254 for DHCP.\nReservations are fixed when the network is created and are immutable\nafterwards.",
+        "type": "object",
+        "required": [
+          "prefixLength"
+        ],
+        "properties": {
+          "prefixLength": {
+            "description": "Defines how much of the network to reserve, starting at the\nbeginning of the network CIDR.  For example, on a /24 network a\nvalue of 25 reserves the lower half of the network, i.e.\n192.168.0.0/25.  The network address (.0) and gateway (.1) are\nplatform-reserved within that space, so usable reserved addresses\nbegin at .2.  The reservation prefix length must be greater than\nthe network prefix length.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "providerReservedPrefixLength": {
+            "description": "Optionally carves a prefix from the start of the reserved space for\nprovider use.\nFor example, on a /24 network with prefixLength=25 and\nproviderReservedPrefixLength=28, 192.168.0.0/28 is reserved for\nprovider use and storage uses the remainder of the reserved space,\n192.168.0.16-192.168.0.127. If this matches prefixLength, the full\nreservation is treated as provider-reserved space and no storage range\nis left.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 30
+          }
+        }
+      },
+      "networkV2Spec": {
+        "description": "A network's specification.",
+        "type": "object",
+        "required": [
+          "dnsNameservers"
+        ],
+        "properties": {
+          "dnsNameservers": {
+            "description": "DNS nameservers to use.  If empty this will use the platform's\ninternal DNS server and allow hosts to resolve each other.  If it is\npopulated then no internal host resolution will be possible.",
+            "$ref": "#/components/schemas/ipv4AddressList"
+          },
+          "routes": {
+            "$ref": "#/components/schemas/routes"
+          }
+        }
+      },
+      "networkV2CreateSpec": {
+        "description": "A network's specification.",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/networkV2Spec"
+          },
+          {
+            "type": "object",
+            "required": [
+              "organizationId",
+              "projectId",
+              "regionId",
+              "prefix"
+            ],
+            "properties": {
+              "organizationId": {
+                "description": "The organization to provision the resource in.",
+                "type": "string"
+              },
+              "projectId": {
+                "description": "The project to provision the resource in.",
+                "type": "string"
+              },
+              "regionId": {
+                "$ref": "#/components/schemas/regionId"
+              },
+              "prefix": {
+                "description": "An IPv4 prefix for the network.  Dynamic modification of the\nnetwork prefix is not supported at this time, and doing so\nwould involve adding a route between discrete broadcast domains\nso ensure this is large enough for your potential requirements\nduring the life time of your infrastructure.",
+                "type": "string"
+              },
+              "reservations": {
+                "description": "Optional reservations to apply when the network is created.  If\nomitted, the platform default of a /25 reservation with a /28\nprovider carve-out is applied.",
+                "$ref": "#/components/schemas/networkReservations"
+              }
+            }
+          }
+        ]
+      },
+      "networkV2Status": {
+        "description": "Read only status about a network.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "prefix"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region a network is provisioned in.",
+            "type": "string"
+          },
+          "prefix": {
+            "description": "An IPv4 prefix for the network.",
+            "type": "string"
+          },
+          "reservations": {
+            "$ref": "#/components/schemas/networkReservations"
+          }
+        }
+      },
+      "networkV2Read": {
+        "description": "A network.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/networkV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/networkV2Status"
+          }
+        }
+      },
+      "networksV2Read": {
+        "description": "A list of networks.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/networkV2Read"
+        }
+      },
+      "networkV2Create": {
+        "description": "A network request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/networkV2CreateSpec"
+          }
+        }
+      },
+      "networkV2Update": {
+        "description": "A network update request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/networkV2Spec"
+          }
+        }
+      },
+      "externalNetwork": {
+        "description": "An Openstack external network.",
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "description": "The resource ID.",
+            "type": "string"
+          },
+          "name": {
+            "description": "The resource name.",
+            "type": "string"
+          }
+        }
+      },
+      "externalNetworks": {
+        "description": "A list of openstack external networks.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/externalNetwork"
+        }
+      },
+      "securityGroupRulePort": {
+        "description": "The port definition to allow traffic.",
+        "type": "object",
+        "properties": {
+          "number": {
+            "description": "The port to allow.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "range": {
+            "$ref": "#/components/schemas/securityGroupRulePortRange"
+          }
+        }
+      },
+      "securityGroupRulePortRange": {
+        "description": "The port range to allow traffic, valid for layer 4 protocols only e.g. TCP, UDP.",
+        "type": "object",
+        "required": [
+          "start",
+          "end"
+        ],
+        "properties": {
+          "start": {
+            "description": "The start of the port range.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "end": {
+            "description": "The end of the port range.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          }
+        }
+      },
+      "networkDirection": {
+        "description": "The direction of the rule.",
+        "type": "string",
+        "enum": [
+          "ingress",
+          "egress"
+        ]
+      },
+      "networkProtocol": {
+        "description": "The layer 3+ protocol to allow.",
+        "type": "string",
+        "enum": [
+          "any",
+          "icmp",
+          "tcp",
+          "udp",
+          "vrrp"
+        ]
+      },
+      "securityGroupRule": {
+        "description": "A security group rule's specification, this operates at OSI layer 3 and above.\nIf omitted the CIDR prefix defaults to 0.0.0.0/0 e.g. allow from anywhere.\nThe port can only be specified for layer 4 protocols e.g. TCP or UDP, and if\nomitted this default to all ports.",
+        "type": "object",
+        "required": [
+          "direction",
+          "protocol"
+        ],
+        "properties": {
+          "direction": {
+            "$ref": "#/components/schemas/networkDirection"
+          },
+          "protocol": {
+            "$ref": "#/components/schemas/networkProtocol"
+          },
+          "port": {
+            "$ref": "#/components/schemas/securityGroupRulePort"
+          },
+          "cidr": {
+            "$ref": "#/components/schemas/ipv4Address"
+          }
+        }
+      },
+      "securityGroupRuleList": {
+        "description": "A set of security group rules to apply.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/securityGroupRule"
+        }
+      },
+      "securityGroupRuleV2": {
+        "description": "A security group rule's specification, this operates at OSI layer 3 and above.\nIf omitted the prefix defaults to 0.0.0.0/0 e.g. allow from anywhere.",
+        "type": "object",
+        "required": [
+          "direction",
+          "protocol"
+        ],
+        "properties": {
+          "direction": {
+            "$ref": "#/components/schemas/networkDirection"
+          },
+          "protocol": {
+            "$ref": "#/components/schemas/networkProtocol"
+          },
+          "port": {
+            "description": "Port number for layer 4 protocols, if not specified matches all ports.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "portMax": {
+            "description": "maxumum port number for layer 4 protocols to include a range.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "prefix": {
+            "$ref": "#/components/schemas/ipv4Address"
+          }
+        }
+      },
+      "securityGroupRuleV2List": {
+        "description": "A set of security group rules to apply.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/securityGroupRuleV2"
+        }
+      },
+      "securityGroupSpec": {
+        "description": "A security group's specification.",
+        "type": "object",
+        "required": [
+          "rules"
+        ],
+        "properties": {
+          "rules": {
+            "$ref": "#/components/schemas/securityGroupRuleList"
+          }
+        }
+      },
+      "securityGroupWrite": {
+        "description": "A security group request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/securityGroupSpec"
+          }
+        }
+      },
+      "securityGroupRead": {
+        "description": "A security group.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/securityGroupSpec"
+          }
+        }
+      },
+      "securityGroupsRead": {
+        "description": "A list of security groups.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/securityGroupRead"
+        }
+      },
+      "securityGroupV2Spec": {
+        "description": "A security group's specification.",
+        "type": "object",
+        "required": [
+          "rules"
+        ],
+        "properties": {
+          "rules": {
+            "$ref": "#/components/schemas/securityGroupRuleV2List"
+          }
+        }
+      },
+      "securityGroupV2CreateSpec": {
+        "description": "A security group's specification.",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/securityGroupV2Spec"
+          },
+          {
+            "type": "object",
+            "required": [
+              "networkId"
+            ],
+            "properties": {
+              "networkId": {
+                "$ref": "#/components/schemas/networkId"
+              }
+            }
+          }
+        ]
+      },
+      "securityGroupV2Status": {
+        "description": "Read only status information about a security group.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "networkId"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region a security group belongs to.",
+            "type": "string"
+          },
+          "networkId": {
+            "description": "The network a security group belongs to.",
+            "type": "string"
+          }
+        }
+      },
+      "securityGroupV2Create": {
+        "description": "A security group request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/securityGroupV2CreateSpec"
+          }
+        }
+      },
+      "securityGroupV2Update": {
+        "description": "A security group request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/securityGroupV2Spec"
+          }
+        }
+      },
+      "securityGroupV2Read": {
+        "description": "A security group.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/securityGroupV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/securityGroupV2Status"
+          }
+        }
+      },
+      "securityGroupsV2Read": {
+        "description": "A list of security groups.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/securityGroupV2Read"
+        }
+      },
+      "loadBalancerListenerProtocolV2": {
+        "description": "The load balancer listener protocol.",
+        "type": "string",
+        "enum": [
+          "tcp",
+          "udp"
+        ]
+      },
+      "loadBalancerListenerNameV2": {
+        "description": "A load balancer listener name. Must start with a lower-case letter and otherwise be a valid DNS label.",
+        "type": "string",
+        "maxLength": 63,
+        "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$"
+      },
+      "loadBalancerMemberV2": {
+        "description": "A load balancer pool member.",
+        "type": "object",
+        "required": [
+          "address",
+          "port"
+        ],
+        "properties": {
+          "address": {
+            "$ref": "#/components/schemas/ipv4Address"
+          },
+          "port": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          }
+        }
+      },
+      "loadBalancerHealthCheckV2": {
+        "description": "A load balancer pool health check.",
+        "type": "object",
+        "properties": {
+          "intervalSeconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300
+          },
+          "timeoutSeconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 300
+          },
+          "healthyThreshold": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "unhealthyThreshold": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          }
+        }
+      },
+      "loadBalancerPoolV2": {
+        "description": "A load balancer listener pool.",
+        "type": "object",
+        "required": [
+          "members"
+        ],
+        "properties": {
+          "proxyProtocolV2": {
+            "description": "Whether to enable Proxy Protocol v2.",
+            "type": "boolean"
+          },
+          "members": {
+            "description": "A list of pool members.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/loadBalancerMemberV2"
+            }
+          },
+          "healthCheck": {
+            "$ref": "#/components/schemas/loadBalancerHealthCheckV2"
+          }
+        }
+      },
+      "loadBalancerListenerV2": {
+        "description": "A load balancer listener.",
+        "type": "object",
+        "required": [
+          "name",
+          "protocol",
+          "port",
+          "pool"
+        ],
+        "properties": {
+          "name": {
+            "description": "The listener name.",
+            "$ref": "#/components/schemas/loadBalancerListenerNameV2"
+          },
+          "protocol": {
+            "$ref": "#/components/schemas/loadBalancerListenerProtocolV2"
+          },
+          "port": {
+            "description": "The listener port.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "allowedCidrs": {
+            "description": "A list of source IPv4 CIDRs allowed to access the listener.",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\/(?:3[0-2]|[1-2]?[0-9])$"
+            }
+          },
+          "idleTimeoutSeconds": {
+            "description": "The idle timeout in seconds. Defaults to 60 for TCP listeners and is unsupported for UDP listeners.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 86400
+          },
+          "pool": {
+            "$ref": "#/components/schemas/loadBalancerPoolV2"
+          }
+        }
+      },
+      "loadBalancerV2Spec": {
+        "description": "A load balancer's specification.",
+        "type": "object",
+        "required": [
+          "listeners"
+        ],
+        "properties": {
+          "publicIP": {
+            "description": "Whether to allocate a public IP.",
+            "type": "boolean"
+          },
+          "listeners": {
+            "description": "A list of load balancer listeners.",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/loadBalancerListenerV2"
+            }
+          }
+        }
+      },
+      "loadBalancerV2CreateSpec": {
+        "description": "A load balancer creation specification.",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/loadBalancerV2Spec"
+          },
+          {
+            "type": "object",
+            "required": [
+              "networkId"
+            ],
+            "properties": {
+              "networkId": {
+                "$ref": "#/components/schemas/networkId"
+              },
+              "vipAddress": {
+                "description": "The requested virtual IP address. When provided, it must fall within the selected network CIDR.",
+                "$ref": "#/components/schemas/ipv4Address"
+              }
+            }
+          }
+        ]
+      },
+      "loadBalancerV2Status": {
+        "description": "Read only status information about a load balancer.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "networkId"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region the load balancer belongs to.",
+            "type": "string"
+          },
+          "networkId": {
+            "description": "The network the load balancer belongs to.",
+            "type": "string"
+          },
+          "vipAddress": {
+            "description": "The provisioned virtual IP address.",
+            "$ref": "#/components/schemas/ipv4Address"
+          },
+          "publicIP": {
+            "description": "The provisioned public IP address.",
+            "$ref": "#/components/schemas/ipv4Address"
+          }
+        }
+      },
+      "loadBalancerV2Create": {
+        "description": "A load balancer creation request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/loadBalancerV2CreateSpec"
+          }
+        }
+      },
+      "loadBalancerV2Update": {
+        "description": "A load balancer update request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/loadBalancerV2Spec"
+          }
+        }
+      },
+      "loadBalancerV2Read": {
+        "description": "A load balancer.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/loadBalancerV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/loadBalancerV2Status"
+          }
+        }
+      },
+      "loadBalancersV2Read": {
+        "description": "A list of load balancers.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/loadBalancerV2Read"
+        }
+      },
+      "sshCertificateAuthorityV2Spec": {
+        "description": "An OpenSSH user certificate authority trust anchor.",
+        "type": "object",
+        "required": [
+          "publicKey"
+        ],
+        "properties": {
+          "publicKey": {
+            "description": "A single-line OpenSSH-formatted CA public key.",
+            "type": "string"
+          }
+        }
+      },
+      "sshCertificateAuthorityV2CreateSpec": {
+        "description": "An SSH certificate authority creation specification.",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/sshCertificateAuthorityV2Spec"
+          },
+          {
+            "type": "object",
+            "required": [
+              "organizationId",
+              "projectId"
+            ],
+            "properties": {
+              "organizationId": {
+                "description": "The organization the SSH certificate authority belongs to.",
+                "type": "string"
+              },
+              "projectId": {
+                "description": "The project the SSH certificate authority belongs to.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "sshCertificateAuthorityV2Create": {
+        "description": "An SSH certificate authority creation request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/sshCertificateAuthorityV2CreateSpec"
+          }
+        }
+      },
+      "sshCertificateAuthorityV2Read": {
+        "description": "An SSH certificate authority.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/sshCertificateAuthorityV2Spec"
+          }
+        }
+      },
+      "sshCertificateAuthoritiesV2Read": {
+        "description": "A list of SSH certificate authorities.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/sshCertificateAuthorityV2Read"
+        }
+      },
+      "sshCertificateAuthorityID": {
+        "description": "The SSH certificate authority ID.",
+        "type": "string"
+      },
+      "sshInjection": {
+        "description": "The create-time SSH access material Region should arrange for a server.",
+        "type": "string",
+        "enum": [
+          "ca",
+          "identityKeypair",
+          "none"
+        ]
+      },
+      "infrastructureRef": {
+        "description": "A provider-specific identifier for a physical host. When set, the provider's scheduler is bypassed and the server is provisioned directly onto the identified host.",
+        "type": "string"
+      },
+      "serverSpec": {
+        "description": "A server's specification.",
+        "type": "object",
+        "required": [
+          "flavorId",
+          "imageId",
+          "networks"
+        ],
+        "properties": {
+          "flavorId": {
+            "$ref": "#/components/schemas/flavorId"
+          },
+          "imageId": {
+            "description": "The server image. On update this field is ignored: the image is\nimmutable through the v1 API and the stored value is preserved.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/imageId"
+              }
+            ]
+          },
+          "securityGroups": {
+            "$ref": "#/components/schemas/serverSecurityGroupList"
+          },
+          "publicIPAllocation": {
+            "$ref": "#/components/schemas/serverPublicIPAllocation"
+          },
+          "networks": {
+            "$ref": "#/components/schemas/serverNetworkList"
+          },
+          "userData": {
+            "description": "UserData contains base64-encoded configuration information or scripts to use upon launch.",
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      },
+      "serverNetworkList": {
+        "description": "A list of networks.",
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1,
+        "items": {
+          "$ref": "#/components/schemas/serverNetwork"
+        }
+      },
+      "serverNetwork": {
+        "description": "The server's network.",
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "description": "Network to attach the server to",
+            "type": "string"
+          },
+          "allowedAddressPairs": {
+            "$ref": "#/components/schemas/serverNetworkAllowedAddressPairList"
+          }
+        }
+      },
+      "serverNetworkAllowedAddressPairList": {
+        "description": "A list of allowed address pairs.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/serverNetworkAllowedAddressPair"
+        }
+      },
+      "serverNetworkAllowedAddressPair": {
+        "description": "Allow multiple MAC/IP address (range) pairs to pass through this network port.",
+        "type": "object",
+        "required": [
+          "cidr"
+        ],
+        "properties": {
+          "cidr": {
+            "description": "The CIDR to allow.",
+            "type": "string"
+          },
+          "macAddress": {
+            "description": "The MAC address to allow.",
+            "type": "string"
+          }
+        }
+      },
+      "serverPublicIPAllocation": {
+        "description": "The server's public IP allocation.",
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "properties": {
+          "enabled": {
+            "description": "Whether to allocate a public IP.",
+            "type": "boolean"
+          }
+        }
+      },
+      "serverSecurityGroupList": {
+        "description": "A list of security groups.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/serverSecurityGroup"
+        }
+      },
+      "serverSecurityGroup": {
+        "description": "A security group.",
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "description": "The security group ID.",
+            "type": "string"
+          }
+        }
+      },
+      "instanceLifecyclePhase": {
+        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up.\n",
+        "type": "string",
+        "enum": [
+          "Pending",
+          "Queued",
+          "Building",
+          "Running",
+          "Stopping",
+          "Stopped"
+        ]
+      },
+      "serverStatus": {
+        "description": "A server's status.",
+        "type": "object",
+        "properties": {
+          "phase": {
+            "$ref": "#/components/schemas/instanceLifecyclePhase"
+          },
+          "privateIP": {
+            "description": "The private IP address of the server.",
+            "type": "string"
+          },
+          "publicIP": {
+            "description": "The public IP address of the server.",
+            "type": "string"
+          }
+        }
+      },
+      "serverRead": {
+        "description": "A server.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/serverSpec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/serverStatus"
+          }
+        }
+      },
+      "serverWrite": {
+        "description": "A server request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/serverSpec"
+          }
+        }
+      },
+      "serversRead": {
+        "description": "A list of servers.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/serverRead"
+        }
+      },
+      "allowedSourceAddresses": {
+        "description": "A list of network prefixes that are allowed to egress from the server.\nBy default, only packets from the server's network interface's IP address\nare allowed to enter the network.  Use of this option allows the server\nto act as a router without SNAT rules.",
+        "type": "array",
+        "items": {
+          "description": "An allowed source address prefix.",
+          "type": "string"
+        }
+      },
+      "serverV2SecurityGroupIDList": {
+        "description": "A list of security group IDs.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/securityGroupId"
+        }
+      },
+      "serverV2Networking": {
+        "description": "A server's network configuration.",
+        "type": "object",
+        "properties": {
+          "securityGroups": {
+            "$ref": "#/components/schemas/serverV2SecurityGroupIDList"
+          },
+          "publicIP": {
+            "description": "Whether or not to provision a public IP.",
+            "type": "boolean"
+          },
+          "allowedSourceAddresses": {
+            "$ref": "#/components/schemas/allowedSourceAddresses"
+          }
+        }
+      },
+      "serverV2Spec": {
+        "description": "A server's specification.",
+        "type": "object",
+        "required": [
+          "flavorId",
+          "imageId"
+        ],
+        "properties": {
+          "flavorId": {
+            "description": "The server flavor. This field is immutable after creation.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/flavorId"
+              }
+            ]
+          },
+          "imageId": {
+            "description": "The desired server image. Changing this field rebuilds the server,\nrecreating the root disk and destroying its contents.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/imageId"
+              }
+            ]
+          },
+          "networking": {
+            "$ref": "#/components/schemas/serverV2Networking"
+          },
+          "userData": {
+            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. On update the field is replaced wholesale: omitting\nit clears the stored value. A changed value is not applied to the running guest —\nit takes effect only when the server is next rebuilt (image change) or recreated.",
+            "type": "string",
+            "format": "byte"
+          }
+        }
+      },
+      "serverV2CreateSpec": {
+        "description": "A server's specification.",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/serverV2Spec"
+          },
+          {
+            "type": "object",
+            "required": [
+              "networkId"
+            ],
+            "properties": {
+              "networkId": {
+                "$ref": "#/components/schemas/networkId"
+              },
+              "sshCertificateAuthorityId": {
+                "description": "The SSH certificate authority used to bootstrap login trust when the server is created.",
+                "$ref": "#/components/schemas/sshCertificateAuthorityID"
+              },
+              "sshInjection": {
+                "description": "The create-time SSH access material Region should arrange for the server. If omitted, Region uses ca when sshCertificateAuthorityId is set, otherwise identityKeypair.",
+                "$ref": "#/components/schemas/sshInjection"
+              },
+              "infrastructureRef": {
+                "$ref": "#/components/schemas/infrastructureRef"
+              }
+            }
+          }
+        ]
+      },
+      "serverV2Status": {
+        "description": "Read only status information about a server.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "networkId"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region a security group belongs to.",
+            "$ref": "#/components/schemas/regionId"
+          },
+          "networkId": {
+            "description": "The network a security group belongs to.",
+            "$ref": "#/components/schemas/networkId"
+          },
+          "sshCertificateAuthorityId": {
+            "description": "The SSH certificate authority configured when the server was created.",
+            "$ref": "#/components/schemas/sshCertificateAuthorityID"
+          },
+          "sshInjection": {
+            "description": "The resolved create-time SSH access material Region arranged for the server.",
+            "$ref": "#/components/schemas/sshInjection"
+          },
+          "infrastructureRef": {
+            "$ref": "#/components/schemas/infrastructureRef"
+          },
+          "powerState": {
+            "$ref": "#/components/schemas/instanceLifecyclePhase"
+          },
+          "privateIP": {
+            "description": "The private IP address of the server.",
+            "type": "string"
+          },
+          "publicIP": {
+            "description": "The public IP address of the server.",
+            "type": "string"
+          },
+          "macAddress": {
+            "description": "The MAC address of the server.",
+            "type": "string"
+          }
+        }
+      },
+      "serverV2Read": {
+        "description": "A server.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/serverV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/serverV2Status"
+          }
+        }
+      },
+      "serversV2Read": {
+        "description": "A list of servers.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/serverV2Read"
+        }
+      },
+      "serverV2Create": {
+        "description": "A server creation request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/serverV2CreateSpec"
+          }
+        }
+      },
+      "serverV2Update": {
+        "description": "A server update request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/serverV2Spec"
+          }
+        }
+      },
+      "consoleSession": {
+        "description": "A console session response.",
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "description": "The URL to access the console session.",
+            "type": "string"
+          }
+        }
+      },
+      "consoleOutput": {
+        "description": "Console output",
+        "type": "object",
+        "required": [
+          "contents"
+        ],
+        "properties": {
+          "contents": {
+            "description": "Console output.",
+            "type": "string"
+          }
+        }
+      },
+      "sshKey": {
+        "description": "An SSH key.",
+        "type": "object",
+        "required": [
+          "privateKey"
+        ],
+        "properties": {
+          "privateKey": {
+            "description": "The SSH private key.",
+            "type": "string"
+          }
+        }
+      },
+      "storageTypeV2Spec": {
+        "description": "A storage's type",
+        "type": "object",
+        "properties": {
+          "NFS": {
+            "$ref": "#/components/schemas/NFSV2Spec"
+          }
+        }
+      },
+      "NFSV2Spec": {
+        "description": "NFS specific",
+        "type": "object",
+        "required": [
+          "rootSquash"
+        ],
+        "properties": {
+          "rootSquash": {
+            "description": "root squash",
+            "type": "boolean"
+          }
+        }
+      },
+      "storageAttachmentV2Spec": {
+        "description": "Describes the network attachment for storage",
+        "type": "object",
+        "required": [
+          "networkIds"
+        ],
+        "properties": {
+          "networkIds": {
+            "$ref": "#/components/schemas/networkIDList"
+          }
+        }
+      },
+      "networkIDList": {
+        "description": "A list of network IDs",
+        "type": "array",
+        "items": {
+          "description": "A network identifier",
+          "type": "string"
+        }
+      },
+      "storageAttachmentListV2Status": {
+        "description": "Describes the network attachments for storage",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/storageAttachmentV2Status"
+        }
+      },
+      "storageAttachmentV2Status": {
+        "description": "Describes the network attachment for storage",
+        "type": "object",
+        "required": [
+          "networkId",
+          "provisioningStatus"
+        ],
+        "properties": {
+          "networkId": {
+            "description": "The network ID",
+            "type": "string"
+          },
+          "mountSource": {
+            "description": "The mount source for the attached storage in the format <host>:<path>.",
+            "type": "string"
+          },
+          "mountOptions": {
+            "description": "Optional NFS mount options for the attached storage.",
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "provisioningStatus": {
+            "$ref": "#/components/schemas/resourceProvisioningStatus"
+          }
+        }
+      },
+      "storageSnapshotPolicyListV2Spec": {
+        "description": "A list of named snapshot policies for storage.",
+        "type": "array",
+        "maxItems": 4,
+        "items": {
+          "$ref": "#/components/schemas/storageSnapshotPolicyV2Spec"
+        }
+      },
+      "storageSnapshotPolicyV2Spec": {
+        "description": "A named snapshot policy for storage.",
+        "type": "object",
+        "required": [
+          "name",
+          "schedule",
+          "retention"
+        ],
+        "properties": {
+          "name": {
+            "description": "Stable identity key for the snapshot policy.",
+            "type": "string",
+            "maxLength": 19,
+            "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$"
+          },
+          "schedule": {
+            "$ref": "#/components/schemas/storageSnapshotScheduleV2Spec"
+          },
+          "retention": {
+            "$ref": "#/components/schemas/storageSnapshotRetentionV2Spec"
+          }
+        }
+      },
+      "storageSnapshotScheduleV2Spec": {
+        "description": "Schedule for a storage snapshot policy.",
+        "type": "object",
+        "required": [
+          "interval"
+        ],
+        "properties": {
+          "interval": {
+            "$ref": "#/components/schemas/storageSnapshotScheduleIntervalV2"
+          },
+          "timeOfDay": {
+            "description": "UTC time of day in HH:MMZ form.",
+            "type": "string",
+            "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]Z$"
+          },
+          "dayOfWeek": {
+            "$ref": "#/components/schemas/storageSnapshotDayOfWeekV2"
+          },
+          "dayOfMonth": {
+            "description": "UTC day of month for monthly snapshot policies.",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 28
+          }
+        }
+      },
+      "storageSnapshotScheduleIntervalV2": {
+        "description": "Snapshot policy cadence.",
+        "type": "string",
+        "enum": [
+          "hourly",
+          "daily",
+          "weekly",
+          "monthly"
+        ]
+      },
+      "storageSnapshotDayOfWeekV2": {
+        "description": "UTC day of week for weekly snapshot policies.",
+        "type": "string",
+        "enum": [
+          "monday",
+          "tuesday",
+          "wednesday",
+          "thursday",
+          "friday",
+          "saturday",
+          "sunday"
+        ]
+      },
+      "storageSnapshotRetentionV2Spec": {
+        "description": "Retention policy for storage snapshots.",
+        "type": "object",
+        "required": [
+          "keep"
+        ],
+        "properties": {
+          "keep": {
+            "description": "Number of snapshots to retain.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "storageSnapshotPolicyListV2Status": {
+        "description": "A list of observed snapshot policy states for storage.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/storageSnapshotPolicyV2Status"
+        }
+      },
+      "storageSnapshotPolicyV2Status": {
+        "description": "Observed state for a named storage snapshot policy.",
+        "type": "object",
+        "required": [
+          "name",
+          "provisioningStatus"
+        ],
+        "properties": {
+          "name": {
+            "description": "Stable identity key for the snapshot policy.",
+            "type": "string",
+            "maxLength": 19,
+            "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$"
+          },
+          "provisioningStatus": {
+            "$ref": "#/components/schemas/resourceProvisioningStatus"
+          },
+          "message": {
+            "description": "Optional human-readable status detail for the snapshot policy.",
+            "type": "string"
+          }
+        }
+      },
+      "storageV2Spec": {
+        "description": "A storage's specification.",
+        "type": "object",
+        "required": [
+          "sizeGiB",
+          "storageType"
+        ],
+        "properties": {
+          "sizeGiB": {
+            "description": "size in GiB of the storage",
+            "type": "integer",
+            "format": "int64"
+          },
+          "storageType": {
+            "$ref": "#/components/schemas/storageTypeV2Spec"
+          },
+          "attachments": {
+            "$ref": "#/components/schemas/storageAttachmentV2Spec"
+          },
+          "defaultSnapshotProtectionEnabled": {
+            "description": "Whether platform-managed Default Snapshot Protection is enabled. On create, omission resolves to enabled. On update, omission preserves the current setting. Reads return the resolved setting. Explicit null is invalid.",
+            "type": "boolean"
+          },
+          "snapshotPolicies": {
+            "$ref": "#/components/schemas/storageSnapshotPolicyListV2Spec"
+          }
+        }
+      },
+      "storageV2Status": {
+        "description": "Read only status about storage",
+        "type": "object",
+        "required": [
+          "storageClassId",
+          "regionId",
+          "snapshotPolicies"
+        ],
+        "properties": {
+          "storageClassId": {
+            "description": "identifier for the storage",
+            "type": "string"
+          },
+          "regionId": {
+            "description": "The region an identity is provisioned in.",
+            "type": "string"
+          },
+          "usage": {
+            "$ref": "#/components/schemas/storageUsageV2Status"
+          },
+          "attachments": {
+            "$ref": "#/components/schemas/storageAttachmentListV2Status"
+          },
+          "snapshotPolicies": {
+            "$ref": "#/components/schemas/storageSnapshotPolicyListV2Status"
+          }
+        }
+      },
+      "storageUsageV2Status": {
+        "description": "Information about the usage of the storage in bytes",
+        "type": "object",
+        "required": [
+          "capacityBytes"
+        ],
+        "properties": {
+          "capacityBytes": {
+            "description": "total space allotted in bytes",
+            "type": "integer",
+            "format": "int64"
+          },
+          "usedBytes": {
+            "description": "amount of storage space used in bytes",
+            "type": "integer",
+            "format": "int64"
+          },
+          "updatedAt": {
+            "description": "timestamp when the usage was last updated",
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "storageV2Create": {
+        "description": "A storage create request. When spec.defaultSnapshotProtectionEnabled is omitted, Default Snapshot Protection is enabled. Explicit null defaultSnapshotProtectionEnabled is invalid. When spec.snapshotPolicies is omitted or empty, the API stores no user-managed Snapshot Policies. Non-empty policy lists are stored exactly as supplied.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "allOf": [
+              {
+                "type": "object",
+                "required": [
+                  "organizationId",
+                  "projectId",
+                  "regionId",
+                  "storageClassId",
+                  "sizeGiB"
+                ],
+                "properties": {
+                  "storageClassId": {
+                    "description": "The storage class ID to provision the storage into.",
+                    "type": "string"
+                  },
+                  "organizationId": {
+                    "description": "The organization to provision the resource in.",
+                    "type": "string"
+                  },
+                  "regionId": {
+                    "$ref": "#/components/schemas/regionId"
+                  },
+                  "projectId": {
+                    "description": "The project to provision the resource in.",
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "$ref": "#/components/schemas/storageV2Spec"
+              }
+            ]
+          }
+        }
+      },
+      "storageV2Update": {
+        "description": "A storage update request. Omitted spec.defaultSnapshotProtectionEnabled preserves the current Default Snapshot Protection setting, and explicit null is invalid. Omitted spec.snapshotPolicies preserves existing desired user-managed Snapshot Policies, an empty list clears them, and a non-empty list replaces the full list.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/storageV2Spec"
+          }
+        }
+      },
+      "storageV2Read": {
+        "description": "A storage read only group.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/storageV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/storageV2Status"
+          }
+        }
+      },
+      "storageV2List": {
+        "description": "A list of storage",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/storageV2Read"
+        }
+      },
+      "storageClassListV2Read": {
+        "description": "A list of storage classes.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/storageClassV2Read"
+        }
+      },
+      "storageClassV2Read": {
+        "description": "A storage class.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/storageClassV2Spec"
+          }
+        }
+      },
+      "storageClassV2Spec": {
+        "description": "A storage class's specification.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "protocols",
+          "parallelism"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region an storage class is provisioned in.",
+            "type": "string"
+          },
+          "protocols": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/storageClassProtocolType"
+            }
+          },
+          "parallelism": {
+            "description": "Defines the target number of IP addresses assigned to storage.\nMore IP addresses can improve performance. Attachments use\nmin(parallelism, usable IPs in the network storage range).",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
+      "storageClassProtocolType": {
+        "description": "The protocol type of the storage class.",
+        "type": "string",
+        "enum": [
+          "nfsv3",
+          "nfsv4"
+        ]
+      },
+      "authorizationServerList": {
+        "description": "List of authorization servers that can grant access to the resource.",
+        "type": "array",
+        "items": {
+          "description": "An authorization server's scheme and hostname.",
+          "type": "string"
+        }
+      },
+      "scopeList": {
+        "description": "A set of OIDC scopes that are required for authorization.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "bearerMethod": {
+        "description": "Bearer token transport method",
+        "type": "string",
+        "enum": [
+          "header",
+          "body",
+          "query"
+        ]
+      },
+      "bearerMethodList": {
+        "description": "A set of bearer token transport methods supported by the protected endpoint.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/bearerMethod"
+        }
+      },
+      "openidProtectedResource": {
+        "description": "OpenID athentication server discovery configuration.",
+        "type": "object",
+        "required": [
+          "resource",
+          "authorization_servers",
+          "scopes_supported",
+          "bearer_methods_supported"
+        ],
+        "properties": {
+          "resource": {
+            "description": "The protected resource's scheme and hostname.",
+            "type": "string"
+          },
+          "authorization_servers": {
+            "$ref": "#/components/schemas/authorizationServerList"
+          },
+          "scopes_supported": {
+            "$ref": "#/components/schemas/scopeList"
+          },
+          "bearer_methods_supported": {
+            "$ref": "#/components/schemas/bearerMethodList"
+          }
+        }
+      },
+      "organizationId": {
+        "description": "An organization ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "kubernetesLabelValue": {
+        "description": "A valid Kubernetes label value, typically used for resource names that can be\nindexed in the database.",
+        "type": "string",
+        "pattern": "^[0-9A-Za-z](?:[0-9A-Za-z-_.]{0,61}[0-9A-Za-z])?$"
+      },
+      "tag": {
+        "description": "A tag mapping arbitrary names to values.  These have no special meaning\nfor any component are are intended for use by end users to add additional\ncontext to a resource, for example to categorize it.",
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "description": "A unique tag name.",
+            "type": "string"
+          },
+          "value": {
+            "description": "The value of the tag.",
+            "type": "string"
+          }
+        }
+      },
+      "tagList": {
+        "description": "A list of tags.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/tag"
+        }
+      },
+      "resourceMetadata": {
+        "description": "Metadata required for all API resource reads and writes.",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/kubernetesLabelValue"
+          },
+          "description": {
+            "description": "The resource description, this optionally augments the name with more context.",
+            "type": "string"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/tagList"
+          }
+        }
+      },
+      "staticResourceMetadata": {
+        "description": "This metadata is for resources that just exist, and don't require\nany provisioning and health status, but benefit from a standardized\nmetadata format.\n",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "creationTime"
+            ],
+            "properties": {
+              "id": {
+                "description": "The unique resource ID.",
+                "type": "string"
+              },
+              "creationTime": {
+                "description": "The time the resource was created.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "createdBy": {
+                "description": "The user who created the resource.",
+                "type": "string"
+              },
+              "modifiedTime": {
+                "description": "The time a resource was updated.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "modifiedBy": {
+                "description": "The user who updated the resource.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "resourceProvisioningStatus": {
+        "description": "The provisioning state of a resource.",
+        "type": "string",
+        "enum": [
+          "unknown",
+          "pending",
+          "provisioning",
+          "provisioned",
+          "deprovisioning",
+          "error"
+        ]
+      },
+      "resourceHealthStatus": {
+        "description": "The health state of a resource.",
+        "type": "string",
+        "enum": [
+          "unknown",
+          "healthy",
+          "degraded",
+          "error"
+        ]
+      },
+      "resourceReadMetadata": {
+        "description": "Metadata required by all resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/staticResourceMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "provisioningStatus",
+              "healthStatus"
+            ],
+            "properties": {
+              "deletionTime": {
+                "description": "The time the resource was deleted.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "provisioningStatus": {
+                "$ref": "#/components/schemas/resourceProvisioningStatus"
+              },
+              "healthStatus": {
+                "$ref": "#/components/schemas/resourceHealthStatus"
+              }
+            }
+          }
+        ]
+      },
+      "error": {
+        "description": "Generic error message, compatible with oauth2.",
+        "type": "object",
+        "required": [
+          "error",
+          "error_description"
+        ],
+        "properties": {
+          "error": {
+            "description": "A terse error string expanding on the HTTP error code. Errors are based on the OAuth 2.02 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth 2.02.",
+            "type": "string",
+            "enum": [
+              "invalid_request",
+              "server_error",
+              "access_denied",
+              "not_found",
+              "conflict",
+              "method_not_allowed",
+              "unsupported_media_type",
+              "request_entity_too_large",
+              "unprocessable_content",
+              "forbidden"
+            ]
+          },
+          "error_description": {
+            "description": "Verbose message describing the error.",
+            "type": "string"
+          },
+          "trace_id": {
+            "description": "Unique trace identifier for the request.",
+            "type": "string"
+          }
+        }
+      },
+      "semver": {
+        "description": "A semantic version in the form v1.2.3.\nPre-releases and variants are not currently supported.",
+        "type": "string",
+        "pattern": "^v\\d+\\.\\d+\\.\\d+$"
+      },
+      "organizationScopedResourceReadMetadata": {
+        "description": "Metadata required by organization scoped resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/resourceReadMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "organizationId"
+            ],
+            "properties": {
+              "organizationId": {
+                "description": "The organization identifier the resource belongs to.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "projectScopedResourceReadMetadata": {
+        "description": "Metadata required by project scoped resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/organizationScopedResourceReadMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "projectId"
+            ],
+            "properties": {
+              "projectId": {
+                "description": "The project identifier the resource belongs to.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "projectId": {
+        "description": "A project ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "serviceVersionRead": {
+        "description": "Build version information for the running service, stamped into the\nbinary at release time.  Developer builds report version 0.0.0.",
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "description": "The service application name.",
+            "type": "string"
+          },
+          "version": {
+            "description": "The service release version, e.g. v1.2.3.",
+            "type": "string"
+          }
+        }
+      }
+    },
+    "requestBodies": {
+      "identityRequest": {
+        "description": "A request for an identity.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/identityWrite"
+            },
+            "example": {
+              "metadata": {
+                "name": "identity-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "cluster-id",
+                    "value": "9361402c-f998-49cc-ab21-9bb99afcfde8"
+                  }
+                ]
+              },
+              "spec": {
+                "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b"
+              }
+            }
+          }
+        }
+      },
+      "imageCreateRequest": {
+        "description": "A request to create an image.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/imageCreate"
+            },
+            "example": {
+              "metadata": {
+                "name": "ubu2204-v1.25.6-gpu-525.85.05-7ced4154"
+              },
+              "spec": {
+                "uri": "https://example.com/buckets/myimages/ubu2204-v1.25.6-gpu-525.85.05-7ced4154.raw",
+                "architecture": "x86_64",
+                "virtualization": "virtualized",
+                "os": {
+                  "kernel": "linux",
+                  "family": "debian",
+                  "distro": "ubuntu",
+                  "variant": "server",
+                  "codename": "noble",
+                  "version": "24.04"
+                },
+                "softwareVersions": {
+                  "kubernetes": "v1.25.6"
+                },
+                "gpu": {
+                  "vendor": "NVIDIA",
+                  "driver": "525.85.05",
+                  "models": [
+                    "A100",
+                    "H100",
+                    "H200"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "networkRequest": {
+        "description": "A request for a network.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/networkWrite"
+            },
+            "example": {
+              "metadata": {
+                "name": "network-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "cluster-id",
+                    "value": "9361402c-f998-49cc-ab21-9bb99afcfde8"
+                  }
+                ]
+              },
+              "spec": {
+                "prefix": "192.168.0.0/24",
+                "dnsNameservers": [
+                  "8.8.8.8"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "networkV2CreateRequest": {
+        "description": "A request for a network create.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/networkV2Create"
+            },
+            "example": {
+              "metadata": {
+                "name": "network-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "cluster-id",
+                    "value": "9361402c-f998-49cc-ab21-9bb99afcfde8"
+                  }
+                ]
+              },
+              "spec": {
+                "organizationId": "161b9d5a-701d-4fea-848d-0e345edf16e9",
+                "projectId": "f113be96-4dd2-4c14-9c0e-e96c500f21e0",
+                "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                "prefix": "192.168.0.0/24",
+                "reservations": {
+                  "prefixLength": 25,
+                  "providerReservedPrefixLength": 28
+                },
+                "dnsNameservers": [
+                  "8.8.8.8"
+                ],
+                "routes": [
+                  {
+                    "prefix": "10.0.0.0/8",
+                    "nexthop": "192.168.0.10"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "networkV2UpdateRequest": {
+        "description": "A request for a network create.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/networkV2Update"
+            },
+            "example": {
+              "metadata": {
+                "name": "network-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "cluster-id",
+                    "value": "9361402c-f998-49cc-ab21-9bb99afcfde8"
+                  }
+                ]
+              },
+              "spec": {
+                "dnsNameservers": [
+                  "8.8.8.8"
+                ],
+                "routes": [
+                  {
+                    "prefix": "10.0.0.0/8",
+                    "nexthop": "192.168.0.10"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "securityGroupRequest": {
+        "description": "A request for a security group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/securityGroupWrite"
+            },
+            "example": {
+              "metadata": {
+                "name": "security-group-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "cluster-id",
+                    "value": "9361402c-f998-49cc-ab21-9bb99afcfde8"
+                  }
+                ]
+              },
+              "spec": {
+                "rules": [
+                  {
+                    "direction": "ingress",
+                    "protocol": "tcp",
+                    "port": {
+                      "number": 80
+                    },
+                    "cidr": "172.16.0.0/12"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "securityGroupV2CreateRequest": {
+        "description": "A request for a security group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/securityGroupV2Create"
+            },
+            "example": {
+              "metadata": {
+                "name": "security-group-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "cluster-id",
+                    "value": "9361402c-f998-49cc-ab21-9bb99afcfde8"
+                  }
+                ]
+              },
+              "spec": {
+                "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                "rules": [
+                  {
+                    "direction": "ingress",
+                    "protocol": "tcp",
+                    "port": 80,
+                    "cidr": "172.16.0.0/12"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "securityGroupV2UpdateRequest": {
+        "description": "A request for a security group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/securityGroupV2Update"
+            },
+            "example": {
+              "metadata": {
+                "name": "security-group-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "cluster-id",
+                    "value": "9361402c-f998-49cc-ab21-9bb99afcfde8"
+                  }
+                ]
+              },
+              "spec": {
+                "rules": [
+                  {
+                    "direction": "ingress",
+                    "protocol": "tcp",
+                    "port": 80,
+                    "cidr": "172.16.0.0/12"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "loadBalancerV2CreateRequest": {
+        "description": "A request for a load balancer.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/loadBalancerV2Create"
+            },
+            "example": {
+              "metadata": {
+                "name": "web-lb",
+                "description": "Public TCP load balancer",
+                "tags": [
+                  {
+                    "name": "service",
+                    "value": "ingress"
+                  }
+                ]
+              },
+              "spec": {
+                "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                "publicIP": true,
+                "vipAddress": "192.168.10.20",
+                "listeners": [
+                  {
+                    "name": "http",
+                    "protocol": "tcp",
+                    "port": 80,
+                    "allowedCidrs": [
+                      "0.0.0.0/0"
+                    ],
+                    "idleTimeoutSeconds": 30,
+                    "pool": {
+                      "proxyProtocolV2": false,
+                      "members": [
+                        {
+                          "address": "10.0.0.10",
+                          "port": 8080
+                        }
+                      ],
+                      "healthCheck": {
+                        "intervalSeconds": 10,
+                        "timeoutSeconds": 5,
+                        "healthyThreshold": 2,
+                        "unhealthyThreshold": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "loadBalancerV2UpdateRequest": {
+        "description": "A request to update a load balancer.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/loadBalancerV2Update"
+            },
+            "example": {
+              "metadata": {
+                "name": "web-lb",
+                "description": "Public TCP load balancer",
+                "tags": [
+                  {
+                    "name": "service",
+                    "value": "ingress"
+                  }
+                ]
+              },
+              "spec": {
+                "publicIP": true,
+                "listeners": [
+                  {
+                    "name": "http",
+                    "protocol": "tcp",
+                    "port": 80,
+                    "allowedCidrs": [
+                      "0.0.0.0/0"
+                    ],
+                    "idleTimeoutSeconds": 30,
+                    "pool": {
+                      "proxyProtocolV2": false,
+                      "members": [
+                        {
+                          "address": "10.0.0.10",
+                          "port": 8080
+                        }
+                      ],
+                      "healthCheck": {
+                        "intervalSeconds": 10,
+                        "timeoutSeconds": 5,
+                        "healthyThreshold": 2,
+                        "unhealthyThreshold": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "sshCertificateAuthorityV2CreateRequest": {
+        "description": "A request for an SSH certificate authority.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/sshCertificateAuthorityV2Create"
+            },
+            "example": {
+              "metadata": {
+                "name": "ssh-ca-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "cluster-id",
+                    "value": "9361402c-f998-49cc-ab21-9bb99afcfde8"
+                  }
+                ]
+              },
+              "spec": {
+                "organizationId": "161b9d5a-701d-4fea-848d-0e345edf16e9",
+                "projectId": "f113be96-4dd2-4c14-9c0e-e96c500f21e0",
+                "publicKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBuildOnlyTrustAnchor comment"
+              }
+            }
+          }
+        }
+      },
+      "serverRequest": {
+        "description": "A request for a server.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serverWrite"
+            },
+            "example": {
+              "metadata": {
+                "name": "server-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "flavorId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "imageId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "securityGroups": [
+                  {
+                    "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9d"
+                  },
+                  {
+                    "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9e"
+                  }
+                ],
+                "publicIPAllocation": {
+                  "enabled": true
+                },
+                "networks": [
+                  {
+                    "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                    "allowedAddressPairs": [
+                      {
+                        "cidr": "192.168.192.0/24"
+                      }
+                    ]
+                  }
+                ],
+                "userData": "I2Nsb3VkLWNvbmZpZwpib290Y21kOgogLSBlY2hvIDE5Mi4xNjguMi45OSBteWhvc3QgPj4gL2V0Yy9ob3N0cwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAtIHZpbQo="
+              }
+            }
+          }
+        }
+      },
+      "serverV2CreateRequest": {
+        "description": "A request for a server.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serverV2Create"
+            },
+            "example": {
+              "metadata": {
+                "name": "server-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "networkId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "flavorId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "imageId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "networking": {
+                  "securityGroups": [
+                    "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                    "9a8c6370-4065-4d4a-9da0-7678df40cd9e"
+                  ],
+                  "publicIP": true,
+                  "allowedSourceAddresses": [
+                    "192.168.192.0/24"
+                  ]
+                },
+                "userData": "I2Nsb3VkLWNvbmZpZwpib290Y21kOgogLSBlY2hvIDE5Mi4xNjguMi45OSBteWhvc3QgPj4gL2V0Yy9ob3N0cwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAtIHZpbQo="
+              }
+            }
+          }
+        }
+      },
+      "serverV2UpdateRequest": {
+        "description": "A request for a server.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serverV2Update"
+            },
+            "example": {
+              "metadata": {
+                "name": "server-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "flavorId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "imageId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "networking": {
+                  "securityGroups": [
+                    "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                    "9a8c6370-4065-4d4a-9da0-7678df40cd9e"
+                  ],
+                  "publicIP": true,
+                  "allowedSourceAddresses": [
+                    "192.168.192.0/24"
+                  ]
+                },
+                "userData": "I2Nsb3VkLWNvbmZpZwpib290Y21kOgogLSBlY2hvIDE5Mi4xNjguMi45OSBteWhvc3QgPj4gL2V0Yy9ob3N0cwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAtIHZpbQo="
+              }
+            }
+          }
+        }
+      },
+      "snapshotServerRequest": {
+        "description": "A request to create an image by snapshoting a server.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/snapshotCreate"
+            },
+            "example": {
+              "metadata": {
+                "name": "ubu2204-v1.25.6-gpu-525.85.05-7ced4154"
+              },
+              "spec": {}
+            }
+          }
+        }
+      },
+      "storageV2CreateRequest": {
+        "description": "A request for storage.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/storageV2Create"
+            },
+            "example": {
+              "metadata": {
+                "name": "storage-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "storageClassId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                "sizeGiB": 200,
+                "storageType": {
+                  "nfs": {
+                    "rootsquash": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "storageV2UpdateRequest": {
+        "description": "A request to update a storage.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/storageV2Update"
+            },
+            "example": {
+              "metadata": {
+                "name": "storage-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "sizeGiB": 200,
+                "storageType": {
+                  "nfs": {
+                    "rootsquash": true
+                  }
+                },
+                "attachments": {
+                  "networkIds": [
+                    "903b5fba-8eb0-4016-a854-b8f716bcd9bb"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "regionsResponse": {
+        "description": "A list of regions.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/regions"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                  "name": "uk-west-1",
+                  "description": "A top secret datacenter somewhere in the UK",
+                  "creationTime": "2023-07-31T10:45:45Z",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "type": "openstack",
+                  "features": {
+                    "physicalNetworks": true
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "regionDetailResponse": {
+        "description": "A detailed description of the region.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/regionDetailRead"
+            },
+            "example": {
+              "metadata": {
+                "id": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                "name": "uk-west",
+                "description": "A top secret datacenter somewhere in the UK",
+                "creationTime": "2023-07-31T10:45:45Z",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "type": "kubernetes",
+                "kubernetes": {
+                  "kubeconfig": "Zm9v"
+                },
+                "features": {
+                  "physicalNetworks": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "imagesResponse": {
+        "description": "A list of images that are compatible with this platform.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/images"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "ubu2204-v1.25.6-gpu-525.85.05-7ced4154",
+                  "creationTime": "2023-02-22T12:04:13Z"
+                },
+                "spec": {
+                  "architecture": "x86_64",
+                  "sizeGiB": 10,
+                  "virtualization": "virtualized",
+                  "os": {
+                    "kernel": "linux",
+                    "family": "debian",
+                    "distro": "ubuntu",
+                    "variant": "server",
+                    "codename": "noble",
+                    "version": "24.04"
+                  },
+                  "softwareVersions": {
+                    "kubernetes": "v1.25.6"
+                  },
+                  "gpu": {
+                    "vendor": "NVIDIA",
+                    "driver": "525.85.05",
+                    "models": [
+                      "A100",
+                      "H100",
+                      "H200"
+                    ]
+                  }
+                },
+                "status": {
+                  "state": "ready"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "imageResponse": {
+        "description": "An image that can be used on this platform.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/image"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "ubu2204-v1.25.6-gpu-525.85.05-7ced4154",
+                "creationTime": "2023-02-22T12:04:13Z"
+              },
+              "spec": {
+                "architecture": "x86_64",
+                "sizeGiB": 10,
+                "virtualization": "virtualized",
+                "os": {
+                  "kernel": "linux",
+                  "family": "debian",
+                  "distro": "ubuntu",
+                  "variant": "server",
+                  "codename": "noble",
+                  "version": "24.04"
+                },
+                "softwareVersions": {
+                  "kubernetes": "v1.25.6"
+                },
+                "gpu": {
+                  "vendor": "NVIDIA",
+                  "driver": "525.85.05",
+                  "models": [
+                    "A100",
+                    "H100",
+                    "H200"
+                  ]
+                }
+              },
+              "status": {
+                "state": "ready"
+              }
+            }
+          }
+        }
+      },
+      "flavorsResponse": {
+        "description": "A list of flavors.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/flavors"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "name": "g.4.highmem.a100.1g.10gb",
+                  "creationTime": "1970-01-01T00:00:00Z"
+                },
+                "spec": {
+                  "architecture": "x86_64",
+                  "cpus": 4,
+                  "cpuFamily": "Intel Xeon Platinum 8160T (Skylake)",
+                  "disk": 20,
+                  "memory": 32,
+                  "gpu": {
+                    "vendor": "AMD",
+                    "model": "Instinct MI250",
+                    "memory": 64,
+                    "physicalCount": 1,
+                    "logicalCount": 2
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "identityResponse": {
+        "description": "An identity response.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/identityRead"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "undefined",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                "type": "openstack",
+                "openstack": {
+                  "cloud": "default",
+                  "cloudConfig": "dGhpcyBpcyBhIHRlc3QK",
+                  "projectId": "eb9c92d937464d14bf87e50fa726380d",
+                  "userId": "a19678a28126497dba24b54c96a064fa",
+                  "sshKeyNmae": "foo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "identitiesResponse": {
+        "description": "A list of identites.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/identitiesRead"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "undefined",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                  "type": "openstack",
+                  "openstack": {
+                    "cloud": "default",
+                    "cloudConfig": "dGhpcyBpcyBhIHRlc3QK",
+                    "projectId": "eb9c92d937464d14bf87e50fa726380d",
+                    "userId": "a19678a28126497dba24b54c96a064fa",
+                    "sshKeyNmae": "foo"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "networkResponse": {
+        "description": "A network.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/networkRead"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "undefined",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                "prefix": "192.168.0.0/24",
+                "dnsNameservers": [
+                  "8.8.8.8"
+                ],
+                "type": "openstack",
+                "openstack": {
+                  "vlanId": 1024,
+                  "networkId": "824e8c4c-5858-4b02-9906-390e34561bf3"
+                }
+              }
+            }
+          }
+        }
+      },
+      "networksResponse": {
+        "description": "A list of networks.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/networksRead"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "undefined",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                  "prefix": "192.168.0.0/24",
+                  "dnsNameservers": [
+                    "8.8.8.8"
+                  ],
+                  "type": "openstack",
+                  "openstack": {
+                    "vlanId": 1024,
+                    "networkId": "824e8c4c-5858-4b02-9906-390e34561bf3"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "networkV2Response": {
+        "description": "A layer 3 network.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/networkV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "my-network",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "dnsNameservers": [
+                  "8.8.8.8"
+                ]
+              },
+              "status": {
+                "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                "prefix": "192.168.0.0/24",
+                "reservations": {
+                  "prefixLength": 25,
+                  "providerReservedPrefixLength": 28
+                }
+              }
+            }
+          }
+        }
+      },
+      "networksV2Response": {
+        "description": "A list of layer 3 networks.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/networksV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "my-network",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "dnsNameservers": [
+                    "8.8.8.8"
+                  ]
+                },
+                "status": {
+                  "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                  "prefix": "192.168.0.0/24",
+                  "reservations": {
+                    "prefixLength": 25,
+                    "providerReservedPrefixLength": 28
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "externalNetworksResponse": {
+        "description": "A list of valid external networks.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/externalNetworks"
+            },
+            "example": [
+              {
+                "id": "c3f92716-1fdc-4b7b-906e-4fe0154dfcdf",
+                "name": "foo"
+              }
+            ]
+          }
+        }
+      },
+      "securityGroupResponse": {
+        "description": "A security group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/securityGroupRead"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "undefined",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "rules": [
+                  {
+                    "direction": "ingress",
+                    "protocol": "tcp",
+                    "port": {
+                      "number": 80
+                    },
+                    "cidr": "172.16.0.0/12"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "securityGroupsResponse": {
+        "description": "A list of security groups.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/securityGroupsRead"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "undefined",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "rules": [
+                    {
+                      "direction": "ingress",
+                      "protocol": "tcp",
+                      "port": {
+                        "number": 80
+                      },
+                      "cidr": "172.16.0.0/12"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "securityGroupV2Response": {
+        "description": "A security group.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/securityGroupV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "undefined",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "rules": [
+                  {
+                    "direction": "ingress",
+                    "protocol": "tcp",
+                    "port": 80,
+                    "cidr": "172.16.0.0/12"
+                  }
+                ]
+              },
+              "status": {
+                "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe"
+              }
+            }
+          }
+        }
+      },
+      "securityGroupsV2Response": {
+        "description": "A list of security groups.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/securityGroupsV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "undefined",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "rules": [
+                    {
+                      "direction": "ingress",
+                      "protocol": "tcp",
+                      "port": 80,
+                      "cidr": "172.16.0.0/12"
+                    }
+                  ]
+                },
+                "status": {
+                  "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                  "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "loadBalancerV2Response": {
+        "description": "A load balancer.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/loadBalancerV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "web-lb",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "pending",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "publicIP": true,
+                "listeners": [
+                  {
+                    "name": "http",
+                    "protocol": "tcp",
+                    "port": 80,
+                    "allowedCidrs": [
+                      "0.0.0.0/0"
+                    ],
+                    "idleTimeoutSeconds": 30,
+                    "pool": {
+                      "proxyProtocolV2": false,
+                      "members": [
+                        {
+                          "address": "10.0.0.10",
+                          "port": 8080
+                        }
+                      ],
+                      "healthCheck": {
+                        "intervalSeconds": 10,
+                        "timeoutSeconds": 5,
+                        "healthyThreshold": 2,
+                        "unhealthyThreshold": 2
+                      }
+                    }
+                  }
+                ]
+              },
+              "status": {
+                "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                "vipAddress": "192.168.10.20",
+                "publicIP": "203.0.113.10"
+              }
+            }
+          }
+        }
+      },
+      "loadBalancersV2Response": {
+        "description": "A list of load balancers.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/loadBalancersV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "web-lb",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "pending",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "publicIP": true,
+                  "listeners": [
+                    {
+                      "name": "http",
+                      "protocol": "tcp",
+                      "port": 80,
+                      "allowedCidrs": [
+                        "0.0.0.0/0"
+                      ],
+                      "idleTimeoutSeconds": 30,
+                      "pool": {
+                        "proxyProtocolV2": false,
+                        "members": [
+                          {
+                            "address": "10.0.0.10",
+                            "port": 8080
+                          }
+                        ],
+                        "healthCheck": {
+                          "intervalSeconds": 10,
+                          "timeoutSeconds": 5,
+                          "healthyThreshold": 2,
+                          "unhealthyThreshold": 2
+                        }
+                      }
+                    }
+                  ]
+                },
+                "status": {
+                  "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
+                  "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                  "vipAddress": "192.168.10.20",
+                  "publicIP": "203.0.113.10"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "sshCertificateAuthorityV2Response": {
+        "description": "An SSH certificate authority.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/sshCertificateAuthorityV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "undefined",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "publicKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBuildOnlyTrustAnchor comment"
+              }
+            }
+          }
+        }
+      },
+      "sshCertificateAuthoritiesV2Response": {
+        "description": "A list of SSH certificate authorities.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/sshCertificateAuthoritiesV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "undefined",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "publicKey": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBuildOnlyTrustAnchor comment"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "serverResponse": {
+        "description": "A server.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serverRead"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "server-name",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "flavorId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "imageId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "securityGroups": [
+                  {
+                    "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9d"
+                  },
+                  {
+                    "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9e"
+                  }
+                ],
+                "publicIPAllocation": {
+                  "enabled": true
+                },
+                "networks": [
+                  {
+                    "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9d"
+                  }
+                ],
+                "userData": "I2Nsb3VkLWNvbmZpZwpib290Y21kOgogLSBlY2hvIDE5Mi4xNjguMi45OSBteWhvc3QgPj4gL2V0Yy9ob3N0cwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAtIHZpbQo="
+              },
+              "status": {
+                "phase": "Running",
+                "privateIP": "192.168.1.50",
+                "publicIP": "142.250.66.196"
+              }
+            }
+          }
+        }
+      },
+      "serversResponse": {
+        "description": "A list of servers.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serversRead"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "server-name",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy",
+                  "tags": [
+                    {
+                      "name": "tag-name",
+                      "value": "tag-value"
+                    }
+                  ]
+                },
+                "spec": {
+                  "flavorId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "imageId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "securityGroups": [
+                    {
+                      "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9d"
+                    },
+                    {
+                      "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9e"
+                    }
+                  ],
+                  "publicIPAllocation": {
+                    "enabled": true
+                  },
+                  "networks": [
+                    {
+                      "id": "9a8c6370-4065-4d4a-9da0-7678df40cd9d"
+                    }
+                  ],
+                  "userData": "I2Nsb3VkLWNvbmZpZwpib290Y21kOgogLSBlY2hvIDE5Mi4xNjguMi45OSBteWhvc3QgPj4gL2V0Yy9ob3N0cwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAtIHZpbQo="
+                },
+                "status": {
+                  "phase": "Running",
+                  "privateIP": "192.168.1.50",
+                  "publicIP": "142.250.66.196"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "serverV2Response": {
+        "description": "A server.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serverV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "server-name",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "flavorId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "imageId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "metworking": {
+                  "securityGroups": [
+                    "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                    "9a8c6370-4065-4d4a-9da0-7678df40cd9e"
+                  ],
+                  "publicIP": true,
+                  "allowedSourceAddresses": [
+                    "192.168.192.0/24"
+                  ]
+                },
+                "userData": "I2Nsb3VkLWNvbmZpZwpib290Y21kOgogLSBlY2hvIDE5Mi4xNjguMi45OSBteWhvc3QgPj4gL2V0Yy9ob3N0cwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAtIHZpbQo="
+              },
+              "status": {
+                "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                "powerState": "Running",
+                "privateIP": "192.168.1.50",
+                "publicIP": "142.250.66.196",
+                "macAddress": "fa:16:3e:12:34:56"
+              }
+            }
+          }
+        }
+      },
+      "serversV2Response": {
+        "description": "A list of servers.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serversV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "server-name",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy",
+                  "tags": [
+                    {
+                      "name": "tag-name",
+                      "value": "tag-value"
+                    }
+                  ]
+                },
+                "spec": {
+                  "flavorId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "imageId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "metworking": {
+                    "securityGroups": [
+                      "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                      "9a8c6370-4065-4d4a-9da0-7678df40cd9e"
+                    ],
+                    "publicIP": true,
+                    "allowedSourceAddresses": [
+                      "192.168.192.0/24"
+                    ]
+                  },
+                  "userData": "I2Nsb3VkLWNvbmZpZwpib290Y21kOgogLSBlY2hvIDE5Mi4xNjguMi45OSBteWhvc3QgPj4gL2V0Yy9ob3N0cwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAtIHZpbQo="
+                },
+                "status": {
+                  "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                  "networkId": "61f0ad85-3001-41cb-824a-e6a047668dfe",
+                  "powerState": "Running",
+                  "privateIP": "192.168.1.50",
+                  "publicIP": "142.250.66.196",
+                  "macAddress": "fa:16:3e:12:34:56"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "consoleSessionResponse": {
+        "description": "A console session response.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/consoleSession"
+            },
+            "example": {
+              "url": "https://compute.glo1.dev.nscale.com:6080/vnc_lite.html?path=%3Ftoken%3Dc64ef8be-2e90-4914-83a8-61728664b770"
+            }
+          }
+        }
+      },
+      "consoleOutputResponse": {
+        "description": "A console output response.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/consoleOutput"
+            },
+            "example": {
+              "contents": "Linux version 5.15.0-1086-kvm (buildd@lcy02-amd64-053) (gcc (Ubuntu 11.4.0-1ubuntu1~22.04) 11.4.0, GNU ld (GNU Binutils for Ubuntu) 2.38) #91-Ubuntu SMP Mon Aug 4 18:41:47 UTC 2025 (Ubuntu 5.15.0-1086.91-kvm 5.15.185)\nCommand line: BOOT_IMAGE=/boot/vmlinuz-5.15.0-1086-kvm root=PARTUUID=16a95af3-5f57-4321-a6af-d006cccb7d04 ro console=tty1 console=ttyS0 panic=-1"
+            }
+          }
+        }
+      },
+      "sshKeyResponse": {
+        "description": "An SSH key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/sshKey"
+            },
+            "example": {
+              "privateKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACCtvR5BFiAX6+UGoPw/uG/U1Da+iN1lNHYWzk8YhPOeUwAA\nAKAhzCVJIcwlSQAAAAtzc2gtZWQyNTUxOQAAACCtvR5BFiAX6+UGoPw/uG/U1Da+\niN1lNHYWzk8YhPOeUwAAAEClYjYgxFjEM4qh3sl7IS2dpBzSxkRT0NTy9ILygiaA\ntq29HkEWIBfr5Qag/D+4b9TUNr6I3WU0dhbOTxiE855TAAAAHXVuaWtvcm4gZXBo\nZW1lcmFsIGVkMjU1MTkga2V5\n-----END OPENSSH PRIVATE KEY-----"
+            }
+          }
+        }
+      },
+      "storageV2Response": {
+        "description": "A storage.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/storageV2Read"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "storage-name",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "sizeGiB": 200,
+                "storageType": {
+                  "nfs": {
+                    "rootsquash": true
+                  }
+                },
+                "attachments": {
+                  "networkIds": [
+                    "903b5fba-8eb0-4016-a854-b8f716bcd9bb"
+                  ]
+                },
+                "defaultSnapshotProtectionEnabled": true,
+                "snapshotPolicies": []
+              },
+              "status": {
+                "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                "storageClassId": "99659b44-1700-400f-9c6c-cfdb4bb0445c",
+                "snapshotPolicies": [],
+                "usage": {
+                  "capacityBytes": 107374182400,
+                  "usedBytes": 94489280512,
+                  "updatedAt": "2026-01-31T12:00:00Z"
+                },
+                "attachments": [
+                  {
+                    "networkId": "903b5fba-8eb0-4016-a854-b8f716bcd9bb",
+                    "mountSource": "10.0.0.16:/mnt/nfs",
+                    "provisioningStatus": "provisioned",
+                    "mountOptions": {
+                      "remoteports": "10.0.0.16-10.0.0.19"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "storageListV2Response": {
+        "description": "A list of storages.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/storageV2List"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "storage-name",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy",
+                  "tags": [
+                    {
+                      "name": "tag-name",
+                      "value": "tag-value"
+                    }
+                  ]
+                },
+                "spec": {
+                  "sizeGiB": 200,
+                  "storageType": {
+                    "nfs": {
+                      "rootsquash": true
+                    }
+                  },
+                  "attachments": {
+                    "networkIds": [
+                      "903b5fba-8eb0-4016-a854-b8f716bcd9bb"
+                    ]
+                  },
+                  "defaultSnapshotProtectionEnabled": true,
+                  "snapshotPolicies": []
+                },
+                "status": {
+                  "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                  "storageClassId": "99659b44-1700-400f-9c6c-cfdb4bb0445c",
+                  "snapshotPolicies": [],
+                  "usage": {
+                    "capacityBytes": 107374182400,
+                    "usedBytes": 94489280512,
+                    "updatedAt": "2026-01-31T12:00:00Z"
+                  },
+                  "attachments": [
+                    {
+                      "networkId": "903b5fba-8eb0-4016-a854-b8f716bcd9bb",
+                      "mountSource": "10.0.0.16:/mnt/nfs",
+                      "provisioningStatus": "provisioned",
+                      "mountOptions": {
+                        "remoteports": "10.0.0.16-10.0.0.19"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "storageClassListV2Response": {
+        "description": "A list of storage classes.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/storageClassListV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "storage-class-name",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "description": "A small description of the storage class.",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                  "protocols": [
+                    "nfsv3",
+                    "nfsv4"
+                  ],
+                  "parallelism": 8
+                }
+              }
+            ]
+          }
+        }
+      },
+      "openidProtectedResourceResponse": {
+        "description": "OpenID configuration used to discover authentication servers when hitting\na protected endpoint.  This is returned to the client when an authorization\nerror is encountered so they can discover how to authenticate.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/openidProtectedResource"
+            },
+            "example": {
+              "resource": "https://endpoint.acme.com",
+              "authorization_servers": [
+                "http://auth.acme.com"
+              ],
+              "scopes_supported": [
+                "openid",
+                "profile",
+                "email"
+              ],
+              "bearer_methods_supported": [
+                "header"
+              ]
+            }
+          }
+        }
+      },
+      "unauthorizedResponse": {
+        "description": "Authentication failed or the access token has expired.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "access_denied",
+              "error_description": "authentication failed",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "forbiddenResponse": {
+        "description": "Request was denied by authorization, this may be caused by the authorization\ntoken not having the required scope for an API, or the user doesn't have the\nnecessary privileges on the provider platform.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "forbidden",
+              "error_description": "user credentials do not have the required privileges",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "internalServerErrorResponse": {
+        "description": "An unexpected or unhandled error occurred. This may be a transient error and\nmay succeed on a retry.  If this isn't the case, please report it as an issue.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "server_error",
+              "error_description": "failed to token claim",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "notFoundResponse": {
+        "description": "Unable to find a resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "not_found",
+              "error_description": "the requested resource does not exist",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "badRequestResponse": {
+        "description": "Request body failed schema validation, or the request does not contain\nall the required fields.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "invalid_request",
+              "error_description": "request body invalid",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "unprocessableContentResponse": {
+        "description": "The provided request was syntactically correct but the instruction was unable to\nbe processed due to semantic errors.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "unprocessable_content",
+              "error_description": "the request body was in the wrong format",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "acceptedResponse": {
+        "description": "The request has been accepted and will be fulfilled asynchronously.\nYou may poll the resource and monitor its provisioning and health status\nto await completion of the operation."
+      },
+      "serviceVersionResponse": {
+        "description": "Build version information for the running service.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serviceVersionRead"
+            },
+            "example": {
+              "name": "unikorn-region-server",
+              "version": "v1.16.7"
+            }
+          }
+        }
+      },
+      "conflictResponse": {
+        "description": "Resource conflicts with another, usually this means they have the same name.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "conflict",
+              "error_description": "a resource with the same name already exists",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "oauth2Authentication": {
+        "description": "Operation requires OAuth 2.0 bearer token authentication.",
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://identity.nks.europe-west4.nscale.com/oauth2/v2/authorization",
+            "tokenUrl": "https://identity.nks.europe-west4.nscale.com/oauth2/v2/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}

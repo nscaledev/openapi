@@ -1,6 +1,6 @@
 {
   "$schema": "./index.schema.json",
-  "generated": "2026-07-24T08:26:28.867Z",
+  "generated": "2026-07-24T14:25:57.355Z",
   "services": [
     {
       "id": "compute",
@@ -14,6 +14,84 @@
       "reference": "https://openapi.nscale.com/reference.html?service=compute",
       "sourceCommit": "fb95db4",
       "publishedAt": "2026-07-24T08:26:21.000Z"
+    },
+    {
+      "id": "envir",
+      "title": "nscale-environments",
+      "version": "1.0.0",
+      "spec": {
+        "yaml": "https://openapi.nscale.com/specs/envir/openapi.yaml",
+        "json": "https://openapi.nscale.com/specs/envir/openapi.json"
+      },
+      "docs": "https://docs.nscale.com/api-reference/envir",
+      "reference": "https://openapi.nscale.com/reference.html?service=envir",
+      "sourceCommit": "3afd4cab",
+      "publishedAt": "2026-07-24T14:25:20.000Z"
+    },
+    {
+      "id": "identity",
+      "title": "Identity API",
+      "version": "1.13.0",
+      "spec": {
+        "yaml": "https://openapi.nscale.com/specs/identity/openapi.yaml",
+        "json": "https://openapi.nscale.com/specs/identity/openapi.json"
+      },
+      "docs": "https://docs.nscale.com/api-reference/identity",
+      "reference": "https://openapi.nscale.com/reference.html?service=identity",
+      "sourceCommit": "4ae66a95",
+      "publishedAt": "2026-07-24T14:25:20.000Z"
+    },
+    {
+      "id": "ims",
+      "title": "IMS",
+      "version": "1.0.0",
+      "spec": {
+        "yaml": "https://openapi.nscale.com/specs/ims/openapi.yaml",
+        "json": "https://openapi.nscale.com/specs/ims/openapi.json"
+      },
+      "docs": "https://docs.nscale.com/api-reference/ims",
+      "reference": "https://openapi.nscale.com/reference.html?service=ims",
+      "sourceCommit": "ee43af5",
+      "publishedAt": "2026-07-24T14:25:20.000Z"
+    },
+    {
+      "id": "kubernetes",
+      "title": "Kubernetes Service API",
+      "version": "1.13.0",
+      "spec": {
+        "yaml": "https://openapi.nscale.com/specs/kubernetes/openapi.yaml",
+        "json": "https://openapi.nscale.com/specs/kubernetes/openapi.json"
+      },
+      "docs": "https://docs.nscale.com/api-reference/kubernetes",
+      "reference": "https://openapi.nscale.com/reference.html?service=kubernetes",
+      "sourceCommit": "80888a2",
+      "publishedAt": "2026-07-24T14:25:20.000Z"
+    },
+    {
+      "id": "region",
+      "title": "Region Service API",
+      "version": "1.13.0",
+      "spec": {
+        "yaml": "https://openapi.nscale.com/specs/region/openapi.yaml",
+        "json": "https://openapi.nscale.com/specs/region/openapi.json"
+      },
+      "docs": "https://docs.nscale.com/api-reference/region",
+      "reference": "https://openapi.nscale.com/reference.html?service=region",
+      "sourceCommit": "e4093dd",
+      "publishedAt": "2026-07-24T14:25:20.000Z"
+    },
+    {
+      "id": "reservation",
+      "title": "Unikorn Reservation API",
+      "version": "0.5.0",
+      "spec": {
+        "yaml": "https://openapi.nscale.com/specs/reservation/openapi.yaml",
+        "json": "https://openapi.nscale.com/specs/reservation/openapi.json"
+      },
+      "docs": "https://docs.nscale.com/api-reference/reservation",
+      "reference": "https://openapi.nscale.com/reference.html?service=reservation",
+      "sourceCommit": "31c9206",
+      "publishedAt": "2026-07-24T14:25:20.000Z"
     }
   ]
 }
