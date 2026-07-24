@@ -1,29 +1,13 @@
 # nscaledev/openapi
 
-The canonical, public home for Nscale's OpenAPI specs — one spec per service, sanitized, versioned, and served from stable URLs.
+The canonical, public home for Nscale's OpenAPI specs — one spec per service, sanitized, versioned, and pushed here from each service's own repo.
 
-This repo is **not** the polished API docs experience — that's [docs.nscale.com](https://docs.nscale.com), built with Mintlify. This repo is the raw, technical, fetchable layer underneath it: the thing Mintlify, Postman, codegen tools, and scripts pull from.
+This repo has two parts:
 
-## Consuming a spec
+- **`specs/` and `index.json`** — the actual data. Sanitized, versioned OpenAPI specs, never hand-edited here (see below).
+- **`web/`** — a Next.js app that reads that data and renders the browsable site: a landing page listing every published service, and a per-service reference view. It's deployed to Nscale's own k8s cluster (see `web/charts/openapi-web/`) and fetches specs from this repo's git history at runtime — a new publish shows up within about a minute, with no redeploy of the app itself.
 
-Every published service gets a stable URL in both formats:
-
-```
-https://openapi.nscale.com/specs/<service>/openapi.yaml
-https://openapi.nscale.com/specs/<service>/openapi.json
-```
-
-The full catalog of published services, their versions, and their URLs is available as machine-readable JSON:
-
-```
-https://openapi.nscale.com/index.json
-```
-
-Browse any service's endpoints without any tooling at:
-
-```
-https://openapi.nscale.com/reference.html?service=<service>
-```
+This repo is **not** the polished API docs experience — that's [docs.nscale.com](https://docs.nscale.com), built with Mintlify. It's the raw, technical layer underneath: the thing Mintlify, Postman, codegen tools, and the `web/` app itself all pull from.
 
 ## How specs get here
 
@@ -31,7 +15,7 @@ Specs are **never hand-edited in this repo**. Each source service repo fires a `
 
 ## Local development
 
-All scripts run with Node 20+ and `npx` — no global installs required.
+**Publish pipeline** (root-level, Node 20+, no global installs required):
 
 ```bash
 # Sanitize a raw (already-bundled/dereferenced) spec
@@ -45,12 +29,15 @@ node scripts/build-index.mjs
 
 # Run the pipeline's tests
 npm test
-
-# Assemble and serve the Pages site locally at http://localhost:4173
-npm run serve
 ```
 
-`npm run serve` runs the same `scripts/build-site.sh` that the Pages deploy workflow uses, so what you see locally is what goes live — no separate local-only path to drift out of sync.
+**The web app** (`web/`, Node 22+ — see `web/README.md` if more detail is ever added there):
+
+```bash
+cd web
+npm install   # needs NODE_AUTH_TOKEN set to a GitHub PAT with read:packages, for @nscaledev/ui
+npm run dev   # http://localhost:3000
+```
 
 ## License
 
