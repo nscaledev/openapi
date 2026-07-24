@@ -10,6 +10,12 @@ vi.mock("@scalar/api-reference-react", () => ({
 
 vi.mock("@scalar/api-reference-react/style.css", () => ({}));
 
+vi.mock("@/components/chat-widget", () => ({
+  ChatWidget: ({ serviceId }: { serviceId: string }) => (
+    <div data-testid="chat-widget">{serviceId}</div>
+  ),
+}));
+
 const notFoundMock = vi.fn(() => {
   throw new Error("NEXT_NOT_FOUND");
 });
