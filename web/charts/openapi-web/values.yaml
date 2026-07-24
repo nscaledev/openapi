@@ -1,0 +1,33 @@
+replicaCount: 2
+
+image:
+  repository: ghcr.io/nscaledev/openapi-web
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 3000
+
+ingress:
+  enabled: true
+  class: nginx
+  clusterIssuer: letsencrypt-prod
+  host: openapi.nscale.com
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+env:
+  nscaleInferenceApiHost: ""
+  nscaleInferenceModel: ""
+
+vault:
+  server: https://vault.nscale.com
+  path: "product"
+  roleName: "openapi-web-approle"
+  inferenceApiKeyPath: "prod/openapi-web/inference-api-key"
