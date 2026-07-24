@@ -18,6 +18,16 @@ function clientKeyFor(request: Request): string {
   return request.headers.get("x-forwarded-for") ?? "unknown";
 }
 
+const REQUIRED_ENV_VARS = [
+  "NSCALE_INFERENCE_API_HOST",
+  "NSCALE_INFERENCE_API_KEY",
+  "NSCALE_INFERENCE_MODEL",
+] as const;
+
+function missingEnvVars(): string[] {
+  return REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ service: string }> }
@@ -35,6 +45,12 @@ export async function POST(
   const specYaml = await fetchServiceSpecYaml(service);
   if (specYaml === null) {
     return new Response("Spec temporarily unavailable", { status: 502 });
+  }
+
+  const missing = missingEnvVars();
+  if (missing.length > 0) {
+    console.error(`chat route: missing required env var(s): ${missing.join(", ")}`);
+    return new Response("Chat is not configured", { status: 500 });
   }
 
   const { messages } = await request.json();

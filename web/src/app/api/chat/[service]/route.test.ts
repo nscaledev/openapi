@@ -113,4 +113,21 @@ describe("POST /api/chat/[service]", () => {
     expect(limited.status).toBe(429);
     expect(streamTextMock).not.toHaveBeenCalled();
   });
+
+  it("returns 500 when a required inference env var is missing, without calling the inference API", async () => {
+    delete process.env.NSCALE_INFERENCE_API_KEY;
+    const { POST } = await import("./route");
+    const request = new Request("http://localhost/api/chat/compute", {
+      method: "POST",
+      headers: { "x-forwarded-for": "5.5.5.5" },
+      body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }),
+    });
+
+    const response = await POST(request, {
+      params: Promise.resolve({ service: "compute" }),
+    });
+
+    expect(response.status).toBe(500);
+    expect(streamTextMock).not.toHaveBeenCalled();
+  });
 });
