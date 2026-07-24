@@ -1,4 +1,4 @@
-const RAW_CONTENT_BASE =
+export const RAW_CONTENT_BASE =
   "https://raw.githubusercontent.com/nscaledev/openapi/main";
 
 export async function fetchServiceIndex(): Promise<unknown> {

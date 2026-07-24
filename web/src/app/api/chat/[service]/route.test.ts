@@ -1,10 +1,15 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { convertToModelMessages } from "ai";
 
-const streamTextMock = vi.fn();
+const streamTextMock = vi.hoisted(() => vi.fn());
 
-vi.mock("ai", () => ({
-  streamText: streamTextMock,
-}));
+vi.mock("ai", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("ai")>();
+  return {
+    ...actual,
+    streamText: streamTextMock,
+  };
+});
 
 vi.mock("@ai-sdk/openai-compatible", () => ({
   createOpenAICompatible: vi.fn(() => ({
@@ -67,10 +72,13 @@ describe("POST /api/chat/[service]", () => {
       toUIMessageStreamResponse: () => new Response("ok", { status: 200 }),
     });
     const { POST } = await import("./route");
+    const uiMessages = [
+      { id: "1", role: "user" as const, parts: [{ type: "text" as const, text: "hi" }] },
+    ];
     const request = new Request("http://localhost/api/chat/compute", {
       method: "POST",
       headers: { "x-forwarded-for": "1.2.3.4" },
-      body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }),
+      body: JSON.stringify({ messages: uiMessages }),
     });
 
     const response = await POST(request, {
@@ -81,7 +89,11 @@ describe("POST /api/chat/[service]", () => {
     expect(streamTextMock).toHaveBeenCalledTimes(1);
     const call = streamTextMock.mock.calls[0][0];
     expect(call.system).toContain("Compute Service API");
-    expect(call.messages).toEqual([{ role: "user", content: "hi" }]);
+    // The route must convert UIMessage[] (what the client's useChat/
+    // DefaultChatTransport actually sends) into ModelMessage[] before
+    // handing them to streamText — asserting against the raw UI shape
+    // would encode the old, broken contract.
+    expect(call.messages).toEqual(await convertToModelMessages(uiMessages));
   });
 
   it("returns 429 once a caller exceeds the rate limit, without calling the inference API", async () => {
@@ -93,7 +105,11 @@ describe("POST /api/chat/[service]", () => {
       new Request("http://localhost/api/chat/compute", {
         method: "POST",
         headers: { "x-forwarded-for": "9.9.9.9" },
-        body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }),
+        body: JSON.stringify({
+          messages: [
+            { id: "1", role: "user", parts: [{ type: "text", text: "hi" }] },
+          ],
+        }),
       });
 
     // The route's limiter allows 5 requests per minute per IP (see

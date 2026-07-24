@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import LandingPage from "./page";
 
 vi.mock("@/lib/raw-content", () => ({
+  RAW_CONTENT_BASE: "https://raw.githubusercontent.com/nscaledev/openapi/main",
   fetchServiceIndex: vi.fn().mockResolvedValue({
     services: [
       {
@@ -44,7 +45,7 @@ describe("LandingPage", () => {
     );
     expect(screen.getByRole("link", { name: /changelog/i })).toHaveAttribute(
       "href",
-      "/specs/compute/CHANGELOG.md"
+      "https://raw.githubusercontent.com/nscaledev/openapi/main/specs/compute/CHANGELOG.md"
     );
   });
 

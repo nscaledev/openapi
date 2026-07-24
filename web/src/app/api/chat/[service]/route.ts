@@ -1,5 +1,5 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { streamText } from "ai";
+import { convertToModelMessages, streamText } from "ai";
 import { buildSystemPrompt } from "@/lib/chat-system-prompt";
 import { fetchServiceSpecYaml } from "@/lib/raw-content";
 import { TokenBucketRateLimiter } from "@/lib/rate-limit";
@@ -53,7 +53,7 @@ export async function POST(
     return new Response("Chat is not configured", { status: 500 });
   }
 
-  const { messages } = await request.json();
+  const { messages: uiMessages } = await request.json();
   const parsedSpec = parse(specYaml) as { info?: { title?: string } };
   const serviceTitle = parsedSpec?.info?.title ?? service;
 
@@ -68,7 +68,7 @@ export async function POST(
   const result = streamText({
     model: provider.languageModel(process.env.NSCALE_INFERENCE_MODEL ?? ""),
     system: buildSystemPrompt(serviceTitle, specYaml),
-    messages,
+    messages: await convertToModelMessages(uiMessages),
   });
 
   return result.toUIMessageStreamResponse();
