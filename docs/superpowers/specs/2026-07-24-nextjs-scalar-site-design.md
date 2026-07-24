@@ -49,6 +49,10 @@ The landing page should read as an Nscale product page, not a generic docs site 
 
 Since `@nscaledev/ui` is the actual library the console itself is built with, achieving this is expected to be mostly a matter of using its existing components/tokens as intended, not custom CSS.
 
+**Brand assets, reused rather than recreated:**
+- **Logo**: `@nscaledev/ui` exports real logo components directly (`./logos/*` is a genuine entry in its package `exports` map) — `NscaleFullLogo`, `NscaleWordmarkLogo`, `NscaleSymbolLogo`. Import these from the package once it's a dependency; don't vendor an image file.
+- **Favicon**: not part of the published package (it's a plain static asset in the console app, not exported). Copy `favicon.ico`, `favicon-32.png`, and `favicon-180.png` from `nscale-ui/apps/console/public/static/imgs/` into this app's `public/` directory and wire them up via Next.js's standard `app/favicon.ico`/`icon`/`apple-icon` file conventions.
+
 ## Data flow
 
 - Both pages fetch data server-side directly from GitHub's raw content (e.g. `raw.githubusercontent.com/nscaledev/openapi/main/index.json` and `.../specs/<service>/openapi.json`), **not** from `openapi.nscale.com` — that's the fix for the Pages-retirement contradiction above. Fetches use a short revalidation window (on the order of a minute) so a new publish shows up automatically without needing to redeploy this app.
