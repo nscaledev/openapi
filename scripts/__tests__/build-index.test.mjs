@@ -38,6 +38,13 @@ test('emits stable, absolute openapi.nscale.com URLs, never a github.io URL', ()
   assert.ok(!JSON.stringify(index).includes('github.io'));
 });
 
+test('honors a baseUrl override, for local-preview builds that must not hardcode the production domain', () => {
+  const index = buildIndex(specsTreeDir, () => FIXED_NOW, 'http://localhost:4173');
+  const alpha = index.services.find((s) => s.id === 'alpha');
+  assert.equal(alpha.spec.yaml, 'http://localhost:4173/specs/alpha/openapi.yaml');
+  assert.equal(alpha.reference, 'http://localhost:4173/reference.html?service=alpha');
+});
+
 test('returns an empty service list for a directory with no service subdirectories', () => {
   const index = buildIndex(fileURLToPath(new URL('../__fixtures__/empty-specs-tree', import.meta.url)), () => FIXED_NOW);
   assert.deepEqual(index.services, []);

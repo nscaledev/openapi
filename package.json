@@ -6,7 +6,7 @@
   "scripts": {
     "test": "node --test scripts/__tests__/*.test.mjs",
     "build-site": "scripts/build-site.sh",
-    "serve": "scripts/build-site.sh && python3 -m http.server 4173 --directory .site-build"
+    "serve": "OPENAPI_BASE_URL=http://localhost:4173 scripts/build-site.sh && python3 -m http.server 4173 --directory .site-build"
   },
   "devDependencies": {
     "yaml": "^2.6.1"
