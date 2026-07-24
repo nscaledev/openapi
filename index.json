@@ -1,6 +1,6 @@
 {
   "$schema": "./index.schema.json",
-  "generated": "2026-07-24T14:25:57.355Z",
+  "generated": "2026-07-24T14:31:20.373Z",
   "services": [
     {
       "id": "compute",
@@ -16,19 +16,6 @@
       "publishedAt": "2026-07-24T08:26:21.000Z"
     },
     {
-      "id": "envir",
-      "title": "nscale-environments",
-      "version": "1.0.0",
-      "spec": {
-        "yaml": "https://openapi.nscale.com/specs/envir/openapi.yaml",
-        "json": "https://openapi.nscale.com/specs/envir/openapi.json"
-      },
-      "docs": "https://docs.nscale.com/api-reference/envir",
-      "reference": "https://openapi.nscale.com/reference.html?service=envir",
-      "sourceCommit": "3afd4cab",
-      "publishedAt": "2026-07-24T14:25:20.000Z"
-    },
-    {
       "id": "identity",
       "title": "Identity API",
       "version": "1.13.0",
@@ -39,19 +26,6 @@
       "docs": "https://docs.nscale.com/api-reference/identity",
       "reference": "https://openapi.nscale.com/reference.html?service=identity",
       "sourceCommit": "4ae66a95",
-      "publishedAt": "2026-07-24T14:25:20.000Z"
-    },
-    {
-      "id": "ims",
-      "title": "IMS",
-      "version": "1.0.0",
-      "spec": {
-        "yaml": "https://openapi.nscale.com/specs/ims/openapi.yaml",
-        "json": "https://openapi.nscale.com/specs/ims/openapi.json"
-      },
-      "docs": "https://docs.nscale.com/api-reference/ims",
-      "reference": "https://openapi.nscale.com/reference.html?service=ims",
-      "sourceCommit": "ee43af5",
       "publishedAt": "2026-07-24T14:25:20.000Z"
     },
     {

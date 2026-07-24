@@ -23,7 +23,7 @@ describe("LandingPage", () => {
   it("renders one row per published service, with a link to its reference page", async () => {
     render(await LandingPage());
 
-    expect(screen.getByText("Compute Service API")).toBeVisible();
+    expect(screen.getByText("Compute")).toBeVisible();
     expect(screen.getByText("v1.13.0")).toBeVisible();
     expect(screen.getByRole("link", { name: /reference/i })).toHaveAttribute(
       "href",
