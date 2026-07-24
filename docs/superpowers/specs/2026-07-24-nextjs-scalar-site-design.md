@@ -38,6 +38,17 @@ ONE Next.js app (App Router), styled with @nscaledev/ui
 - The "Ask AI" chat widget and its supporting `/api/chat` route, tool-calling design (`list_services`/`search_endpoints`/`get_service_spec`), and Nscale Inference API integration — fully designed in this conversation but not being built now.
 - Custom `x-codeSamples` entries showing Nscale's own SDKs (`nscale-sdk-go`, etc.) — v1 uses Scalar's built-in generated-from-spec code samples only.
 
+## Visual direction
+
+The landing page should read as an Nscale product page, not a generic docs site — modeled directly on console.nscale.com (which `@nscaledev/ui` already styles), not a new look invented for this app:
+
+- **Navy hero banner** at the top of the page: an outlined icon on the left, a small light-weight overline label above a bold white heading, and a primary action pinned to the right (e.g. a "Browse all specs" or similar action) — matching the `Compute` / `Instances` banner pattern shown in the reference screenshots.
+- **White content cards below the banner**, each following the console's own "Get started with X" shape: a large icon, a bold black heading, a gray descriptive line, and a black pill-shaped call-to-action button. One card per published service (reading from `index.json`), rather than one card for a single feature — this reuses the shape, not the literal content.
+- **Navy/black accent palette, generous whitespace, rounded corners** throughout, consistent with the reference screenshots — no separate color/spacing system to design.
+- Sidebar navigation (grouped, labeled sections in the console reference) is *not* needed here — this is a two-page app, not a multi-section console — but the same left-nav visual language could inform how `/reference/[service]` breadcrumbs back to the landing page, if that turns out to want more than a simple link.
+
+Since `@nscaledev/ui` is the actual library the console itself is built with, achieving this is expected to be mostly a matter of using its existing components/tokens as intended, not custom CSS.
+
 ## Data flow
 
 - Both pages fetch data server-side directly from GitHub's raw content (e.g. `raw.githubusercontent.com/nscaledev/openapi/main/index.json` and `.../specs/<service>/openapi.json`), **not** from `openapi.nscale.com` — that's the fix for the Pages-retirement contradiction above. Fetches use a short revalidation window (on the order of a minute) so a new publish shows up automatically without needing to redeploy this app.
