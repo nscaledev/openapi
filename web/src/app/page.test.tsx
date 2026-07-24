@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 import LandingPage from "./page";
 
 vi.mock("@/lib/raw-content", () => ({
-  RAW_CONTENT_BASE: "https://raw.githubusercontent.com/nscaledev/openapi/main",
   fetchServiceIndex: vi.fn().mockResolvedValue({
     services: [
       {
@@ -37,15 +36,15 @@ describe("LandingPage", () => {
 
     expect(screen.getByRole("link", { name: /yaml/i })).toHaveAttribute(
       "href",
-      "https://openapi.nscale.com/specs/compute/openapi.yaml"
+      "/specs/compute/openapi.yaml"
     );
     expect(screen.getByRole("link", { name: /json/i })).toHaveAttribute(
       "href",
-      "https://openapi.nscale.com/specs/compute/openapi.json"
+      "/specs/compute/openapi.json"
     );
     expect(screen.getByRole("link", { name: /changelog/i })).toHaveAttribute(
       "href",
-      "https://raw.githubusercontent.com/nscaledev/openapi/main/specs/compute/CHANGELOG.md"
+      "/specs/compute/CHANGELOG.md"
     );
   });
 

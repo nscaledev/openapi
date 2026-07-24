@@ -22,6 +22,24 @@ export async function fetchServiceSpecYaml(
   return response.text();
 }
 
-export function serviceSpecJsonUrl(serviceId: string): string {
-  return `${RAW_CONTENT_BASE}/specs/${serviceId}/openapi.json`;
+export async function fetchServiceSpecJson(
+  serviceId: string
+): Promise<string | null> {
+  const response = await fetch(
+    `${RAW_CONTENT_BASE}/specs/${serviceId}/openapi.json`,
+    { next: { revalidate: 60 } }
+  );
+  if (!response.ok) return null;
+  return response.text();
+}
+
+export async function fetchServiceChangelog(
+  serviceId: string
+): Promise<string | null> {
+  const response = await fetch(
+    `${RAW_CONTENT_BASE}/specs/${serviceId}/CHANGELOG.md`,
+    { next: { revalidate: 60 } }
+  );
+  if (!response.ok) return null;
+  return response.text();
 }

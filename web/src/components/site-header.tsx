@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-primary-border">
-      <div className="mx-auto max-w-5xl px-6 py-4">
+    <header className="w-full border-b border-primary-border bg-primary-background">
+      <div className="mx-auto max-w-4xl px-6 py-4">
         <Link href="/" aria-label="Nscale OpenAPI Specs — home">
           <NscaleWordmarkLogo width={120} height={24} />
         </Link>

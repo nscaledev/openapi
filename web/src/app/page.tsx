@@ -9,7 +9,7 @@ import {
 import { Button } from "@nscaledev/ui/components-v2/button";
 import { HeroBanner } from "@nscaledev/ui/components-v2/hero-banner";
 import Link from "next/link";
-import { fetchServiceIndex, RAW_CONTENT_BASE } from "@/lib/raw-content";
+import { fetchServiceIndex } from "@/lib/raw-content";
 import {
   shapeCatalog,
   type ServiceCatalogEntry,
@@ -34,17 +34,17 @@ function ServiceRow({ service }: { service: ServiceCatalogEntry }) {
           </Link>
         </Button>
         <Button asChild variant="outline">
-          <a href={service.specUrl}>
+          <a href={`/specs/${service.id}/openapi.yaml`}>
             <DocumentTextIcon /> YAML
           </a>
         </Button>
         <Button asChild variant="outline">
-          <a href={service.jsonUrl}>
+          <a href={`/specs/${service.id}/openapi.json`}>
             <CodeBracketIcon /> JSON
           </a>
         </Button>
         <Button asChild variant="outline">
-          <a href={`${RAW_CONTENT_BASE}/specs/${service.id}/CHANGELOG.md`}>
+          <a href={`/specs/${service.id}/CHANGELOG.md`}>
             <ClockIcon /> Changelog
           </a>
         </Button>
