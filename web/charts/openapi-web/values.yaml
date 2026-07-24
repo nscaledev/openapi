@@ -21,13 +21,3 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
-
-env:
-  nscaleInferenceApiHost: ""
-  nscaleInferenceModel: ""
-
-vault:
-  server: https://vault.nscale.com
-  path: "product"
-  roleName: "openapi-web-approle"
-  inferenceApiKeyPath: "prod/openapi-web/inference-api-key"

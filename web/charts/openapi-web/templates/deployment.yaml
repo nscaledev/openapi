@@ -21,14 +21,6 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 3000
-          env:
-            - name: NSCALE_INFERENCE_API_HOST
-              value: {{ .Values.env.nscaleInferenceApiHost | quote }}
-            - name: NSCALE_INFERENCE_MODEL
-              value: {{ .Values.env.nscaleInferenceModel | quote }}
-          envFrom:
-            - secretRef:
-                name: inference-api-key
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           livenessProbe:
