@@ -129,7 +129,8 @@ Create `web/package.json`:
   "dependencies": {
     "next": "15.5.18",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "@heroicons/react": "^2.1.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
@@ -789,7 +790,7 @@ git commit -m "web: add raw-content fetch wrappers"
 
 **Interfaces:**
 - Consumes: `shapeCatalog`/`ServiceCatalogEntry` (Task 4), `fetchServiceIndex` (Task 6).
-- Produces: the "/" route, rendering one card per service.
+- Produces: the "/" route — a simple list, one row per service, each with a leading icon and a row of icon+label action buttons (Reference/YAML/JSON/Docs/Changelog).
 
 - [ ] **Step 1: Write the failing smoke test**
 
@@ -816,7 +817,7 @@ vi.mock("@/lib/raw-content", () => ({
 }));
 
 describe("LandingPage", () => {
-  it("renders a card for each published service", async () => {
+  it("renders one row per published service, with a link to its reference page", async () => {
     render(await LandingPage());
 
     expect(screen.getByText("Compute Service API")).toBeVisible();
@@ -825,6 +826,34 @@ describe("LandingPage", () => {
       "href",
       "/reference/compute"
     );
+  });
+
+  it("renders icon+label action buttons for YAML, JSON, and the changelog", async () => {
+    render(await LandingPage());
+
+    expect(screen.getByRole("link", { name: /yaml/i })).toHaveAttribute(
+      "href",
+      "https://openapi.nscale.com/specs/compute/openapi.yaml"
+    );
+    expect(screen.getByRole("link", { name: /json/i })).toHaveAttribute(
+      "href",
+      "https://openapi.nscale.com/specs/compute/openapi.json"
+    );
+    expect(screen.getByRole("link", { name: /changelog/i })).toHaveAttribute(
+      "href",
+      "/specs/compute/CHANGELOG.md"
+    );
+  });
+
+  it("omits the docs button when a service has no docs link, rather than rendering a broken one", async () => {
+    const { fetchServiceIndex } = await import("@/lib/raw-content");
+    vi.mocked(fetchServiceIndex).mockResolvedValueOnce({
+      services: [{ id: "partial", title: "Partial Service", version: "0.1.0" }],
+    });
+
+    render(await LandingPage());
+
+    expect(screen.queryByRole("link", { name: /docs/i })).not.toBeInTheDocument();
   });
 
   it("renders an empty state when no services are published yet", async () => {
@@ -852,55 +881,87 @@ Expected: FAIL (current `page.tsx` is still the Task 1 placeholder).
 Replace `web/src/app/page.tsx`:
 
 ```tsx
-import { CircleStackIcon } from "@heroicons/react/24/outline";
-import { Button } from "@nscaledev/ui/components-v2/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@nscaledev/ui/components-v2/card";
+  ArrowTopRightOnSquareIcon,
+  BookOpenIcon,
+  ClockIcon,
+  CodeBracketIcon,
+  CodeBracketSquareIcon,
+  DocumentTextIcon,
+} from "@heroicons/react/24/outline";
+import { Button } from "@nscaledev/ui/components-v2/button";
 import { HeroBanner } from "@nscaledev/ui/components-v2/hero-banner";
 import Link from "next/link";
 import { fetchServiceIndex } from "@/lib/raw-content";
-import { shapeCatalog } from "@/lib/service-catalog";
+import {
+  shapeCatalog,
+  type ServiceCatalogEntry,
+} from "@/lib/service-catalog";
+
+function ServiceRow({ service }: { service: ServiceCatalogEntry }) {
+  return (
+    <li className="flex flex-col sm:flex-row sm:items-center gap-4 py-5 border-b border-primary-border last:border-b-0">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        <CodeBracketSquareIcon className="size-8 shrink-0 text-secondary-content" />
+        <div className="min-w-0">
+          <p className="font-semibold text-primary-content truncate">
+            {service.title}
+          </p>
+          <p className="text-sm text-secondary-content">v{service.version}</p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button asChild variant="default">
+          <Link href={`/reference/${service.id}`}>
+            <BookOpenIcon /> Reference
+          </Link>
+        </Button>
+        <Button asChild variant="outline">
+          <a href={service.specUrl}>
+            <DocumentTextIcon /> YAML
+          </a>
+        </Button>
+        <Button asChild variant="outline">
+          <a href={service.jsonUrl}>
+            <CodeBracketIcon /> JSON
+          </a>
+        </Button>
+        <Button asChild variant="outline">
+          <a href={`/specs/${service.id}/CHANGELOG.md`}>
+            <ClockIcon /> Changelog
+          </a>
+        </Button>
+        {service.docsUrl && (
+          <Button asChild variant="outline">
+            <a href={service.docsUrl}>
+              <ArrowTopRightOnSquareIcon /> Docs
+            </a>
+          </Button>
+        )}
+      </div>
+    </li>
+  );
+}
 
 export default async function LandingPage() {
   const index = await fetchServiceIndex();
   const services = shapeCatalog(index);
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-8 flex flex-col gap-8">
+    <main className="mx-auto max-w-4xl px-6 py-8 flex flex-col gap-8">
       <HeroBanner
         eyebrow="Nscale"
         title="OpenAPI Specs"
-        icon={<CircleStackIcon />}
+        icon={<CodeBracketSquareIcon />}
       />
       {services.length === 0 ? (
         <p className="text-secondary-content">No services published yet.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <ul className="flex flex-col">
           {services.map((service) => (
-            <Card key={service.id}>
-              <CardHeader>
-                <CardTitle>{service.title}</CardTitle>
-                <CardDescription>v{service.version}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={`/reference/${service.id}`}>Reference</Link>
-              </CardContent>
-              <CardFooter>
-                {service.docsUrl && (
-                  <Button asChild variant="outline">
-                    <a href={service.docsUrl}>Docs on Mintlify</a>
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
+            <ServiceRow key={service.id} service={service} />
           ))}
-        </div>
+        </ul>
       )}
     </main>
   );
@@ -914,14 +975,14 @@ cd /Users/adamflanagan/code/openapi/nscaledev-openapi/web
 npx vitest run src/app/page.test.tsx
 ```
 
-Expected: PASS, 2 tests. If `Button`'s `asChild` prop errors, check `node_modules/@nscaledev/ui/dist/components-v2/button/button.d.ts` for the actual supported props in the installed version and adjust (it wraps `@radix-ui/react-slot`'s `Slot`, which is the standard source of an `asChild` prop in this component family).
+Expected: PASS, 4 tests. If `Button`'s `asChild` prop errors, check `node_modules/@nscaledev/ui/dist/components-v2/button/button.d.ts` for the actual supported props in the installed version and adjust (it wraps `@radix-ui/react-slot`'s `Slot`, which is the standard source of an `asChild` prop in this component family). If any Heroicons import 404s, check `node_modules/@heroicons/react/24/outline/` for the exact icon file names available in the installed version — the icon names above are standard, stable Heroicons v2 names, but confirm before assuming a typo elsewhere.
 
 - [ ] **Step 5: Commit**
 
 ```bash
 cd /Users/adamflanagan/code/openapi/nscaledev-openapi
 git add web/src/app/page.tsx web/src/app/page.test.tsx
-git commit -m "web: build landing page with @nscaledev/ui HeroBanner and Card"
+git commit -m "web: build landing page as a simple icon-led list with @nscaledev/ui buttons"
 ```
 
 ---
