@@ -14,6 +14,8 @@ compute/main/openapi.json
 
 `main/` always reflects whatever's currently on the source service's `main` branch. `vX.Y.Z/` is an immutable snapshot of an actual tagged release, using that repo's own release tag verbatim. That's the whole repo — no index, no generated site, no changelog file. Git history on this repo *is* the changelog.
 
+[**nscaledev.github.io/openapi**](https://nscaledev.github.io/openapi/) lists every currently published service/version and links each one straight into a hosted Swagger UI/Editor, plus a one-click copy of its raw spec URL. It's a single static HTML file (`index.html`) with no build step — it lists the repo's actual current contents client-side via the GitHub API on page load, so there's nothing to regenerate or keep in sync.
+
 This repo is **not** the polished API docs experience — that's [docs.nscale.com](https://docs.nscale.com), built with Mintlify. It's the raw, technical layer underneath: the thing Mintlify, Postman, codegen tools, and anything else all pull from.
 
 ## How specs get here
