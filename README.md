@@ -36,6 +36,8 @@ Call it with `version: main` from a main-push workflow, and with `version: ${{ g
 
 **Prerequisite:** each source repo needs an `OPENAPI_PUBLISH_TOKEN` secret — a token with `contents: write` on this repo — before the action can push. That's provisioned per-repo by a human; the action doesn't create it.
 
+`main` requires the `test` and `check` status checks to pass and blocks force-pushes/deletions, but admins are exempt from required checks (`enforce_admins: false`) — deliberately, since the action pushes straight to `main` with no PR, and a brand-new commit can never have a passing check recorded against it before it lands. Whatever account `OPENAPI_PUBLISH_TOKEN` belongs to needs admin or maintain access here, or its pushes will be rejected the same way a non-admin's would be.
+
 ## Local development
 
 Node 20+, no global installs required:
