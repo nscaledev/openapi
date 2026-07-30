@@ -3,7 +3,9 @@ description: >
   Bundles, sanitizes, validates, and publishes a source service's OpenAPI
   spec into nscaledev/openapi at <service>/<version>/openapi.{yaml,json}.
   Call this from a main-push workflow with version: main, and from a
-  tag-release workflow with version: ${{ github.ref_name }}.
+  tag-release workflow with version: ${{ github.ref_name }}. A no-op (no
+  commit, exit 0) when the sanitized spec is unchanged from what's already
+  published at <service>/main/.
 
 inputs:
   service:
@@ -60,7 +62,25 @@ runs:
       shell: bash
       run: npx --yes @redocly/cli@2 bundle "${{ runner.temp }}/sanitized.yaml" -o "${{ runner.temp }}/sanitized.json" --ext json
 
+    - name: Check if spec content changed
+      id: check
+      shell: bash
+      run: |
+        # Compares against <service>/main/ — the latest known-published state
+        # — rather than the target version folder, which for a brand new
+        # release tag never exists yet and would always look "changed".
+        # This is what makes "only publish when the spec actually changed"
+        # true for both main-pushes and releases, not just main-pushes.
+        REFERENCE="_openapi-publish/${{ inputs.service }}/main/openapi.yaml"
+        if [ -f "$REFERENCE" ] && diff -q "$REFERENCE" "${{ runner.temp }}/sanitized.yaml" > /dev/null; then
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+          echo "Spec is unchanged from ${{ inputs.service }}/main — nothing to publish."
+        else
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Write spec into place
+      if: steps.check.outputs.changed == 'true'
       shell: bash
       run: |
         DEST="_openapi-publish/${{ inputs.service }}/${{ inputs.version }}"
@@ -69,18 +89,13 @@ runs:
         cp "${{ runner.temp }}/sanitized.json" "$DEST/openapi.json"
 
     - name: Commit and push
+      if: steps.check.outputs.changed == 'true'
       shell: bash
       working-directory: _openapi-publish
       run: |
         git config user.name "nscale-openapi-bot"
         git config user.email "nscale-openapi-bot@users.noreply.github.com"
         git add "${{ inputs.service }}/${{ inputs.version }}"
-
-        if git diff --cached --quiet; then
-          echo "No changes — spec is identical to what's already published at ${{ inputs.service }}/${{ inputs.version }}."
-          exit 0
-        fi
-
         git commit -m "publish(${{ inputs.service }}): ${{ inputs.version }}"
 
         for attempt in 1 2 3; do
