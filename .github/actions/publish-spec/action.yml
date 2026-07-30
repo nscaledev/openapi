@@ -91,6 +91,14 @@ runs:
         mkdir -p "$DEST"
         cp "${{ runner.temp }}/sanitized.yaml" "$DEST/openapi.yaml"
         cp "${{ runner.temp }}/sanitized.json" "$DEST/openapi.json"
+        {
+          echo "# ${{ inputs.service }} — ${{ inputs.version }}"
+          echo
+          echo "[Open in Swagger UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/${{ inputs.openapi-repo }}/main/${{ inputs.service }}/${{ inputs.version }}/openapi.yaml)"
+          echo
+          echo "- [openapi.yaml](openapi.yaml)"
+          echo "- [openapi.json](openapi.json)"
+        } > "$DEST/README.md"
 
     - name: Update latest/ if this release is the newest stable version
       if: steps.check.outputs.changed == 'true' && inputs.version != 'main'
@@ -122,9 +130,36 @@ runs:
           mkdir -p "${{ inputs.service }}/latest"
           cp "${{ inputs.service }}/${{ inputs.version }}/openapi.yaml" "${{ inputs.service }}/latest/openapi.yaml"
           cp "${{ inputs.service }}/${{ inputs.version }}/openapi.json" "${{ inputs.service }}/latest/openapi.json"
+          {
+            echo "# ${{ inputs.service }} — latest ($NEW)"
+            echo
+            echo "[Open in Swagger UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/${{ inputs.openapi-repo }}/main/${{ inputs.service }}/latest/openapi.yaml)"
+            echo
+            echo "- [openapi.yaml](openapi.yaml)"
+            echo "- [openapi.json](openapi.json)"
+          } > "${{ inputs.service }}/latest/README.md"
         else
           echo "${{ inputs.service }}/latest is already on $CURRENT, newer than $NEW — leaving it alone."
         fi
+
+    - name: Write service-level README
+      if: steps.check.outputs.changed == 'true'
+      shell: bash
+      working-directory: _openapi-publish
+      run: |
+        # Points at main/ and latest/ only, deliberately, not every version
+        # folder — someone landing on <service>/ just wants "what's newest"
+        # or "what's on main right now", not a full release index.
+        {
+          echo "# ${{ inputs.service }}"
+          echo
+          if [ -f "${{ inputs.service }}/latest/openapi.yaml" ]; then
+            echo "- [latest](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/${{ inputs.openapi-repo }}/main/${{ inputs.service }}/latest/openapi.yaml) — the newest stable release"
+          fi
+          if [ -f "${{ inputs.service }}/main/openapi.yaml" ]; then
+            echo "- [main](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/${{ inputs.openapi-repo }}/main/${{ inputs.service }}/main/openapi.yaml) — what's currently on the main branch"
+          fi
+        } > "${{ inputs.service }}/README.md"
 
     - name: Commit and push
       if: steps.check.outputs.changed == 'true'
@@ -133,10 +168,7 @@ runs:
       run: |
         git config user.name "nscale-openapi-bot"
         git config user.email "nscale-openapi-bot@users.noreply.github.com"
-        git add "${{ inputs.service }}/${{ inputs.version }}"
-        if [ -d "${{ inputs.service }}/latest" ]; then
-          git add "${{ inputs.service }}/latest"
-        fi
+        git add "${{ inputs.service }}"
         git commit -m "publish(${{ inputs.service }}): ${{ inputs.version }}"
 
         for attempt in 1 2 3; do
