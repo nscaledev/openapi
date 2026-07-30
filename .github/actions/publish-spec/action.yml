@@ -3,8 +3,11 @@ description: >
   Bundles, sanitizes, validates, and publishes a source service's OpenAPI
   spec into nscaledev/openapi at <service>/<version>/openapi.{yaml,json}.
   Call this from a main-push workflow with version: main, and from a
-  tag-release workflow with version: ${{ github.ref_name }}. A no-op (no
-  commit, exit 0) when the sanitized spec is unchanged from what's already
+  tag-release workflow with version: ${{ github.ref_name }}. A release
+  (any version other than "main") also updates <service>/latest/ — a
+  stable path that always points at the newest release, so downstream
+  docs can link to it once and never need updating. A no-op (no commit,
+  exit 0) when the sanitized spec is unchanged from what's already
   published at <service>/main/.
 
 inputs:
@@ -34,6 +37,7 @@ runs:
         repository: ${{ inputs.openapi-repo }}
         token: ${{ inputs.token }}
         path: _openapi-publish
+        fetch-depth: 0 # full history — needed to find latest/'s current version below
 
     - name: Setup Node
       uses: actions/setup-node@v6
@@ -88,6 +92,40 @@ runs:
         cp "${{ runner.temp }}/sanitized.yaml" "$DEST/openapi.yaml"
         cp "${{ runner.temp }}/sanitized.json" "$DEST/openapi.json"
 
+    - name: Update latest/ if this release is the newest stable version
+      if: steps.check.outputs.changed == 'true' && inputs.version != 'main'
+      shell: bash
+      working-directory: _openapi-publish
+      run: |
+        NEW="${{ inputs.version }}"
+
+        # latest/ only ever tracks a plain vX.Y.Z. Prereleases (vX.Y.Z-rc1
+        # etc.) are real releases in their own <version>/ folder, but never
+        # become "latest" — sort -V has no idea that 1.0.0-rc1 should rank
+        # *below* 1.0.0, and getting semver prerelease precedence right in
+        # bash isn't worth it when "skip prereleases" is simpler and correct.
+        if ! [[ "$NEW" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "$NEW is a prerelease — not updating ${{ inputs.service }}/latest."
+          exit 0
+        fi
+
+        # The current latest/ version comes from this repo's own commit
+        # history (the last commit that touched <service>/latest), not from
+        # the spec's own info.version — this repo's git log is already the
+        # source of truth for what was published when, so there's nothing
+        # extra to keep in sync. No prior commit means no prior release.
+        CURRENT="$(git log -1 --format=%s -- "${{ inputs.service }}/latest" \
+          | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+$' || echo "v0.0.0")"
+
+        HIGHEST="$(printf '%s\n%s\n' "$CURRENT" "$NEW" | sort -V | tail -1)"
+        if [ "$HIGHEST" = "$NEW" ]; then
+          mkdir -p "${{ inputs.service }}/latest"
+          cp "${{ inputs.service }}/${{ inputs.version }}/openapi.yaml" "${{ inputs.service }}/latest/openapi.yaml"
+          cp "${{ inputs.service }}/${{ inputs.version }}/openapi.json" "${{ inputs.service }}/latest/openapi.json"
+        else
+          echo "${{ inputs.service }}/latest is already on $CURRENT, newer than $NEW — leaving it alone."
+        fi
+
     - name: Commit and push
       if: steps.check.outputs.changed == 'true'
       shell: bash
@@ -96,6 +134,9 @@ runs:
         git config user.name "nscale-openapi-bot"
         git config user.email "nscale-openapi-bot@users.noreply.github.com"
         git add "${{ inputs.service }}/${{ inputs.version }}"
+        if [ -d "${{ inputs.service }}/latest" ]; then
+          git add "${{ inputs.service }}/latest"
+        fi
         git commit -m "publish(${{ inputs.service }}): ${{ inputs.version }}"
 
         for attempt in 1 2 3; do

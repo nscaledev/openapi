@@ -5,6 +5,8 @@ The canonical, public home for Nscale's OpenAPI specs. One folder per service, o
 ```
 identity/main/openapi.yaml
 identity/main/openapi.json
+identity/latest/openapi.yaml
+identity/latest/openapi.json
 identity/v1.13.0/openapi.yaml
 identity/v1.13.0/openapi.json
 compute/main/openapi.yaml
@@ -12,9 +14,7 @@ compute/main/openapi.json
 ...
 ```
 
-`main/` always reflects whatever's currently on the source service's `main` branch. `vX.Y.Z/` is an immutable snapshot of an actual tagged release, using that repo's own release tag verbatim. That's the whole repo — no index, no generated site, no changelog file. Git history on this repo *is* the changelog.
-
-[**nscaledev.github.io/openapi**](https://nscaledev.github.io/openapi/) lists every currently published service/version and links each one straight into a hosted Swagger UI/Editor, plus a one-click copy of its raw spec URL. It's a single static HTML file (`index.html`) with no build step — it lists the repo's actual current contents client-side via the GitHub API on page load, so there's nothing to regenerate or keep in sync.
+`main/` always reflects whatever's currently on the source service's `main` branch. `vX.Y.Z/` is an immutable snapshot of an actual tagged release, using that repo's own release tag verbatim — never a prerelease (`vX.Y.Z-rc1` etc. still get their own version folder, just never become `latest/`). `latest/` always mirrors whichever stable release is newest, so anything linking to `<service>/latest/openapi.yaml` — a Mintlify overview page, a codegen pipeline, whatever — never needs updating when a new version ships. That's the whole repo — no index, no generated site, no changelog file. Git history on this repo *is* the changelog.
 
 This repo is **not** the polished API docs experience — that's [docs.nscale.com](https://docs.nscale.com), built with Mintlify. It's the raw, technical layer underneath: the thing Mintlify, Postman, codegen tools, and anything else all pull from.
 
