@@ -1,0 +1,35 @@
+name: Test publish-spec
+
+# Manual smoke test for .github/actions/publish-spec — exercises the real
+# checkout+bundle+sanitize+validate+commit+push path without needing a
+# source repo's CI wired up. Defaults publish under smoke-test/ so it can
+# never collide with a real service; delete that folder after testing.
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: Service id to publish under (folder name in this repo)
+        required: true
+        default: smoke-test
+      spec-path:
+        description: Path to an OpenAPI spec already in this checkout, used as test input
+        required: true
+        default: identity/main/openapi.yaml
+      version:
+        description: Target folder — "main", or a vX.Y.Z tag to also exercise latest/
+        required: true
+        default: main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Publish OpenAPI spec
+        uses: ./.github/actions/publish-spec
+        with:
+          service: ${{ inputs.service }}
+          spec-path: ${{ inputs.spec-path }}
+          version: ${{ inputs.version }}
+          token: ${{ secrets.TEST_PUBLISH_TOKEN }}
