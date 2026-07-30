@@ -3,9 +3,9 @@ description: >
   Bundles, sanitizes, validates, and publishes a source service's OpenAPI
   spec into nscaledev/openapi at <service>/<version>/openapi.{yaml,json}.
   Call this from a main-push workflow with version: main, and from a
-  tag-release workflow with version: ${{ github.ref_name }}. A release
-  (any version other than "main") also updates <service>/latest/ — a
-  stable path that always points at the newest release, so downstream
+  tag-release workflow with version set to the release tag (github.ref_name).
+  A release (any version other than "main") also updates <service>/latest/ —
+  a stable path that always points at the newest release, so downstream
   docs can link to it once and never need updating. A no-op (no commit,
   exit 0) when the sanitized spec is unchanged from what's already
   published at <service>/main/.
