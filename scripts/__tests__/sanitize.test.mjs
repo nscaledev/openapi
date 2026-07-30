@@ -77,3 +77,23 @@ test('does not override servers already present after stripping internal ones', 
   assert.deepEqual(out.servers, [{ url: 'https://api.example.com' }]);
   assert.equal(stats.injectedServers, 0);
 });
+
+test('redacts AWS-access-key-shaped example values anywhere in the spec, even well-known placeholders', () => {
+  const withExampleKey =
+    'openapi: 3.0.3\n' +
+    'info:\n  title: Secret-Shaped Example Fixture\n  version: 1.0.0\n' +
+    'paths:\n' +
+    '  /keys:\n' +
+    '    get:\n' +
+    '      responses:\n' +
+    "        '200':\n" +
+    '          description: ok\n' +
+    '          content:\n' +
+    '            application/json:\n' +
+    '              example:\n' +
+    '                accessKeyId: AKIAIOSFODNN7EXAMPLE\n';
+  const { yaml, stats } = sanitizeSpec(withExampleKey);
+  const out = parse(yaml);
+  assert.equal(out.paths['/keys'].get.responses['200'].content['application/json'].example.accessKeyId, 'AKIA-EXAMPLE-ACCESS-KEY-ID');
+  assert.equal(stats.redactedSecrets, 1);
+});

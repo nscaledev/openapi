@@ -11,6 +11,11 @@ export const ALLOWED_EXTENSIONS = ['x-codeSamples'];
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'];
 const COMPONENT_MAPS = ['schemas', 'parameters', 'responses', 'requestBodies', 'headers'];
 const INTERNAL_URL_PATTERNS = [/localhost/i, /127\.0\.0\.1/, /\.internal(\W|$)/i, /\.svc(\.|:|$)/i, /staging/i];
+// Even AWS's own documented placeholder (AKIAIOSFODNN7EXAMPLE) matches this
+// format exactly, so GitHub push protection — and every downstream
+// consumer's own secret scanner — flags it regardless of intent. Neutralize
+// the shape itself rather than trying to allowlist known-safe placeholders.
+const SECRET_LIKE_PATTERNS = [{ pattern: /\bAKIA[0-9A-Z]{16}\b/g, replacement: 'AKIA-EXAMPLE-ACCESS-KEY-ID' }];
 
 function isHidden(node) {
   return !!node && typeof node === 'object' && HIDDEN_MARKERS.some((m) => node[m] === true);
@@ -90,6 +95,31 @@ function stripDisallowedExtensions(node, stats) {
   }
 }
 
+function redactString(value, stats) {
+  let result = value;
+  for (const { pattern, replacement } of SECRET_LIKE_PATTERNS) {
+    const next = result.replace(pattern, replacement);
+    if (next !== result) stats.redactedSecrets++;
+    result = next;
+  }
+  return result;
+}
+
+function redactSecretLikeStrings(node, stats) {
+  if (Array.isArray(node)) {
+    for (let i = 0; i < node.length; i++) {
+      if (typeof node[i] === 'string') node[i] = redactString(node[i], stats);
+      else redactSecretLikeStrings(node[i], stats);
+    }
+    return;
+  }
+  if (!node || typeof node !== 'object') return;
+  for (const key of Object.keys(node)) {
+    if (typeof node[key] === 'string') node[key] = redactString(node[key], stats);
+    else redactSecretLikeStrings(node[key], stats);
+  }
+}
+
 function countHiddenMarkers(node) {
   let count = 0;
   if (Array.isArray(node)) {
@@ -130,11 +160,13 @@ export function sanitizeSpec(rawYaml, options = {}) {
     removedServers: 0,
     removedExtensions: 0,
     injectedServers: 0,
+    redactedSecrets: 0,
   };
 
   stripHiddenOperations(spec, stats);
   stripHiddenComponents(spec, stats);
   stripInternalServers(spec, stats);
+  redactSecretLikeStrings(spec, stats);
 
   if ((!Array.isArray(spec.servers) || spec.servers.length === 0) && options.publicServers?.length) {
     spec.servers = options.publicServers;
@@ -173,7 +205,8 @@ function main() {
   console.error(
     `sanitize: removed ${stats.removedOperations} operation(s), ${stats.removedPaths} now-empty path(s), ` +
       `${stats.removedComponents} component(s), ${stats.removedServers} server(s), ${stats.removedExtensions} extension key(s)` +
-      (stats.injectedServers ? `, injected ${stats.injectedServers} configured public server(s)` : '')
+      (stats.injectedServers ? `, injected ${stats.injectedServers} configured public server(s)` : '') +
+      (stats.redactedSecrets ? `, redacted ${stats.redactedSecrets} secret-like string(s)` : '')
   );
   if (!stats.injectedServers && (!publicServers || publicServers.length === 0)) {
     console.error(
