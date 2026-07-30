@@ -1,0 +1,1650 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Storage Service API",
+    "description": "The Storage Service API provides that allows provisioning and life cycle\nmanagement of File and Object storage.",
+    "version": "1.13.0"
+  },
+  "paths": {
+    "/api/version": {
+      "description": "Service build version information.",
+      "get": {
+        "summary": "Get the deployed service version",
+        "description": "Returns the build version stamped into the running binary at release\ntime, allowing clients and CI gates to verify exactly which release is\ndeployed.",
+        "tags": [
+          "Version"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/serviceVersionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/objectstorageendpointclasses": {
+      "description": "Lists all available object storage endpoint classes, detailing supported\nendpoint exposure types and regional availability. Enables users to\ndiscover object storage endpoint options suitable for their workloads.",
+      "get": {
+        "description": "List the available object storage endpoint classes, including supported exposure types and regional availability.",
+        "summary": "List endpoint classes",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/objectStorageEndpointClassListResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/objectstorageendpoints": {
+      "description": "Manages S3-compatible object storage endpoints, enabling users to self-serve bucket creation through the access they provide.",
+      "get": {
+        "description": "List the object storage endpoints with optional filtering by tag, organization, project, and region.",
+        "summary": "List endpoints",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/projectIDQueryParameter"
+          },
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/objectStorageEndpointListResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Provisions a new S3-compatible object storage endpoint in the requested organization, project, and region using the selected immutable endpoint class. Access keys are managed through dedicated APIs, and identity policies are managed as part of the endpoint specification.",
+        "summary": "Create endpoint",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/objectStorageEndpointCreateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/objectStorageEndpointResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/objectstorageendpoints/{objectStorageEndpointID}": {
+      "description": "Manages S3-compatible object storage endpoints, enabling users to self-serve bucket creation through the access they provide.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/objectStorageEndpointIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Returns a single object storage endpoint, including its class selection, configured identity policies, and any exposure details that have been provisioned.",
+        "summary": "Get endpoint",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/objectStorageEndpointResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Updates the endpoint metadata and, optionally, replaces the full set of configured identity policies. The selected endpoint class remains immutable after creation.",
+        "summary": "Update endpoint",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/objectStorageEndpointUpdateRequest"
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/objectStorageEndpointResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes the object storage endpoint and any endpoint-level resources managed with it (including any buckets created through the endpoint).",
+        "summary": "Delete endpoint",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/objectstorageendpoints/{objectStorageEndpointID}/accesskeys": {
+      "description": "Manages the access keys associated with a specific S3-compatible object storage endpoint.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/objectStorageEndpointIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Returns the access keys associated with the specified object storage endpoint. Each access key includes only its identity policy name and access key identifier.",
+        "summary": "List endpoint access keys",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/objectStorageAccessKeyListResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates an access key for the specified object storage endpoint. The server generates the immutable access key identifier and secret. The secret is returned only once in the create response.",
+        "summary": "Create endpoint access key",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/objectStorageAccessKeyCreateRequest"
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/objectStorageAccessKeyCreateResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/objectstorageendpoints/{objectStorageEndpointID}/accesskeys/{objectStorageAccessKeyID}": {
+      "description": "Manages a specific access key associated with a specific S3-compatible object storage endpoint.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/objectStorageEndpointIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/objectStorageAccessKeyIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Returns the specified access key associated with the specified object storage endpoint. The response includes the access key identifier and identity policy name, but never the secret.",
+        "summary": "Get endpoint access key",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/objectStorageAccessKeyResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "delete": {
+        "description": "Deletes the specified access key associated with the specified object storage endpoint.",
+        "summary": "Delete endpoint access key",
+        "tags": [
+          "Object storage"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "objectStorageEndpointIDParameter": {
+        "name": "objectStorageEndpointID",
+        "in": "path",
+        "description": "The object storage endpoint unique identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/kubernetesNameParameter"
+        }
+      },
+      "objectStorageAccessKeyIDParameter": {
+        "name": "objectStorageAccessKeyID",
+        "in": "path",
+        "description": "The object storage access key unique identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/kubernetesNameParameter"
+        }
+      },
+      "organizationIDQueryParameter": {
+        "name": "organizationID",
+        "in": "query",
+        "description": "Allows resources to be filtered by organization.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "projectIDQueryParameter": {
+        "name": "projectID",
+        "in": "query",
+        "description": "Allows resources to be filtered by project.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "regionIDQueryParameter": {
+        "name": "regionID",
+        "in": "query",
+        "description": "Allows resources to be filtered by region.",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "tagSelectorParameter": {
+        "name": "tag",
+        "in": "query",
+        "description": "A set of tags to match against resources in the form \"name=value\",\nthus when encoded you get \"?tag=foo%3Dcat&tag=bar%3Ddog\".",
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "schemas": {
+      "kubernetesNameParameter": {
+        "description": "A Kubernetes name. Must be a valid DNS containing only lower case characters, numbers or hyphens, start and end with a character or number, and be at most 63 characters in length.",
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 63
+      },
+      "objectStorageAccessKeyListRead": {
+        "description": "A list of object storage access keys.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/objectStorageAccessKeyRead"
+        }
+      },
+      "objectStorageAccessKeyRead": {
+        "description": "An object storage access key associated with an object storage endpoint.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/objectStorageAccessKeySpec"
+          }
+        }
+      },
+      "objectStorageAccessKeyCreate": {
+        "description": "An object storage access key create request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/objectStorageAccessKeyCreateSpec"
+          }
+        }
+      },
+      "objectStorageAccessKeyCreateResponseBody": {
+        "description": "An object storage access key create response.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/objectStorageAccessKeyCreateResponseSpec"
+          }
+        }
+      },
+      "objectStorageAccessKeyCreateSpec": {
+        "description": "An object storage access key create specification.",
+        "type": "object",
+        "required": [
+          "identityPolicy"
+        ],
+        "properties": {
+          "identityPolicy": {
+            "description": "The identity policy name associated with the access key.",
+            "type": "string"
+          }
+        }
+      },
+      "objectStorageAccessKeyCreateResponseSpec": {
+        "description": "An object storage access key create response specification.",
+        "type": "object",
+        "required": [
+          "identityPolicy",
+          "accessKeyId",
+          "secret"
+        ],
+        "properties": {
+          "identityPolicy": {
+            "description": "The identity policy name associated with the access key.",
+            "type": "string"
+          },
+          "accessKeyId": {
+            "description": "The S3 access key identifier.",
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20,
+            "pattern": "^[A-Za-z0-9]+$"
+          },
+          "secret": {
+            "description": "The generated secret for the access key. This value is returned only once when the access key is created.",
+            "type": "string",
+            "maxLength": 40
+          }
+        }
+      },
+      "objectStorageAccessKeySpec": {
+        "description": "An object storage access key specification.",
+        "type": "object",
+        "required": [
+          "identityPolicy",
+          "accessKeyId"
+        ],
+        "properties": {
+          "identityPolicy": {
+            "description": "The identity policy name associated with the access key.",
+            "type": "string"
+          },
+          "accessKeyId": {
+            "description": "The S3 access key identifier.",
+            "type": "string",
+            "minLength": 20,
+            "maxLength": 20,
+            "pattern": "^[A-Za-z0-9]+$",
+            "nullable": true
+          }
+        }
+      },
+      "objectStorageIdentityPolicyDocument": {
+        "description": "A provider-specific identity policy document represented as an arbitrary JSON object.",
+        "type": "object",
+        "additionalProperties": true
+      },
+      "objectStorageIdentityPolicySpec": {
+        "description": "A named identity policy configured for an object storage endpoint.",
+        "type": "object",
+        "required": [
+          "name",
+          "document"
+        ],
+        "properties": {
+          "name": {
+            "description": "The identity policy name. Names must be unique within the object storage endpoint.",
+            "type": "string",
+            "minLength": 1
+          },
+          "document": {
+            "$ref": "#/components/schemas/objectStorageIdentityPolicyDocument"
+          }
+        }
+      },
+      "objectStorageIdentityPolicyList": {
+        "description": "A list of identity policies configured for an object storage endpoint.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/objectStorageIdentityPolicySpec"
+        }
+      },
+      "objectStorageEndpointClassListRead": {
+        "description": "A list of object storage endpoint classes.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/objectStorageEndpointClassRead"
+        }
+      },
+      "objectStorageEndpointClassRead": {
+        "description": "An object storage endpoint class.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/objectStorageEndpointClassSpec"
+          }
+        }
+      },
+      "objectStorageEndpointClassSpec": {
+        "description": "An object storage endpoint class specification.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "supportedEndpointType"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region an object storage endpoint class is provisioned in.",
+            "type": "string"
+          },
+          "supportedEndpointType": {
+            "description": "The endpoint exposure types supported by the object storage endpoint class.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/objectStorageEndpointClassSupportedEndpointType"
+            }
+          }
+        }
+      },
+      "objectStorageEndpointClassSupportedEndpointType": {
+        "description": "An endpoint exposure type supported by the object storage endpoint class.",
+        "type": "string",
+        "enum": [
+          "public",
+          "private"
+        ]
+      },
+      "objectStorageEndpointCreate": {
+        "description": "An object storage endpoint create request.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "allOf": [
+              {
+                "type": "object",
+                "required": [
+                  "organizationId",
+                  "projectId",
+                  "regionId"
+                ],
+                "properties": {
+                  "organizationId": {
+                    "description": "The organization to provision the resource in.",
+                    "type": "string"
+                  },
+                  "projectId": {
+                    "description": "The project to provision the resource in.",
+                    "type": "string"
+                  },
+                  "regionId": {
+                    "description": "The region to provision the object storage endpoint in.",
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "$ref": "#/components/schemas/objectStorageEndpointSpec"
+              }
+            ]
+          }
+        }
+      },
+      "objectStorageEndpointUpdate": {
+        "description": "An object storage endpoint update request. The selected endpoint class is immutable, but the configured identity policies may be replaced as a full list.",
+        "type": "object",
+        "required": [
+          "metadata"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/objectStorageEndpointUpdateSpec"
+          }
+        }
+      },
+      "objectStorageEndpointRead": {
+        "description": "An S3-compatible object storage endpoint that allows users to self-service create buckets through the access it exposes.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/objectStorageEndpointSpec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/objectStorageEndpointStatus"
+          }
+        }
+      },
+      "objectStorageEndpointList": {
+        "description": "A list of object storage endpoints.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/objectStorageEndpointRead"
+        }
+      },
+      "objectStorageEndpointSpec": {
+        "description": "An object storage endpoint specification.",
+        "type": "object",
+        "required": [
+          "objectStorageEndpointClassId"
+        ],
+        "properties": {
+          "objectStorageEndpointClassId": {
+            "description": "The immutable object storage endpoint class selected when the endpoint was created.",
+            "type": "string"
+          },
+          "identityPolicies": {
+            "description": "The identity policies configured for this object storage endpoint. Policy names must be unique within the endpoint.",
+            "$ref": "#/components/schemas/objectStorageIdentityPolicyList"
+          }
+        }
+      },
+      "objectStorageEndpointUpdateSpec": {
+        "description": "The mutable portion of an object storage endpoint specification. When identityPolicies is present in an update request, it replaces the full set of configured policies.",
+        "type": "object",
+        "properties": {
+          "identityPolicies": {
+            "description": "The identity policies configured for this object storage endpoint. Policy names must be unique within the endpoint.",
+            "$ref": "#/components/schemas/objectStorageIdentityPolicyList"
+          }
+        }
+      },
+      "objectStorageEndpointStatus": {
+        "description": "The observed status of an object storage endpoint.",
+        "type": "object",
+        "required": [
+          "regionId"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The region the object storage endpoint is provisioned in.",
+            "type": "string"
+          },
+          "exposure": {
+            "$ref": "#/components/schemas/objectStorageEndpointExposureStatus"
+          }
+        }
+      },
+      "objectStorageEndpointExposureStatus": {
+        "description": "The externally reachable endpoints for an object storage endpoint.",
+        "type": "object",
+        "properties": {
+          "public": {
+            "$ref": "#/components/schemas/objectStorageEndpointExposureDetailsStatus"
+          }
+        }
+      },
+      "objectStorageEndpointExposureDetailsStatus": {
+        "description": "Connection details for a specific exposure mode.",
+        "type": "object",
+        "required": [
+          "dnsName"
+        ],
+        "properties": {
+          "dnsName": {
+            "description": "The DNS hostname clients use to reach the endpoint.",
+            "type": "string"
+          }
+        }
+      },
+      "authorizationServerList": {
+        "description": "List of authorization servers that can grant access to the resource.",
+        "type": "array",
+        "items": {
+          "description": "An authorization server's scheme and hostname.",
+          "type": "string"
+        }
+      },
+      "scopeList": {
+        "description": "A set of OIDC scopes that are required for authorization.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "bearerMethod": {
+        "description": "Bearer token transport method",
+        "type": "string",
+        "enum": [
+          "header",
+          "body",
+          "query"
+        ]
+      },
+      "bearerMethodList": {
+        "description": "A set of bearer token transport methods supported by the protected endpoint.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/bearerMethod"
+        }
+      },
+      "openidProtectedResource": {
+        "description": "OpenID athentication server discovery configuration.",
+        "type": "object",
+        "required": [
+          "resource",
+          "authorization_servers",
+          "scopes_supported",
+          "bearer_methods_supported"
+        ],
+        "properties": {
+          "resource": {
+            "description": "The protected resource's scheme and hostname.",
+            "type": "string"
+          },
+          "authorization_servers": {
+            "$ref": "#/components/schemas/authorizationServerList"
+          },
+          "scopes_supported": {
+            "$ref": "#/components/schemas/scopeList"
+          },
+          "bearer_methods_supported": {
+            "$ref": "#/components/schemas/bearerMethodList"
+          }
+        }
+      },
+      "serviceVersionRead": {
+        "description": "Build version information for the running service, stamped into the\nbinary at release time.  Developer builds report version 0.0.0.",
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "description": "The service application name.",
+            "type": "string"
+          },
+          "version": {
+            "description": "The service release version, e.g. v1.2.3.",
+            "type": "string"
+          }
+        }
+      },
+      "error": {
+        "description": "Generic error message, compatible with oauth2.",
+        "type": "object",
+        "required": [
+          "error",
+          "error_description"
+        ],
+        "properties": {
+          "error": {
+            "description": "A terse error string expanding on the HTTP error code. Errors are based on the OAuth 2.02 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth 2.02.",
+            "type": "string",
+            "enum": [
+              "invalid_request",
+              "server_error",
+              "access_denied",
+              "not_found",
+              "conflict",
+              "method_not_allowed",
+              "unsupported_media_type",
+              "request_entity_too_large",
+              "unprocessable_content",
+              "forbidden"
+            ]
+          },
+          "error_description": {
+            "description": "Verbose message describing the error.",
+            "type": "string"
+          },
+          "trace_id": {
+            "description": "Unique trace identifier for the request.",
+            "type": "string"
+          }
+        }
+      },
+      "kubernetesLabelValue": {
+        "description": "A valid Kubernetes label value, typically used for resource names that can be\nindexed in the database.",
+        "type": "string",
+        "pattern": "^[0-9A-Za-z](?:[0-9A-Za-z-_.]{0,61}[0-9A-Za-z])?$"
+      },
+      "tag": {
+        "description": "A tag mapping arbitrary names to values.  These have no special meaning\nfor any component are are intended for use by end users to add additional\ncontext to a resource, for example to categorize it.",
+        "type": "object",
+        "required": [
+          "name",
+          "value"
+        ],
+        "properties": {
+          "name": {
+            "description": "A unique tag name.",
+            "type": "string"
+          },
+          "value": {
+            "description": "The value of the tag.",
+            "type": "string"
+          }
+        }
+      },
+      "tagList": {
+        "description": "A list of tags.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/tag"
+        }
+      },
+      "resourceMetadata": {
+        "description": "Metadata required for all API resource reads and writes.",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "$ref": "#/components/schemas/kubernetesLabelValue"
+          },
+          "description": {
+            "description": "The resource description, this optionally augments the name with more context.",
+            "type": "string"
+          },
+          "tags": {
+            "$ref": "#/components/schemas/tagList"
+          }
+        }
+      },
+      "staticResourceMetadata": {
+        "description": "This metadata is for resources that just exist, and don't require\nany provisioning and health status, but benefit from a standardized\nmetadata format.\n",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id",
+              "creationTime"
+            ],
+            "properties": {
+              "id": {
+                "description": "The unique resource ID.",
+                "type": "string"
+              },
+              "creationTime": {
+                "description": "The time the resource was created.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "createdBy": {
+                "description": "The user who created the resource.",
+                "type": "string"
+              },
+              "modifiedTime": {
+                "description": "The time a resource was updated.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "modifiedBy": {
+                "description": "The user who updated the resource.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "resourceProvisioningStatus": {
+        "description": "The provisioning state of a resource.",
+        "type": "string",
+        "enum": [
+          "unknown",
+          "pending",
+          "provisioning",
+          "provisioned",
+          "deprovisioning",
+          "error"
+        ]
+      },
+      "resourceHealthStatus": {
+        "description": "The health state of a resource.",
+        "type": "string",
+        "enum": [
+          "unknown",
+          "healthy",
+          "degraded",
+          "error"
+        ]
+      },
+      "resourceReadMetadata": {
+        "description": "Metadata required by all resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/staticResourceMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "provisioningStatus",
+              "healthStatus"
+            ],
+            "properties": {
+              "deletionTime": {
+                "description": "The time the resource was deleted.",
+                "type": "string",
+                "format": "date-time"
+              },
+              "provisioningStatus": {
+                "$ref": "#/components/schemas/resourceProvisioningStatus"
+              },
+              "healthStatus": {
+                "$ref": "#/components/schemas/resourceHealthStatus"
+              }
+            }
+          }
+        ]
+      },
+      "organizationScopedResourceReadMetadata": {
+        "description": "Metadata required by organization scoped resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/resourceReadMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "organizationId"
+            ],
+            "properties": {
+              "organizationId": {
+                "description": "The organization identifier the resource belongs to.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "projectScopedResourceReadMetadata": {
+        "description": "Metadata required by project scoped resource reads.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/organizationScopedResourceReadMetadata"
+          },
+          {
+            "type": "object",
+            "required": [
+              "projectId"
+            ],
+            "properties": {
+              "projectId": {
+                "description": "The project identifier the resource belongs to.",
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "responses": {
+      "objectStorageAccessKeyResponse": {
+        "description": "An object storage access key for an object storage endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageAccessKeyRead"
+            },
+            "example": {
+              "metadata": {
+                "id": "4c1de9c4-8d6c-4b32-8413-42e0b070d5d4",
+                "name": "bucket-admin-key",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "identityPolicy": "bucket-admin",
+                "accessKeyId": "AKIA-EXAMPLE-ACCESS-KEY-ID"
+              }
+            }
+          }
+        }
+      },
+      "objectStorageAccessKeyCreateResponse": {
+        "description": "A newly created object storage access key. The generated secret is returned only once.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageAccessKeyCreateResponseBody"
+            },
+            "example": {
+              "metadata": {
+                "id": "4c1de9c4-8d6c-4b32-8413-42e0b070d5d4",
+                "name": "bucket-admin-key",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy"
+              },
+              "spec": {
+                "identityPolicy": "bucket-admin",
+                "accessKeyId": "AKIA-EXAMPLE-ACCESS-KEY-ID",
+                "secret": "..."
+              }
+            }
+          }
+        }
+      },
+      "objectStorageAccessKeyListResponse": {
+        "description": "A list of object storage access keys for an object storage endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageAccessKeyListRead"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "4c1de9c4-8d6c-4b32-8413-42e0b070d5d4",
+                  "name": "bucket-admin-key",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "identityPolicy": "bucket-admin",
+                  "accessKeyId": "AKIA-EXAMPLE-ACCESS-KEY-ID"
+                }
+              },
+              {
+                "metadata": {
+                  "id": "7cb6c743-9e2d-4e98-a201-2c2c3c712f4c",
+                  "name": "bucket-readonly-key",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:12:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "identityPolicy": "bucket-readonly",
+                  "accessKeyId": "AKIA-EXAMPLE-ACCESS-KEY-ID"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "objectStorageEndpointResponse": {
+        "description": "An object storage endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageEndpointRead"
+            },
+            "example": {
+              "metadata": {
+                "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                "name": "my-s3-endpoint",
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "creationTime": "2024-05-31T14:11:00Z",
+                "createdBy": "john.doe@acme.com",
+                "provisioningStatus": "provisioned",
+                "healthStatus": "healthy",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "objectStorageEndpointClassId": "7b6f8b33-3ca8-4db2-b7ab-7bbf683efc6d",
+                "identityPolicies": [
+                  {
+                    "name": "bucket-admin",
+                    "document": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "s3:ListBucket",
+                            "s3:GetObject"
+                          ],
+                          "Resource": [
+                            "arn:aws:s3:::example-bucket",
+                            "arn:aws:s3:::example-bucket/*"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "status": {
+                "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                "exposure": {
+                  "public": {
+                    "dnsName": "s3.example.com"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "objectStorageEndpointClassListResponse": {
+        "description": "A list of object storage endpoint classes.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageEndpointClassListRead"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "object-storage-endpoint-class-name",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "description": "A small description of the object storage endpoint class.",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                  "supportedEndpointType": [
+                    "public"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "objectStorageEndpointListResponse": {
+        "description": "A list of object storage endpoints.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageEndpointList"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "my-s3-endpoint",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2024-05-31T14:11:00Z",
+                  "createdBy": "john.doe@acme.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy",
+                  "tags": [
+                    {
+                      "name": "tag-name",
+                      "value": "tag-value"
+                    }
+                  ]
+                },
+                "spec": {
+                  "objectStorageEndpointClassId": "7b6f8b33-3ca8-4db2-b7ab-7bbf683efc6d",
+                  "identityPolicies": [
+                    {
+                      "name": "bucket-admin",
+                      "document": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                          {
+                            "Effect": "Allow",
+                            "Action": [
+                              "s3:ListBucket",
+                              "s3:GetObject"
+                            ],
+                            "Resource": [
+                              "arn:aws:s3:::example-bucket",
+                              "arn:aws:s3:::example-bucket/*"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "status": {
+                  "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                  "exposure": {
+                    "public": {
+                      "dnsName": "s3.example.com"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      },
+      "openidProtectedResourceResponse": {
+        "description": "OpenID configuration used to discover authentication servers when hitting\na protected endpoint.  This is returned to the client when an authorization\nerror is encountered so they can discover how to authenticate.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/openidProtectedResource"
+            },
+            "example": {
+              "resource": "https://endpoint.acme.com",
+              "authorization_servers": [
+                "http://auth.acme.com"
+              ],
+              "scopes_supported": [
+                "openid",
+                "profile",
+                "email"
+              ],
+              "bearer_methods_supported": [
+                "header"
+              ]
+            }
+          }
+        }
+      },
+      "serviceVersionResponse": {
+        "description": "Build version information for the running service.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serviceVersionRead"
+            },
+            "example": {
+              "name": "unikorn-region-server",
+              "version": "v1.16.7"
+            }
+          }
+        }
+      },
+      "unauthorizedResponse": {
+        "description": "Authentication failed or the access token has expired.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "access_denied",
+              "error_description": "authentication failed",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "internalServerErrorResponse": {
+        "description": "An unexpected or unhandled error occurred. This may be a transient error and\nmay succeed on a retry.  If this isn't the case, please report it as an issue.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "server_error",
+              "error_description": "failed to token claim",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "badRequestResponse": {
+        "description": "Request body failed schema validation, or the request does not contain\nall the required fields.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "invalid_request",
+              "error_description": "request body invalid",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "forbiddenResponse": {
+        "description": "Request was denied by authorization, this may be caused by the authorization\ntoken not having the required scope for an API, or the user doesn't have the\nnecessary privileges on the provider platform.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "forbidden",
+              "error_description": "user credentials do not have the required privileges",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "unprocessableContentResponse": {
+        "description": "The provided request was syntactically correct but the instruction was unable to\nbe processed due to semantic errors.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "unprocessable_content",
+              "error_description": "the request body was in the wrong format",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "notFoundResponse": {
+        "description": "Unable to find a resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "not_found",
+              "error_description": "the requested resource does not exist",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "conflictResponse": {
+        "description": "Resource conflicts with another, usually this means they have the same name.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "conflict",
+              "error_description": "a resource with the same name already exists",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "acceptedResponse": {
+        "description": "The request has been accepted and will be fulfilled asynchronously.\nYou may poll the resource and monitor its provisioning and health status\nto await completion of the operation."
+      }
+    },
+    "requestBodies": {
+      "objectStorageAccessKeyCreateRequest": {
+        "description": "A request to create an object storage access key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageAccessKeyCreate"
+            },
+            "example": {
+              "metadata": {
+                "name": "bucket-admin-key",
+                "description": "Access key for bucket administration"
+              },
+              "spec": {
+                "identityPolicy": "bucket-admin"
+              }
+            }
+          }
+        }
+      },
+      "objectStorageEndpointCreateRequest": {
+        "description": "A request to create an object storage endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageEndpointCreate"
+            },
+            "example": {
+              "metadata": {
+                "name": "my-s3-endpoint",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                "objectStorageEndpointClassId": "7b6f8b33-3ca8-4db2-b7ab-7bbf683efc6d",
+                "identityPolicies": [
+                  {
+                    "name": "bucket-admin",
+                    "document": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "s3:ListBucket",
+                            "s3:GetObject"
+                          ],
+                          "Resource": [
+                            "arn:aws:s3:::example-bucket",
+                            "arn:aws:s3:::example-bucket/*"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "objectStorageEndpointUpdateRequest": {
+        "description": "A request to update an object storage endpoint.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/objectStorageEndpointUpdate"
+            },
+            "example": {
+              "metadata": {
+                "name": "new-name",
+                "description": "A verbose description",
+                "tags": [
+                  {
+                    "name": "tag-name",
+                    "value": "tag-value"
+                  }
+                ]
+              },
+              "spec": {
+                "identityPolicies": [
+                  {
+                    "name": "bucket-readonly",
+                    "document": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "s3:ListBucket"
+                          ],
+                          "Resource": [
+                            "arn:aws:s3:::example-bucket"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "oauth2Authentication": {
+        "description": "Operation requires OAuth 2.0 bearer token authentication.",
+        "type": "oauth2",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://identity.nks.europe-west4.nscale.com/oauth2/v2/authorization",
+            "tokenUrl": "https://identity.nks.europe-west4.nscale.com/oauth2/v2/token",
+            "scopes": {}
+          }
+        }
+      }
+    }
+  }
+}
