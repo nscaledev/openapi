@@ -24,13 +24,15 @@ Specs are **never hand-edited in this repo**. Each source service repo calls the
 
 ```yaml
 - name: Publish OpenAPI spec
-  uses: nscaledev/openapi/.github/actions/publish-spec@main
+  uses: nscaledev/openapi/.github/actions/publish-spec@<commit-sha> # main
   with:
     service: identity
     spec-path: pkg/openapi/server.spec.yaml
     version: main   # or ${{ github.ref_name }} from a release workflow
     token: ${{ secrets.OPENAPI_PUBLISH_TOKEN }}
 ```
+
+Pin `<commit-sha>` to this repo's current `main` HEAD rather than referencing `@main` directly — it's a separate repo, so an unpinned branch ref means anyone who can push here could silently change what every caller's CI executes with `OPENAPI_PUBLISH_TOKEN` in scope. Bump the pinned SHA by hand when you want a caller to pick up a change to the action.
 
 Call it with `version: main` from a main-push workflow, and with `version: ${{ github.ref_name }}` from a tag-release workflow. The action bundles (dereferences `$ref`s), sanitizes (strips internal-only operations, servers, and vendor extensions), lints, converts to JSON, and commits directly to `main` here under a bot identity (`nscale-openapi-bot`). `CODEOWNERS` and `.github/workflows/protect-published-specs.yml` block human edits to any `<service>/main/` or `<service>/vX.Y.Z/` path.
 
