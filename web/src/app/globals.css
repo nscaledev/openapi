@@ -1,4 +1,0 @@
-@import "tailwindcss";
-@import "@nscaledev/ui/styles/globals.css";
-
-@source "../**/*.{js,jsx,ts,tsx,mdx,css,svg}";

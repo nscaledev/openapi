@@ -1,0 +1,97 @@
+name: Publish OpenAPI spec
+description: >
+  Bundles, sanitizes, validates, and publishes a source service's OpenAPI
+  spec into nscaledev/openapi at <service>/<version>/openapi.{yaml,json}.
+  Call this from a main-push workflow with version: main, and from a
+  tag-release workflow with version: ${{ github.ref_name }}.
+
+inputs:
+  service:
+    description: Service id — the top-level folder name in nscaledev/openapi, e.g. "identity"
+    required: true
+  spec-path:
+    description: Path to the raw OpenAPI spec, relative to the calling repo's checkout root
+    required: true
+  version:
+    description: Target folder name — "main" for a main-branch push, or a vX.Y.Z release tag
+    required: true
+  token:
+    description: Token with contents:write on the openapi-repo (a repo secret you provision, e.g. OPENAPI_PUBLISH_TOKEN)
+    required: true
+  openapi-repo:
+    description: The repo to publish into
+    required: false
+    default: nscaledev/openapi
+
+runs:
+  using: composite
+  steps:
+    - name: Checkout nscaledev/openapi
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ inputs.openapi-repo }}
+        token: ${{ inputs.token }}
+        path: _openapi-publish
+
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        node-version: "20"
+
+    - name: Install nscaledev/openapi dependencies
+      shell: bash
+      working-directory: _openapi-publish
+      run: npm ci
+
+    - name: Bundle spec (dereference external $refs)
+      shell: bash
+      run: npx --yes @redocly/cli@2 bundle "${{ inputs.spec-path }}" -o "${{ runner.temp }}/bundled.yaml" --ext yaml
+
+    - name: Sanitize
+      shell: bash
+      run: node _openapi-publish/scripts/sanitize.mjs "${{ runner.temp }}/bundled.yaml" "${{ runner.temp }}/sanitized.yaml" "${{ inputs.service }}"
+
+    - name: Validate (lint + forbidden-string scan)
+      shell: bash
+      working-directory: _openapi-publish
+      run: scripts/validate.sh "${{ runner.temp }}/sanitized.yaml"
+
+    - name: Generate JSON
+      shell: bash
+      run: npx --yes @redocly/cli@2 bundle "${{ runner.temp }}/sanitized.yaml" -o "${{ runner.temp }}/sanitized.json" --ext json
+
+    - name: Write spec into place
+      shell: bash
+      run: |
+        DEST="_openapi-publish/${{ inputs.service }}/${{ inputs.version }}"
+        mkdir -p "$DEST"
+        cp "${{ runner.temp }}/sanitized.yaml" "$DEST/openapi.yaml"
+        cp "${{ runner.temp }}/sanitized.json" "$DEST/openapi.json"
+
+    - name: Commit and push
+      shell: bash
+      working-directory: _openapi-publish
+      run: |
+        git config user.name "nscale-openapi-bot"
+        git config user.email "nscale-openapi-bot@users.noreply.github.com"
+        git add "${{ inputs.service }}/${{ inputs.version }}"
+
+        if git diff --cached --quiet; then
+          echo "No changes — spec is identical to what's already published at ${{ inputs.service }}/${{ inputs.version }}."
+          exit 0
+        fi
+
+        git commit -m "publish(${{ inputs.service }}): ${{ inputs.version }}"
+
+        for attempt in 1 2 3; do
+          if git push origin HEAD:main; then
+            echo "Published ${{ inputs.service }}/${{ inputs.version }}."
+            exit 0
+          fi
+          echo "Push rejected (attempt $attempt/3) — another publish landed first. Rebasing and retrying."
+          git fetch origin main
+          git rebase origin/main
+        done
+
+        echo "::error::Failed to push after 3 attempts — competing publishes may be looping. Re-run this job."
+        exit 1

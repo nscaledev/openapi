@@ -1,42 +1,52 @@
 # nscaledev/openapi
 
-The canonical, public home for Nscale's OpenAPI specs — one spec per service, sanitized, versioned, and pushed here from each service's own repo.
+The canonical, public home for Nscale's OpenAPI specs. One folder per service, one subfolder per published version:
 
-This repo has two parts:
+```
+identity/main/openapi.yaml
+identity/main/openapi.json
+identity/v1.13.0/openapi.yaml
+identity/v1.13.0/openapi.json
+compute/main/openapi.yaml
+compute/main/openapi.json
+...
+```
 
-- **`specs/` and `index.json`** — the actual data. Sanitized, versioned OpenAPI specs, never hand-edited here (see below).
-- **`web/`** — a Next.js app that reads that data and renders the browsable site: a landing page listing every published service, and a per-service reference view. It's deployed to Nscale's own k8s cluster (see `web/charts/openapi-web/`) and fetches specs from this repo's git history at runtime — a new publish shows up within about a minute, with no redeploy of the app itself.
+`main/` always reflects whatever's currently on the source service's `main` branch. `vX.Y.Z/` is an immutable snapshot of an actual tagged release, using that repo's own release tag verbatim. That's the whole repo — no index, no generated site, no changelog file. Git history on this repo *is* the changelog.
 
-This repo is **not** the polished API docs experience — that's [docs.nscale.com](https://docs.nscale.com), built with Mintlify. It's the raw, technical layer underneath: the thing Mintlify, Postman, codegen tools, and the `web/` app itself all pull from.
+This repo is **not** the polished API docs experience — that's [docs.nscale.com](https://docs.nscale.com), built with Mintlify. It's the raw, technical layer underneath: the thing Mintlify, Postman, codegen tools, and anything else all pull from.
 
 ## How specs get here
 
-Specs are **never hand-edited in this repo**. Each source service repo fires a `repository_dispatch` event on release; a publish workflow here sanitizes (stripping internal-only operations, servers, and vendor extensions), lints, diffs for breaking changes, converts formats, and commits under a bot identity. `CODEOWNERS` and a CI check block human edits to `specs/`.
+Specs are **never hand-edited in this repo**. Each source service repo calls the shared [`publish-spec`](.github/actions/publish-spec/action.yml) action from its own CI:
+
+```yaml
+- name: Publish OpenAPI spec
+  uses: nscaledev/openapi/.github/actions/publish-spec@main
+  with:
+    service: identity
+    spec-path: pkg/openapi/server.spec.yaml
+    version: main   # or ${{ github.ref_name }} from a release workflow
+    token: ${{ secrets.OPENAPI_PUBLISH_TOKEN }}
+```
+
+Call it with `version: main` from a main-push workflow, and with `version: ${{ github.ref_name }}` from a tag-release workflow. The action bundles (dereferences `$ref`s), sanitizes (strips internal-only operations, servers, and vendor extensions), lints, converts to JSON, and commits directly to `main` here under a bot identity (`nscale-openapi-bot`). `CODEOWNERS` and `.github/workflows/protect-published-specs.yml` block human edits to any `<service>/main/` or `<service>/vX.Y.Z/` path.
+
+**Prerequisite:** each source repo needs an `OPENAPI_PUBLISH_TOKEN` secret — a token with `contents: write` on this repo — before the action can push. That's provisioned per-repo by a human; the action doesn't create it.
 
 ## Local development
 
-**Publish pipeline** (root-level, Node 20+, no global installs required):
+Node 20+, no global installs required:
 
 ```bash
 # Sanitize a raw (already-bundled/dereferenced) spec
-node scripts/sanitize.mjs <input.yaml> <output.yaml>
+node scripts/sanitize.mjs <input.yaml> <output.yaml> <service-id>
 
 # Lint + forbidden-string scan a sanitized spec
-scripts/validate.sh specs/<service>/openapi.yaml
-
-# Rebuild index.json from specs/
-node scripts/build-index.mjs
+scripts/validate.sh <path/to/openapi.yaml>
 
 # Run the pipeline's tests
 npm test
-```
-
-**The web app** (`web/`, Node 22+ — see `web/README.md` if more detail is ever added there):
-
-```bash
-cd web
-npm install   # needs NODE_AUTH_TOKEN set to a GitHub PAT with read:packages, for @nscaledev/ui
-npm run dev   # http://localhost:3000
 ```
 
 ## License

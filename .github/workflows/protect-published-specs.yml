@@ -1,0 +1,38 @@
+name: Protect published specs
+
+# <service>/main/ and <service>/vX.Y.Z/ are only ever supposed to be written
+# by the publish-spec action, running as nscale-openapi-bot. Any PR touching
+# those paths from anyone else fails here — this is the actual enforcement;
+# CODEOWNERS is a secondary signal.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Fail if this PR touches a published spec folder and wasn't opened by the bot
+        run: |
+          if [ "${{ github.event.pull_request.user.login }}" = "nscale-openapi-bot" ]; then
+            echo "Opened by nscale-openapi-bot — allowed."
+            exit 0
+          fi
+
+          CHANGED="$(git diff --name-only origin/${{ github.event.pull_request.base.ref }}...HEAD)"
+          echo "$CHANGED"
+
+          if echo "$CHANGED" | grep -qE '^[^/]+/(main|v[0-9]+\.[0-9]+\.[0-9]+.*)/'; then
+            echo "::error::This PR modifies a published spec folder (<service>/main/ or <service>/vX.Y.Z/), which is only ever written by the publish-spec action (see README.md). Hand edits aren't accepted — publish through the source service repo instead."
+            exit 1
+          fi
+
+          echo "No published spec changes — OK."

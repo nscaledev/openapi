@@ -2,7 +2,7 @@
   "name": "nscaledev-openapi-pipeline",
   "private": true,
   "type": "module",
-  "description": "Publish pipeline scripts for nscaledev/openapi. Sanitizes and indexes specs pushed here from other repos; the web app (web/) reads the result, not this package.",
+  "description": "Sanitize/validate scripts used by the publish-spec action to publish OpenAPI specs pushed here from other repos.",
   "scripts": {
     "test": "node --test scripts/__tests__/*.test.mjs"
   },
