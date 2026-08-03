@@ -1906,6 +1906,19 @@
             "description": "Whether the applied platform release is currently deprecated.",
             "type": "boolean"
           },
+          "withdrawn": {
+            "description": "Whether operators have withdrawn the applied platform release. Deprecation is derived from the release catalog, whereas withdrawal is an explicit operator decision and is reversible.",
+            "type": "boolean"
+          },
+          "withdrawalReason": {
+            "description": "Stable machine-readable reason operators withdrew the applied platform release.",
+            "$ref": "#/components/schemas/platformReleaseWithdrawalReasonV1"
+          },
+          "withdrawalMessage": {
+            "description": "Customer-safe explanation of why operators withdrew the applied platform release.",
+            "type": "string",
+            "maxLength": 32768
+          },
           "upgradeAvailable": {
             "description": "Whether at least one eligible target was observed.",
             "type": "boolean"
