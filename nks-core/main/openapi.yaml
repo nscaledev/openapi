@@ -279,6 +279,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/regionIDQueryParameter"
         - $ref: "#/components/parameters/platformReleaseArchitectureQueryParameter"
+        - $ref: "#/components/parameters/prereleaseQueryParameter"
         - $ref: "#/components/parameters/deprecatedQueryParameter"
         - $ref: "#/components/parameters/withdrawnQueryParameter"
       responses:
@@ -417,6 +418,12 @@ components:
       in: query
       description: Filters by deletion state. True returns terminating resources,
         false returns non-terminating resources, and omission returns both.
+      schema:
+        type: boolean
+    prereleaseQueryParameter:
+      name: prerelease
+      in: query
+      description: Allows platform releases to be filtered by prerelease state.
       schema:
         type: boolean
     deprecatedQueryParameter:
@@ -1670,6 +1677,7 @@ components:
         - kubernetesVersion
         - availableRegionIds
         - supportedArchitectures
+        - prerelease
         - deprecated
         - withdrawn
         - addons
@@ -1687,6 +1695,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/platformReleaseArchitectureV1"
+        prerelease:
+          description: Whether the release Kubernetes version is a semver prerelease, such
+            as v1.37.0-beta.0. Prerelease releases are selectable and are
+            offered as upgrade targets, but they do not occupy a slot in the
+            supported Kubernetes minor version window, and they are deprecated
+            as soon as a newer prerelease or an actual release supersedes them.
+          type: boolean
         deprecated:
           description: Whether existing clusters should upgrade away from this release.
             Once true, this remains true for the lifetime of the release
