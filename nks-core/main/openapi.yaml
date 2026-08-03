@@ -555,7 +555,13 @@ components:
                 projectId: e36c058a-8eba-4f5b-91f4-f6ffb983795c
                 creationTime: 2026-05-14T10:00:00Z
                 provisioningStatus: provisioned
+                provisioningStatusDetail:
+                  reason: Provisioned
+                  message: cluster is available
                 healthStatus: healthy
+                healthStatusDetail:
+                  reason: Healthy
+                  message: cluster is healthy
                 tags:
                   - name: environment
                     value: production
@@ -623,7 +629,7 @@ components:
               organizationId: 9a8c6370-4065-4d4a-9da0-7678df40cd9d
               projectId: e36c058a-8eba-4f5b-91f4-f6ffb983795c
               creationTime: 2026-05-14T10:00:00Z
-              provisioningStatus: unknown
+              provisioningStatus: provisioning
               healthStatus: unknown
               tags:
                 - name: environment
@@ -695,7 +701,7 @@ components:
               organizationId: 9a8c6370-4065-4d4a-9da0-7678df40cd9d
               projectId: e36c058a-8eba-4f5b-91f4-f6ffb983795c
               creationTime: 2026-05-14T10:00:00Z
-              provisioningStatus: unknown
+              provisioningStatus: provisioning
               healthStatus: unknown
             spec:
               networkId: 61f0ad85-3001-41cb-824a-e6a047668dfe
@@ -721,7 +727,13 @@ components:
                 projectId: e36c058a-8eba-4f5b-91f4-f6ffb983795c
                 creationTime: 2026-05-14T10:15:00Z
                 provisioningStatus: provisioned
+                provisioningStatusDetail:
+                  reason: Provisioned
+                  message: node pool is available
                 healthStatus: healthy
+                healthStatusDetail:
+                  reason: Healthy
+                  message: node pool workers are ready
                 tags:
                   - name: role
                     value: worker
@@ -757,7 +769,7 @@ components:
               organizationId: 9a8c6370-4065-4d4a-9da0-7678df40cd9d
               projectId: e36c058a-8eba-4f5b-91f4-f6ffb983795c
               creationTime: 2026-05-14T10:15:00Z
-              provisioningStatus: unknown
+              provisioningStatus: provisioning
               healthStatus: unknown
               tags:
                 - name: role
@@ -797,7 +809,7 @@ components:
               organizationId: 9a8c6370-4065-4d4a-9da0-7678df40cd9d
               projectId: e36c058a-8eba-4f5b-91f4-f6ffb983795c
               creationTime: 2026-05-14T10:15:00Z
-              provisioningStatus: unknown
+              provisioningStatus: provisioning
               healthStatus: unknown
             spec:
               clusterId: 1e44f19a-21a9-43cc-a460-5d6f21247f65
@@ -1026,8 +1038,12 @@ components:
           minimum: 0
         provisioningStatus:
           $ref: "#/components/schemas/resourceProvisioningStatus"
+        provisioningStatusDetail:
+          $ref: "#/components/schemas/provisioningStatusDetail"
         healthStatus:
           $ref: "#/components/schemas/resourceHealthStatus"
+        healthStatusDetail:
+          $ref: "#/components/schemas/healthStatusDetail"
     clusterApiServerAccessV1:
       description: API server network exposure requested for a cluster.
       type: object
@@ -1178,56 +1194,6 @@ components:
           $ref: "#/components/schemas/clusterAddonProfileStatusV1"
         hardware:
           $ref: "#/components/schemas/clusterAddonProfileStatusV1"
-    clusterFailureReasonV1:
-      description: Stable allowlisted cluster failure reason. Detailed provider and
-        controller diagnostics remain internal.
-      type: string
-      enum:
-        - ClusterProvisioningFailed
-        - PlatformReleaseUnavailable
-        - ControlPlaneFailed
-        - RemoteObservationFailed
-        - ControlPlaneDegraded
-        - NodePoolsDegraded
-        - AddonsDegraded
-        - DeletionFailed
-    clusterFailureSummaryV1:
-      description: Bounded customer-facing cluster failure summary.
-      type: object
-      required:
-        - reason
-        - message
-      properties:
-        reason:
-          $ref: "#/components/schemas/clusterFailureReasonV1"
-        message:
-          description: Fixed customer-safe cluster failure message.
-          type: string
-    nodePoolFailureReasonV1:
-      description: Stable allowlisted node pool failure reason. Detailed provider and
-        controller diagnostics remain internal.
-      type: string
-      enum:
-        - NodePoolProvisioningFailed
-        - ParentClusterUnavailable
-        - PlatformReleaseUnavailable
-        - RemoteObservationFailed
-        - MachineDeploymentFailed
-        - WorkersRemediating
-        - WorkersNotReady
-        - DeletionFailed
-    nodePoolFailureSummaryV1:
-      description: Bounded customer-facing node pool failure summary.
-      type: object
-      required:
-        - reason
-        - message
-      properties:
-        reason:
-          $ref: "#/components/schemas/nodePoolFailureReasonV1"
-        message:
-          description: Fixed customer-safe node pool failure message.
-          type: string
     clusterSpecV1:
       description: Desired cluster state.
       type: object
@@ -1394,8 +1360,6 @@ components:
           $ref: "#/components/schemas/clusterAddonsStatusV1"
         release:
           $ref: "#/components/schemas/clusterReleaseStatusV1"
-        failure:
-          $ref: "#/components/schemas/clusterFailureSummaryV1"
     clusterV1Read:
       description: A Kubernetes cluster.
       type: object
@@ -1605,8 +1569,6 @@ components:
           minimum: 0
         reservation:
           $ref: "#/components/schemas/nodePoolReservationStatusV1"
-        failure:
-          $ref: "#/components/schemas/nodePoolFailureSummaryV1"
     nodePoolV1Read:
       description: A cluster node pool.
       type: object
@@ -1770,7 +1732,6 @@ components:
       description: The provisioning state of a resource.
       type: string
       enum:
-        - unknown
         - pending
         - provisioning
         - provisioned
@@ -1808,6 +1769,73 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/tag"
+    provisioningStatusReason:
+      description: |-
+        A closed, generic classification of a resource's provisioning state,
+        finer-grained than provisioningStatus. This vocabulary is owned by the
+        platform and is the same across all resources; domain-specific state
+        (e.g. an instance's lifecycle phase) is carried on other mechanisms and
+        never appears here.
+      type: string
+      enum:
+        - Provisioning
+        - Provisioned
+        - Errored
+        - Deprovisioning
+        - Deprovisioned
+        - DependencyNotReady
+        - DependencyFailed
+        - DependencyNotFound
+    provisioningStatusDetail:
+      description: |-
+        Human-facing detail about the current provisioning state: a
+        machine-classifiable reason drawn from a closed vocabulary, and a
+        user-safe human-readable message. Derived from the resource's status and
+        supplements the coarse provisioningStatus; never stored.
+      type: object
+      required:
+        - reason
+        - message
+      properties:
+        reason:
+          $ref: "#/components/schemas/provisioningStatusReason"
+        message:
+          description: A user-safe, human-readable description of the provisioning state.
+          type: string
+    healthStatusReason:
+      description: >-
+        A closed, generic classification of a resource's health — the raw health
+
+        condition reason, finer-grained than the coarse healthStatus. Owned by
+        the
+
+        platform and the same across all resources.
+      type: string
+      enum:
+        - Healthy
+        - Degraded
+        - Unknown
+    healthStatusDetail:
+      description: >-
+        Human-facing detail about the current health state: a
+        machine-classifiable
+
+        reason drawn from a closed vocabulary, and a user-safe human-readable
+
+        message (e.g. "2/12 nodes are down"). Derived from the resource's status
+        and
+
+        supplements the coarse healthStatus; never stored.
+      type: object
+      required:
+        - reason
+        - message
+      properties:
+        reason:
+          $ref: "#/components/schemas/healthStatusReason"
+        message:
+          description: A user-safe, human-readable description of the health state.
+          type: string
     error:
       description: Generic error message, compatible with oauth2.
       type: object

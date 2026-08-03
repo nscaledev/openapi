@@ -848,7 +848,15 @@
                   "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
                   "creationTime": "2026-05-14T10:00:00Z",
                   "provisioningStatus": "provisioned",
+                  "provisioningStatusDetail": {
+                    "reason": "Provisioned",
+                    "message": "cluster is available"
+                  },
                   "healthStatus": "healthy",
+                  "healthStatusDetail": {
+                    "reason": "Healthy",
+                    "message": "cluster is healthy"
+                  },
                   "tags": [
                     {
                       "name": "environment",
@@ -948,7 +956,7 @@
                 "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
                 "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
                 "creationTime": "2026-05-14T10:00:00Z",
-                "provisioningStatus": "unknown",
+                "provisioningStatus": "provisioning",
                 "healthStatus": "unknown",
                 "tags": [
                   {
@@ -1053,7 +1061,7 @@
                 "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
                 "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
                 "creationTime": "2026-05-14T10:00:00Z",
-                "provisioningStatus": "unknown",
+                "provisioningStatus": "provisioning",
                 "healthStatus": "unknown"
               },
               "spec": {
@@ -1090,7 +1098,15 @@
                   "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
                   "creationTime": "2026-05-14T10:15:00Z",
                   "provisioningStatus": "provisioned",
+                  "provisioningStatusDetail": {
+                    "reason": "Provisioned",
+                    "message": "node pool is available"
+                  },
                   "healthStatus": "healthy",
+                  "healthStatusDetail": {
+                    "reason": "Healthy",
+                    "message": "node pool workers are ready"
+                  },
                   "tags": [
                     {
                       "name": "role",
@@ -1141,7 +1157,7 @@
                 "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
                 "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
                 "creationTime": "2026-05-14T10:15:00Z",
-                "provisioningStatus": "unknown",
+                "provisioningStatus": "provisioning",
                 "healthStatus": "unknown",
                 "tags": [
                   {
@@ -1197,7 +1213,7 @@
                 "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
                 "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
                 "creationTime": "2026-05-14T10:15:00Z",
-                "provisioningStatus": "unknown",
+                "provisioningStatus": "provisioning",
                 "healthStatus": "unknown"
               },
               "spec": {
@@ -1507,8 +1523,14 @@
           "provisioningStatus": {
             "$ref": "#/components/schemas/resourceProvisioningStatus"
           },
+          "provisioningStatusDetail": {
+            "$ref": "#/components/schemas/provisioningStatusDetail"
+          },
           "healthStatus": {
             "$ref": "#/components/schemas/resourceHealthStatus"
+          },
+          "healthStatusDetail": {
+            "$ref": "#/components/schemas/healthStatusDetail"
           }
         }
       },
@@ -1698,68 +1720,6 @@
           },
           "hardware": {
             "$ref": "#/components/schemas/clusterAddonProfileStatusV1"
-          }
-        }
-      },
-      "clusterFailureReasonV1": {
-        "description": "Stable allowlisted cluster failure reason. Detailed provider and controller diagnostics remain internal.",
-        "type": "string",
-        "enum": [
-          "ClusterProvisioningFailed",
-          "PlatformReleaseUnavailable",
-          "ControlPlaneFailed",
-          "RemoteObservationFailed",
-          "ControlPlaneDegraded",
-          "NodePoolsDegraded",
-          "AddonsDegraded",
-          "DeletionFailed"
-        ]
-      },
-      "clusterFailureSummaryV1": {
-        "description": "Bounded customer-facing cluster failure summary.",
-        "type": "object",
-        "required": [
-          "reason",
-          "message"
-        ],
-        "properties": {
-          "reason": {
-            "$ref": "#/components/schemas/clusterFailureReasonV1"
-          },
-          "message": {
-            "description": "Fixed customer-safe cluster failure message.",
-            "type": "string"
-          }
-        }
-      },
-      "nodePoolFailureReasonV1": {
-        "description": "Stable allowlisted node pool failure reason. Detailed provider and controller diagnostics remain internal.",
-        "type": "string",
-        "enum": [
-          "NodePoolProvisioningFailed",
-          "ParentClusterUnavailable",
-          "PlatformReleaseUnavailable",
-          "RemoteObservationFailed",
-          "MachineDeploymentFailed",
-          "WorkersRemediating",
-          "WorkersNotReady",
-          "DeletionFailed"
-        ]
-      },
-      "nodePoolFailureSummaryV1": {
-        "description": "Bounded customer-facing node pool failure summary.",
-        "type": "object",
-        "required": [
-          "reason",
-          "message"
-        ],
-        "properties": {
-          "reason": {
-            "$ref": "#/components/schemas/nodePoolFailureReasonV1"
-          },
-          "message": {
-            "description": "Fixed customer-safe node pool failure message.",
-            "type": "string"
           }
         }
       },
@@ -1983,9 +1943,6 @@
           },
           "release": {
             "$ref": "#/components/schemas/clusterReleaseStatusV1"
-          },
-          "failure": {
-            "$ref": "#/components/schemas/clusterFailureSummaryV1"
           }
         }
       },
@@ -2270,9 +2227,6 @@
           },
           "reservation": {
             "$ref": "#/components/schemas/nodePoolReservationStatusV1"
-          },
-          "failure": {
-            "$ref": "#/components/schemas/nodePoolFailureSummaryV1"
           }
         }
       },
@@ -2489,7 +2443,6 @@
         "description": "The provisioning state of a resource.",
         "type": "string",
         "enum": [
-          "unknown",
           "pending",
           "provisioning",
           "provisioned",
@@ -2530,6 +2483,63 @@
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/tag"
+        }
+      },
+      "provisioningStatusReason": {
+        "description": "A closed, generic classification of a resource's provisioning state,\nfiner-grained than provisioningStatus. This vocabulary is owned by the\nplatform and is the same across all resources; domain-specific state\n(e.g. an instance's lifecycle phase) is carried on other mechanisms and\nnever appears here.",
+        "type": "string",
+        "enum": [
+          "Provisioning",
+          "Provisioned",
+          "Errored",
+          "Deprovisioning",
+          "Deprovisioned",
+          "DependencyNotReady",
+          "DependencyFailed",
+          "DependencyNotFound"
+        ]
+      },
+      "provisioningStatusDetail": {
+        "description": "Human-facing detail about the current provisioning state: a\nmachine-classifiable reason drawn from a closed vocabulary, and a\nuser-safe human-readable message. Derived from the resource's status and\nsupplements the coarse provisioningStatus; never stored.",
+        "type": "object",
+        "required": [
+          "reason",
+          "message"
+        ],
+        "properties": {
+          "reason": {
+            "$ref": "#/components/schemas/provisioningStatusReason"
+          },
+          "message": {
+            "description": "A user-safe, human-readable description of the provisioning state.",
+            "type": "string"
+          }
+        }
+      },
+      "healthStatusReason": {
+        "description": "A closed, generic classification of a resource's health — the raw health\ncondition reason, finer-grained than the coarse healthStatus. Owned by the\nplatform and the same across all resources.",
+        "type": "string",
+        "enum": [
+          "Healthy",
+          "Degraded",
+          "Unknown"
+        ]
+      },
+      "healthStatusDetail": {
+        "description": "Human-facing detail about the current health state: a machine-classifiable\nreason drawn from a closed vocabulary, and a user-safe human-readable\nmessage (e.g. \"2/12 nodes are down\"). Derived from the resource's status and\nsupplements the coarse healthStatus; never stored.",
+        "type": "object",
+        "required": [
+          "reason",
+          "message"
+        ],
+        "properties": {
+          "reason": {
+            "$ref": "#/components/schemas/healthStatusReason"
+          },
+          "message": {
+            "description": "A user-safe, human-readable description of the health state.",
+            "type": "string"
+          }
         }
       },
       "error": {
