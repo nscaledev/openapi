@@ -95,6 +95,9 @@
           "403": {
             "$ref": "#/components/responses/forbiddenResponse"
           },
+          "413": {
+            "$ref": "#/components/responses/requestEntityTooLargeResponse"
+          },
           "422": {
             "$ref": "#/components/responses/unprocessableContentResponse"
           },
@@ -177,6 +180,9 @@
           },
           "409": {
             "$ref": "#/components/responses/conflictResponse"
+          },
+          "413": {
+            "$ref": "#/components/responses/requestEntityTooLargeResponse"
           },
           "422": {
             "$ref": "#/components/responses/unprocessableContentResponse"
@@ -309,6 +315,9 @@
           "403": {
             "$ref": "#/components/responses/forbiddenResponse"
           },
+          "413": {
+            "$ref": "#/components/responses/requestEntityTooLargeResponse"
+          },
           "422": {
             "$ref": "#/components/responses/unprocessableContentResponse"
           },
@@ -391,6 +400,9 @@
           },
           "409": {
             "$ref": "#/components/responses/conflictResponse"
+          },
+          "413": {
+            "$ref": "#/components/responses/requestEntityTooLargeResponse"
           },
           "422": {
             "$ref": "#/components/responses/unprocessableContentResponse"
@@ -1340,6 +1352,21 @@
       },
       "acceptedResponse": {
         "description": "The request has been accepted and will be fulfilled asynchronously.\nYou may poll the resource and monitor its provisioning and health status\nto await completion of the operation."
+      },
+      "requestEntityTooLargeResponse": {
+        "description": "The request body exceeds the maximum accepted size.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "request_entity_too_large",
+              "error_description": "request body exceeds the maximum allowed size",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
       },
       "badRequestResponse": {
         "description": "Request body failed schema validation, or the request does not contain\nall the required fields.",

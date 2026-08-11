@@ -59,6 +59,8 @@ paths:
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/forbiddenResponse"
+        "413":
+          $ref: "#/components/responses/requestEntityTooLargeResponse"
         "422":
           $ref: "#/components/responses/unprocessableContentResponse"
         "500":
@@ -111,6 +113,8 @@ paths:
           $ref: "#/components/responses/notFoundResponse"
         "409":
           $ref: "#/components/responses/conflictResponse"
+        "413":
+          $ref: "#/components/responses/requestEntityTooLargeResponse"
         "422":
           $ref: "#/components/responses/unprocessableContentResponse"
         "500":
@@ -189,6 +193,8 @@ paths:
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/forbiddenResponse"
+        "413":
+          $ref: "#/components/responses/requestEntityTooLargeResponse"
         "422":
           $ref: "#/components/responses/unprocessableContentResponse"
         "500":
@@ -241,6 +247,8 @@ paths:
           $ref: "#/components/responses/notFoundResponse"
         "409":
           $ref: "#/components/responses/conflictResponse"
+        "413":
+          $ref: "#/components/responses/requestEntityTooLargeResponse"
         "422":
           $ref: "#/components/responses/unprocessableContentResponse"
         "500":
@@ -887,6 +895,16 @@ components:
         The request has been accepted and will be fulfilled asynchronously.
         You may poll the resource and monitor its provisioning and health status
         to await completion of the operation.
+    requestEntityTooLargeResponse:
+      description: The request body exceeds the maximum accepted size.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+          example:
+            error: request_entity_too_large
+            error_description: request body exceeds the maximum allowed size
+            trace_id: 57bc14d9bd461f0b5a72db830149b67a
     badRequestResponse:
       description: |-
         Request body failed schema validation, or the request does not contain
