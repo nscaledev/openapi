@@ -471,7 +471,7 @@
         }
       ],
       "get": {
-        "description": "Returns roles that can be used by the organization.",
+        "description": "Returns non-protected roles visible in the organization. Each role reports\nwhether the calling principal may grant it via its `grantable` flag; roles\nthe caller cannot grant are still returned so they can be resolved and\ndisplayed.",
         "summary": "List roles",
         "tags": [
           "Roles"
@@ -1894,11 +1894,16 @@
         "description": "A role.",
         "type": "object",
         "required": [
-          "metadata"
+          "metadata",
+          "grantable"
         ],
         "properties": {
           "metadata": {
             "$ref": "#/components/schemas/resourceReadMetadata"
+          },
+          "grantable": {
+            "description": "Whether the calling principal holds every permission in this role\nand may therefore grant it to groups. Roles with grantable set to\nfalse are returned so clients can resolve and display them — for\nexample a role a group already carries — but this caller cannot\ngrant them: a group write whose role list contains a role the\ncaller cannot grant is refused.",
+            "type": "boolean"
           }
         }
       },
@@ -2257,7 +2262,8 @@
           "reserved",
           "displayName",
           "description",
-          "default"
+          "default",
+          "format"
         ],
         "properties": {
           "kind": {
@@ -2295,6 +2301,14 @@
           "default": {
             "description": "The default value of the quota.",
             "type": "integer"
+          },
+          "format": {
+            "description": "A hint for clients on how to format quota values.",
+            "type": "string",
+            "enum": [
+              "decimal",
+              "binary"
+            ]
           }
         }
       },
@@ -3353,7 +3367,8 @@
                   "creationTime": "2024-05-31T14:11:00Z",
                   "provisioningStatus": "provisioned",
                   "healthStatus": "healthy"
-                }
+                },
+                "grantable": true
               }
             ]
           }
@@ -3642,7 +3657,8 @@
                   "reserved": 0,
                   "displayName": "Clusters",
                   "description": "All cluster types e.g. Kubernetes, compute, etc.",
-                  "default": 5
+                  "default": 5,
+                  "format": "decimal"
                 }
               ]
             }
