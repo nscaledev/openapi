@@ -328,6 +328,65 @@
         }
       }
     },
+    "/api/v2/reservations/{reservationID}/units/release": {
+      "description": "Synchronously releases whole, unoccupied reservation units from a\nReservation's accepted claim. Release is atomic and all-or-nothing\nacross the requested units: if any requested unit still has active\nPlacement consumers, none are released and the request fails with\nstructured blockers. Release never deletes Region servers.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/reservationIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/ifMatchParameter"
+        }
+      ],
+      "post": {
+        "operationId": "releaseReservationUnits",
+        "description": "Release reservation units.",
+        "summary": "Release reservation units",
+        "tags": [
+          "Reservations"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/reservationUnitReleaseRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/reservationUnitReleaseResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "412": {
+            "$ref": "#/components/responses/preconditionFailedResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/reservationUnitReleaseBlockersResponse"
+          },
+          "428": {
+            "$ref": "#/components/responses/preconditionRequiredResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
     "/api/v2/placements": {
       "description": "Manages project scoped placements of hosts from reservations. A placement\nconsumes capacity from a reservation and drives pinned Region server\ncreation for each selected host.",
       "get": {
@@ -693,6 +752,15 @@
           "maxLength": 63
         }
       },
+      "ifMatchParameter": {
+        "name": "If-Match",
+        "in": "header",
+        "description": "The entity tag of the current state the caller expects to mutate, quoted as a strong entity tag (for example the value of a prior response's ETag header). The endpoint requires it and rejects a request that omits it with 428, and one whose tag no longer matches the resource's current entity tag with 412. It is declared optional at the schema level deliberately: request validation runs before the handler, and a schema-level requirement would reject an absent header with a generic 400 before the endpoint could return the precise 428. The endpoint owns the precondition instead.\n",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
       "placementIDParameter": {
         "name": "placementID",
         "in": "path",
@@ -992,7 +1060,7 @@
             "type": "string"
           },
           "deviceTypeResourceClass": {
-            "description": "Expected Fleet Manager device type resource class for selected hosts.",
+            "description": "Expected device type resource class for selected hosts.",
             "type": "string"
           },
           "hostsPerUnit": {
@@ -1170,6 +1238,157 @@
           },
           "spec": {
             "$ref": "#/components/schemas/reservationV2CreateSpec"
+          }
+        }
+      },
+      "reservationUnitReleaseSpec": {
+        "description": "Reservation units to release.",
+        "type": "object",
+        "required": [
+          "unitIds"
+        ],
+        "properties": {
+          "unitIds": {
+            "description": "Opaque, Reservation-scoped release unit IDs to release, as discovered from the readable Reservation overlay's units map in the topology API. Not provider inventory identifiers, device IDs, path labels, pod IDs, or domain IDs.\n",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "reservationUnitReleaseRequest": {
+        "description": "A request to release reservation units.",
+        "type": "object",
+        "required": [
+          "spec"
+        ],
+        "properties": {
+          "spec": {
+            "$ref": "#/components/schemas/reservationUnitReleaseSpec"
+          }
+        }
+      },
+      "releasedUnitV2": {
+        "description": "A reservation unit released by a release request.",
+        "type": "object",
+        "required": [
+          "id",
+          "infrastructureRefs"
+        ],
+        "properties": {
+          "id": {
+            "description": "Opaque, Reservation-scoped release unit ID that was released.",
+            "type": "string"
+          },
+          "infrastructureRefs": {
+            "description": "Ironic node UUIDs of the hosts that were released.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "reservationUnitReleaseResult": {
+        "description": "The result of a reservation unit release request.",
+        "type": "object",
+        "required": [
+          "reservation",
+          "releasedUnits"
+        ],
+        "properties": {
+          "reservation": {
+            "$ref": "#/components/schemas/reservationV2Read"
+          },
+          "releasedUnits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/releasedUnitV2"
+            }
+          }
+        }
+      },
+      "reservationUnitConsumerV2": {
+        "description": "A readable Placement still holding hosts from a blocked release unit.\n",
+        "type": "object",
+        "required": [
+          "type",
+          "placementId",
+          "serverIds"
+        ],
+        "properties": {
+          "type": {
+            "description": "The kind of consumer holding the unit's hosts.",
+            "type": "string",
+            "enum": [
+              "placement"
+            ]
+          },
+          "placementId": {
+            "description": "The Placement ID holding hosts in this unit.",
+            "type": "string"
+          },
+          "serverIds": {
+            "description": "Public Placement server IDs occupying this unit. Empty when the caller can read the Placement but cannot read its servers.\n",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "managedBy": {
+            "description": "Present when the consumer Placement is owned by another controller; omitted for directly-created Placements.\n",
+            "type": "object",
+            "required": [
+              "kind",
+              "id"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string"
+              },
+              "id": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "reservationUnitBlockerV2": {
+        "description": "A requested reservation unit that could not be released.",
+        "type": "object",
+        "required": [
+          "unitId",
+          "consumers"
+        ],
+        "properties": {
+          "unitId": {
+            "description": "Opaque, Reservation-scoped release unit ID that was blocked.",
+            "type": "string"
+          },
+          "consumers": {
+            "description": "Blocking consumers visible to the caller. Empty when the unit is occupied but no blocking Placement details are readable.\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reservationUnitConsumerV2"
+            }
+          }
+        }
+      },
+      "reservationUnitReleaseBlockersV2": {
+        "description": "Structured reasons a release request could not proceed. Returned\ninstead of any partial release: if any requested unit is occupied,\nno unit is released.",
+        "type": "object",
+        "required": [
+          "blockers"
+        ],
+        "properties": {
+          "blockers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reservationUnitBlockerV2"
+            }
           }
         }
       },
@@ -1499,6 +1718,10 @@
             "description": "Key into the projection's reservations overlay. Present only when this host is reserved and the caller can read the owning Reservation.\n",
             "type": "string"
           },
+          "reservationUnitRef": {
+            "description": "Key into the owning Reservation overlay's units map. Present only when this host is reserved, the caller can read the owning Reservation, and accepted unit membership is available for that Reservation. When present, reservationRef is also present and gives the owning Reservation scope for this key.\n",
+            "type": "string"
+          },
           "placementRef": {
             "description": "Key into the projection's placements overlay. Present only when this host is placed and the caller can read the owning Placement.\n",
             "type": "string"
@@ -1578,7 +1801,7 @@
             "type": "string"
           },
           "deviceTypeResourceClass": {
-            "description": "Expected Fleet Manager device type resource class for this projection.",
+            "description": "Expected device type resource class for this projection.",
             "type": "string"
           },
           "hostsPerUnit": {
@@ -1587,6 +1810,51 @@
             "minimum": 1
           }
         }
+      },
+      "topologyAcceptedReservationUnitV2": {
+        "type": "object",
+        "required": [
+          "infrastructureRefs",
+          "occupied"
+        ],
+        "properties": {
+          "infrastructureRefs": {
+            "description": "Ironic node UUIDs of the hosts in this accepted unit.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "occupied": {
+            "description": "True when at least one Placement still holds a host in this accepted unit.\n",
+            "type": "boolean"
+          }
+        }
+      },
+      "topologyReservationOverlayV2": {
+        "description": "Readable Reservation overlay for a topology projection. The common Reservation read fields remain at the top level; topology-specific fields describe the Reservation's accepted topology in this projection.\n",
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/reservationV2Read"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "topologyEntityTag": {
+                "description": "This Reservation's current accepted topology hash. Quote this value back as the release endpoint's If-Match precondition to guard against a concurrent topology change.\n",
+                "type": "string"
+              },
+              "units": {
+                "description": "Accepted Reservation units keyed by opaque, Reservation-scoped unit ID. Present when the caller can read accepted unit membership for this Reservation; omitted when no unit data is available.\n",
+                "type": "object",
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/topologyAcceptedReservationUnitV2"
+                }
+              }
+            }
+          }
+        ]
       },
       "topologyOverlaysV2": {
         "type": "object",
@@ -1599,7 +1867,7 @@
             "description": "Readable Reservation overlays keyed by host reservationRef values. Empty when no Reservation overlays are visible in this projection.\n",
             "type": "object",
             "additionalProperties": {
-              "$ref": "#/components/schemas/reservationV2Read"
+              "$ref": "#/components/schemas/topologyReservationOverlayV2"
             }
           },
           "placements": {
@@ -1936,15 +2204,17 @@
         ]
       },
       "instanceLifecyclePhase": {
-        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up.\n",
+        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up. Rebuilding means an already\nprovisioned server is being reimaged in place and is not usable until\nit completes. Error means the provider reported the server in a\nterminal error state.\n",
         "type": "string",
         "enum": [
           "Pending",
           "Queued",
           "Building",
+          "Rebuilding",
           "Running",
           "Stopping",
-          "Stopped"
+          "Stopped",
+          "Error"
         ]
       }
     },
@@ -1975,6 +2245,24 @@
                 "accelerator": "GB300",
                 "unit": "NVL72",
                 "count": 2
+              }
+            }
+          }
+        }
+      },
+      "reservationUnitReleaseRequestBody": {
+        "description": "A request to release reservation units.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationUnitReleaseRequest"
+            },
+            "example": {
+              "spec": {
+                "unitIds": [
+                  "3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef"
+                ]
               }
             }
           }
@@ -2170,6 +2458,104 @@
                 }
               }
             ]
+          }
+        }
+      },
+      "reservationUnitReleaseResponse": {
+        "description": "A reservation unit release result.",
+        "headers": {
+          "ETag": {
+            "description": "The Reservation's new accepted topology hash after this release, quoted as a strong entity tag, for use as the next release request's If-Match precondition.\n",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationUnitReleaseResult"
+            },
+            "example": {
+              "reservation": {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "gb300-nvl72",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2026-04-28T10:45:45Z",
+                  "createdBy": "john.doe@example.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                  "accelerator": "GB300",
+                  "unit": "NVL72",
+                  "count": 2
+                },
+                "status": {
+                  "machineFlavorId": "g.72.gb300.pinned",
+                  "claimedUnitCount": 1,
+                  "topologyHash": "sha256:9a1f9b6b4b9b0b4e7d9c6a5f3e2d1c0b8a7f6e5d4c3b2a1908f7e6d5c4b3a291",
+                  "topologyObservedAt": "2026-05-14T10:05:00Z"
+                }
+              },
+              "releasedUnits": [
+                {
+                  "id": "3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef",
+                  "infrastructureRefs": [
+                    "00000000-0000-0000-0000-000000000003"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "reservationUnitReleaseBlockersResponse": {
+        "description": "The release request could not proceed because one or more requested\nunits still have active Placement consumers. No unit was released.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationUnitReleaseBlockersV2"
+            },
+            "example": {
+              "blockers": [
+                {
+                  "unitId": "3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef",
+                  "consumers": [
+                    {
+                      "type": "placement",
+                      "placementId": "b8ce034e-fccb-4d6c-a0e0-af3e3f346715",
+                      "serverIds": [
+                        "psrv-950ab3259a1443da"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "preconditionFailedResponse": {
+        "description": "The If-Match precondition no longer matches the resource's current\nentity tag; the request was not applied. Re-read the resource,\nobtain its current entity tag, and retry.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
+      "preconditionRequiredResponse": {
+        "description": "The request requires an If-Match precondition header, which was\nmissing.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
           }
         }
       },
