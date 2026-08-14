@@ -1133,6 +1133,43 @@
           }
         }
       }
+    },
+    "/api/v2/volumeclasses": {
+      "description": "Lists provider-neutral block-storage classes available from Regions visible to the caller. Results can be narrowed to one or more Regions.",
+      "get": {
+        "description": "Lists provider-neutral VolumeClasses from Regions visible to the caller. Repeat the regionID query parameter to narrow results to one or more Regions. Missing or inaccessible Regions are omitted, so selectors can produce an empty or partial list. Media and performance caps are returned only when published by the Region.",
+        "summary": "List volume classes",
+        "tags": [
+          "Volume classes"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/regionIDQueryParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/volumeClassListV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2132,7 +2169,11 @@
         "properties": {
           "dnsNameservers": {
             "description": "DNS nameservers to use.  If empty this will use the platform's\ninternal DNS server and allow hosts to resolve each other.  If it is\npopulated then no internal host resolution will be possible.",
-            "$ref": "#/components/schemas/ipv4AddressList"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ipv4AddressList"
+              }
+            ]
           },
           "routes": {
             "$ref": "#/components/schemas/routes"
@@ -2172,7 +2213,11 @@
               },
               "reservations": {
                 "description": "Optional reservations to apply when the network is created.  If\nomitted, the platform default of a /25 reservation with a /28\nprovider carve-out is applied.",
-                "$ref": "#/components/schemas/networkReservations"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/networkReservations"
+                  }
+                ]
               }
             }
           }
@@ -2659,7 +2704,11 @@
         "properties": {
           "name": {
             "description": "The listener name.",
-            "$ref": "#/components/schemas/loadBalancerListenerNameV2"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/loadBalancerListenerNameV2"
+              }
+            ]
           },
           "protocol": {
             "$ref": "#/components/schemas/loadBalancerListenerProtocolV2"
@@ -2728,7 +2777,11 @@
               },
               "vipAddress": {
                 "description": "The requested virtual IP address. When provided, it must fall within the selected network CIDR.",
-                "$ref": "#/components/schemas/ipv4Address"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ipv4Address"
+                  }
+                ]
               }
             }
           }
@@ -2752,11 +2805,19 @@
           },
           "vipAddress": {
             "description": "The provisioned virtual IP address.",
-            "$ref": "#/components/schemas/ipv4Address"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ipv4Address"
+              }
+            ]
           },
           "publicIP": {
             "description": "The provisioned public IP address.",
-            "$ref": "#/components/schemas/ipv4Address"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ipv4Address"
+              }
+            ]
           }
         }
       },
@@ -3033,15 +3094,17 @@
         }
       },
       "instanceLifecyclePhase": {
-        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up.\n",
+        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up. Rebuilding means an already\nprovisioned server is being reimaged in place and is not usable until\nit completes. Error means the provider reported the server in a\nterminal error state.\n",
         "type": "string",
         "enum": [
           "Pending",
           "Queued",
           "Building",
+          "Rebuilding",
           "Running",
           "Stopping",
-          "Stopped"
+          "Stopped",
+          "Error"
         ]
       },
       "serverStatus": {
@@ -3119,6 +3182,61 @@
           "$ref": "#/components/schemas/securityGroupId"
         }
       },
+      "serverProviderCreateGateType": {
+        "description": "A provider-create gate condition type.",
+        "type": "string",
+        "minLength": 1
+      },
+      "serverProviderCreateGate": {
+        "description": "A gate that must be satisfied before provider create starts.",
+        "type": "object",
+        "required": [
+          "conditionType"
+        ],
+        "properties": {
+          "conditionType": {
+            "$ref": "#/components/schemas/serverProviderCreateGateType"
+          }
+        }
+      },
+      "serverProviderCreateGates": {
+        "description": "Provider-create gates requested at server creation time.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/serverProviderCreateGate"
+        }
+      },
+      "serverRemainingProviderCreateGates": {
+        "description": "Configured provider-create gates that are not currently satisfied.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/serverProviderCreateGateType"
+        }
+      },
+      "serverProviderCreateGateAction": {
+        "description": "Request to satisfy a configured provider-create gate.",
+        "type": "object",
+        "required": [
+          "conditionType",
+          "reason",
+          "message"
+        ],
+        "properties": {
+          "conditionType": {
+            "$ref": "#/components/schemas/serverProviderCreateGateType"
+          },
+          "reason": {
+            "description": "Machine-readable reason for satisfying the gate.",
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "description": "Human-readable details for operators.",
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
       "serverV2Networking": {
         "description": "A server's network configuration.",
         "type": "object",
@@ -3187,14 +3305,25 @@
               },
               "sshCertificateAuthorityId": {
                 "description": "The SSH certificate authority used to bootstrap login trust when the server is created.",
-                "$ref": "#/components/schemas/sshCertificateAuthorityID"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/sshCertificateAuthorityID"
+                  }
+                ]
               },
               "sshInjection": {
                 "description": "The create-time SSH access material Region should arrange for the server. If omitted, Region uses ca when sshCertificateAuthorityId is set, otherwise identityKeypair.",
-                "$ref": "#/components/schemas/sshInjection"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/sshInjection"
+                  }
+                ]
               },
               "infrastructureRef": {
                 "$ref": "#/components/schemas/infrastructureRef"
+              },
+              "providerCreateGates": {
+                "$ref": "#/components/schemas/serverProviderCreateGates"
               }
             }
           }
@@ -3209,20 +3338,36 @@
         ],
         "properties": {
           "regionId": {
-            "description": "The region a security group belongs to.",
-            "$ref": "#/components/schemas/regionId"
+            "description": "The region the server belongs to.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/regionId"
+              }
+            ]
           },
           "networkId": {
-            "description": "The network a security group belongs to.",
-            "$ref": "#/components/schemas/networkId"
+            "description": "The network the server belongs to.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/networkId"
+              }
+            ]
           },
           "sshCertificateAuthorityId": {
             "description": "The SSH certificate authority configured when the server was created.",
-            "$ref": "#/components/schemas/sshCertificateAuthorityID"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/sshCertificateAuthorityID"
+              }
+            ]
           },
           "sshInjection": {
             "description": "The resolved create-time SSH access material Region arranged for the server.",
-            "$ref": "#/components/schemas/sshInjection"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/sshInjection"
+              }
+            ]
           },
           "infrastructureRef": {
             "$ref": "#/components/schemas/infrastructureRef"
@@ -3241,6 +3386,9 @@
           "macAddress": {
             "description": "The MAC address of the server.",
             "type": "string"
+          },
+          "remainingProviderCreateGates": {
+            "$ref": "#/components/schemas/serverRemainingProviderCreateGates"
           }
         }
       },
@@ -3385,7 +3533,7 @@
         }
       },
       "storageAttachmentListV2Status": {
-        "description": "Describes the network attachments for storage",
+        "description": "Describes the network attachments for storage. This is the union of desired and\nobserved attachments, so it may contain networks that are absent from\nspec.attachments.networkIds but are still attached pending removal. It is not\nindex-aligned with spec.attachments.networkIds.\n",
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/storageAttachmentV2Status"
@@ -3769,6 +3917,102 @@
           "nfsv3",
           "nfsv4"
         ]
+      },
+      "volumeClassListV2Read": {
+        "description": "A list of provider-neutral block-storage volume classes.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/volumeClassV2Read"
+        }
+      },
+      "volumeClassV2Read": {
+        "description": "A provider-neutral block-storage volume class available in a Region.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/staticResourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/volumeClassV2Spec"
+          }
+        }
+      },
+      "volumeClassV2Spec": {
+        "description": "Provider-neutral capabilities advertised by a block-storage volume class.",
+        "type": "object",
+        "required": [
+          "regionId",
+          "encrypted"
+        ],
+        "properties": {
+          "regionId": {
+            "description": "The Region that owns this volume class inventory entry.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/regionId"
+              }
+            ]
+          },
+          "minimumSizeGiB": {
+            "description": "Operator-configured minimum volume capacity accepted by this class, in whole GiB.",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "maximumSizeGiB": {
+            "description": "Operator-configured maximum volume capacity accepted by this class, in whole GiB.",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "supportedFlavorIds": {
+            "description": "Optional allowlist of Region flavors compatible with this volume class. Omitted or empty means no compatibility restriction.",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/flavorId"
+            }
+          },
+          "media": {
+            "$ref": "#/components/schemas/volumeClassV2Media"
+          },
+          "performance": {
+            "$ref": "#/components/schemas/volumeClassV2Performance"
+          },
+          "encrypted": {
+            "description": "Whether volumes created from this class are encrypted at rest by the provider.",
+            "type": "boolean"
+          }
+        }
+      },
+      "volumeClassV2Media": {
+        "description": "The physical storage medium backing a volume class.",
+        "type": "string",
+        "enum": [
+          "hdd",
+          "ssd",
+          "nvme"
+        ]
+      },
+      "volumeClassV2Performance": {
+        "description": "Advertised performance caps; these are not guaranteed reservations.",
+        "type": "object",
+        "properties": {
+          "maxIOPS": {
+            "description": "Advertised maximum input/output operations per second.",
+            "type": "integer",
+            "minimum": 1
+          },
+          "maxThroughputMiBps": {
+            "description": "Advertised maximum throughput in mebibytes per second.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
       },
       "authorizationServerList": {
         "description": "List of authorization servers that can grant access to the resource.",
@@ -4590,6 +4834,21 @@
                 },
                 "userData": "I2Nsb3VkLWNvbmZpZwpib290Y21kOgogLSBlY2hvIDE5Mi4xNjguMi45OSBteWhvc3QgPj4gL2V0Yy9ob3N0cwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAtIHZpbQo="
               }
+            }
+          }
+        }
+      },
+      "serverProviderCreateGateRequest": {
+        "description": "A request to satisfy a provider-create gate.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serverProviderCreateGateAction"
+            },
+            "example": {
+              "conditionType": "example.unikorn-cloud.org/pre-create-ready",
+              "reason": "ExternalStatePrepared",
+              "message": "External state required before provider create is ready."
             }
           }
         }
@@ -5806,6 +6065,37 @@
                     "nfsv4"
                   ],
                   "parallelism": 8
+                }
+              }
+            ]
+          }
+        }
+      },
+      "volumeClassListV2Response": {
+        "description": "A list of provider-neutral block-storage volume classes.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/volumeClassListV2Read"
+            },
+            "example": [
+              {
+                "metadata": {
+                  "id": "44444444-4444-4444-4444-444444444444",
+                  "name": "fast-nvme",
+                  "description": "Latency-sensitive encrypted block storage",
+                  "creationTime": "1970-01-01T00:00:00Z"
+                },
+                "spec": {
+                  "regionId": "ba39bff5-b0d8-4c60-89e5-ed1104356b4a",
+                  "minimumSizeGiB": 10,
+                  "maximumSizeGiB": 2048,
+                  "media": "nvme",
+                  "performance": {
+                    "maxIOPS": 25000,
+                    "maxThroughputMiBps": 500
+                  },
+                  "encrypted": true
                 }
               }
             ]
