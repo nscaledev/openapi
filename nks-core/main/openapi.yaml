@@ -285,6 +285,7 @@ paths:
       security:
         - oauth2Authentication: []
       parameters:
+        - $ref: "#/components/parameters/organizationIDQueryParameter"
         - $ref: "#/components/parameters/regionIDQueryParameter"
         - $ref: "#/components/parameters/platformReleaseArchitectureQueryParameter"
         - $ref: "#/components/parameters/prereleaseQueryParameter"
@@ -1703,11 +1704,13 @@ components:
     platformReleaseStatusV1:
       description: Product-specific observed platform release state. A release is
         selectable in a region when that region is present in availableRegionIds
-        and deprecated and withdrawn are both false.
+        and deprecated and withdrawn are both false. usableOrganizationIds lists
+        which of the caller's own organizations may select the release.
       type: object
       required:
         - kubernetesVersion
         - availableRegionIds
+        - usableOrganizationIds
         - supportedArchitectures
         - prerelease
         - deprecated
@@ -1719,6 +1722,12 @@ components:
           type: string
         availableRegionIds:
           description: Region IDs where this release is available.
+          type: array
+          items:
+            type: string
+        usableOrganizationIds:
+          description: Organization IDs, among the caller's own organizations, that may
+            select this platform release.
           type: array
           items:
             type: string
