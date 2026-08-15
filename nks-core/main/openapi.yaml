@@ -1349,9 +1349,9 @@ components:
           description: Whether the applied platform release is currently deprecated.
           type: boolean
         withdrawn:
-          description: Whether operators have withdrawn the applied platform release.
-            Deprecation is derived from the release catalog, whereas withdrawal
-            is an explicit operator decision and is reversible.
+          description: Whether operators have withdrawn the applied platform release. Like
+            deprecation it is an explicit, reversible operator decision, but
+            withdrawal also carries a reason and message.
           type: boolean
         withdrawalReason:
           description: Stable machine-readable reason operators withdrew the applied
@@ -1730,14 +1730,11 @@ components:
         prerelease:
           description: Whether the release Kubernetes version is a semver prerelease, such
             as v1.37.0-beta.0. Prerelease releases are selectable and are
-            offered as upgrade targets, but they do not occupy a slot in the
-            supported Kubernetes minor version window, and they are deprecated
-            as soon as a newer prerelease or an actual release supersedes them.
+            offered as upgrade targets.
           type: boolean
         deprecated:
           description: Whether existing clusters should upgrade away from this release.
-            Once true, this remains true for the lifetime of the release
-            resource.
+            Deprecation is an explicit operator decision and may be reversed.
           type: boolean
         withdrawn:
           description: Whether operators have withdrawn the release from selection.
