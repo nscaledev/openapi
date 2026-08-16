@@ -815,8 +815,7 @@
                 "taints": [
                   {
                     "key": "nvidia.com/gpu",
-                    "effect": "NoSchedule",
-                    "propagation": "Always"
+                    "effect": "NoSchedule"
                   }
                 ]
               }
@@ -846,8 +845,7 @@
                 "taints": [
                   {
                     "key": "nvidia.com/gpu",
-                    "effect": "NoSchedule",
-                    "propagation": "Always"
+                    "effect": "NoSchedule"
                   }
                 ]
               }
@@ -1150,8 +1148,7 @@
                   "taints": [
                     {
                       "key": "nvidia.com/gpu",
-                      "effect": "NoSchedule",
-                      "propagation": "Always"
+                      "effect": "NoSchedule"
                     }
                   ]
                 },
@@ -1202,8 +1199,7 @@
                 "taints": [
                   {
                     "key": "nvidia.com/gpu",
-                    "effect": "NoSchedule",
-                    "propagation": "Always"
+                    "effect": "NoSchedule"
                   }
                 ]
               },
@@ -2068,12 +2064,11 @@
         ]
       },
       "nodePoolTaintV1": {
-        "description": "Kubernetes taint applied to node pool workers.",
+        "description": "Kubernetes taint applied to a node pool worker as it joins the cluster. The taint is written into the worker's kubeadm node registration, so it is applied once during node initialization and is not reconciled onto running nodes afterwards.",
         "type": "object",
         "required": [
           "key",
-          "effect",
-          "propagation"
+          "effect"
         ],
         "properties": {
           "key": {
@@ -2096,14 +2091,6 @@
               "NoSchedule",
               "PreferNoSchedule",
               "NoExecute"
-            ]
-          },
-          "propagation": {
-            "description": "Taint propagation behavior.",
-            "type": "string",
-            "enum": [
-              "Always",
-              "OnInitialization"
             ]
           }
         }
@@ -2160,7 +2147,7 @@
             "$ref": "#/components/schemas/nodePoolReservationV1"
           },
           "taints": {
-            "description": "Kubernetes taints applied to node pool workers.",
+            "description": "Kubernetes taints applied to node pool workers as they join the cluster. Taints are not continuously reconciled onto running nodes, so a change applies to newly created workers only and rolls the pool's existing workers so the new taints take effect.",
             "type": "array",
             "maxItems": 64,
             "items": {
@@ -2215,7 +2202,7 @@
             "$ref": "#/components/schemas/nodePoolReservationV1"
           },
           "taints": {
-            "description": "Kubernetes taints applied to node pool workers.",
+            "description": "Kubernetes taints applied to node pool workers as they join the cluster. Taints are not continuously reconciled onto running nodes, so a change applies to newly created workers only and rolls the pool's existing workers so the new taints take effect.",
             "type": "array",
             "maxItems": 64,
             "items": {

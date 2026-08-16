@@ -534,7 +534,6 @@ components:
               taints:
                 - key: nvidia.com/gpu
                   effect: NoSchedule
-                  propagation: Always
     nodePoolV1UpdateRequest:
       description: Node pool update request.
       required: true
@@ -554,7 +553,6 @@ components:
               taints:
                 - key: nvidia.com/gpu
                   effect: NoSchedule
-                  propagation: Always
   responses:
     clustersV1Response:
       description: A list of clusters.
@@ -762,7 +760,6 @@ components:
                 taints:
                   - key: nvidia.com/gpu
                     effect: NoSchedule
-                    propagation: Always
               status:
                 regionId: uk-lon-1
                 observedGeneration: 5
@@ -799,7 +796,6 @@ components:
               taints:
                 - key: nvidia.com/gpu
                   effect: NoSchedule
-                  propagation: Always
             status:
               regionId: uk-lon-1
               observedGeneration: 5
@@ -1448,12 +1444,14 @@ components:
         - compute
         - reservation
     nodePoolTaintV1:
-      description: Kubernetes taint applied to node pool workers.
+      description: Kubernetes taint applied to a node pool worker as it joins the
+        cluster. The taint is written into the worker's kubeadm node
+        registration, so it is applied once during node initialization and is
+        not reconciled onto running nodes afterwards.
       type: object
       required:
         - key
         - effect
-        - propagation
       properties:
         key:
           description: Taint key.
@@ -1473,12 +1471,6 @@ components:
             - NoSchedule
             - PreferNoSchedule
             - NoExecute
-        propagation:
-          description: Taint propagation behavior.
-          type: string
-          enum:
-            - Always
-            - OnInitialization
     nodePoolReservationV1:
       description: Reservation-backed worker capacity selector.
       type: object
@@ -1520,7 +1512,10 @@ components:
         reservation:
           $ref: "#/components/schemas/nodePoolReservationV1"
         taints:
-          description: Kubernetes taints applied to node pool workers.
+          description: Kubernetes taints applied to node pool workers as they join the
+            cluster. Taints are not continuously reconciled onto running nodes,
+            so a change applies to newly created workers only and rolls the
+            pool's existing workers so the new taints take effect.
           type: array
           maxItems: 64
           items:
@@ -1557,7 +1552,10 @@ components:
         reservation:
           $ref: "#/components/schemas/nodePoolReservationV1"
         taints:
-          description: Kubernetes taints applied to node pool workers.
+          description: Kubernetes taints applied to node pool workers as they join the
+            cluster. Taints are not continuously reconciled onto running nodes,
+            so a change applies to newly created workers only and rolls the
+            pool's existing workers so the new taints take effect.
           type: array
           maxItems: 64
           items:
