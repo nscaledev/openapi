@@ -534,6 +534,8 @@ components:
               taints:
                 - key: nvidia.com/gpu
                   effect: NoSchedule
+              labels:
+                accelerator: nvidia-h100
     nodePoolV1UpdateRequest:
       description: Node pool update request.
       required: true
@@ -553,6 +555,8 @@ components:
               taints:
                 - key: nvidia.com/gpu
                   effect: NoSchedule
+              labels:
+                accelerator: nvidia-h100
   responses:
     clustersV1Response:
       description: A list of clusters.
@@ -760,6 +764,8 @@ components:
                 taints:
                   - key: nvidia.com/gpu
                     effect: NoSchedule
+                labels:
+                  accelerator: nvidia-h100
               status:
                 regionId: uk-lon-1
                 observedGeneration: 5
@@ -796,6 +802,8 @@ components:
               taints:
                 - key: nvidia.com/gpu
                   effect: NoSchedule
+              labels:
+                accelerator: nvidia-h100
             status:
               regionId: uk-lon-1
               observedGeneration: 5
@@ -1471,6 +1479,19 @@ components:
             - NoSchedule
             - PreferNoSchedule
             - NoExecute
+    nodePoolLabelsV1:
+      description: Kubernetes labels applied to node pool workers as they join the
+        cluster. Labels are not continuously reconciled onto running nodes, so a
+        change applies to newly created workers only and rolls the pool's
+        existing workers so the new labels take effect.
+      type: object
+      maxProperties: 64
+      additionalProperties:
+        description: Label value. Kubernetes permits an empty value, so an omitted value
+          registers the label with the empty string.
+        type: string
+        maxLength: 63
+        pattern: ^(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])?$
     nodePoolReservationV1:
       description: Reservation-backed worker capacity selector.
       type: object
@@ -1520,6 +1541,8 @@ components:
           maxItems: 64
           items:
             $ref: "#/components/schemas/nodePoolTaintV1"
+        labels:
+          $ref: "#/components/schemas/nodePoolLabelsV1"
     nodePoolCreateSpecV1:
       description: Desired node pool state for creation.
       allOf:
@@ -1560,6 +1583,8 @@ components:
           maxItems: 64
           items:
             $ref: "#/components/schemas/nodePoolTaintV1"
+        labels:
+          $ref: "#/components/schemas/nodePoolLabelsV1"
     nodePoolReservationStatusV1:
       description: Observed reservation-backed worker capacity.
       type: object
