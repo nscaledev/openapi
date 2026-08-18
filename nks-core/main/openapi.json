@@ -2254,6 +2254,42 @@
           }
         }
       },
+      "nodePoolReleaseStatusV1": {
+        "description": "Pinned platform release's identity, deprecation, and withdrawal state.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "appliedId",
+          "kubernetesVersion"
+        ],
+        "properties": {
+          "appliedId": {
+            "description": "Pinned platform release ID.",
+            "type": "string"
+          },
+          "kubernetesVersion": {
+            "description": "Pinned platform release's Kubernetes version.",
+            "type": "string"
+          },
+          "deprecated": {
+            "description": "Whether the pinned platform release is currently deprecated.",
+            "type": "boolean"
+          },
+          "withdrawn": {
+            "description": "Whether operators have withdrawn the pinned platform release.",
+            "type": "boolean"
+          },
+          "withdrawalReason": {
+            "description": "Stable machine-readable reason operators withdrew the pinned platform release.",
+            "$ref": "#/components/schemas/platformReleaseWithdrawalReasonV1"
+          },
+          "withdrawalMessage": {
+            "description": "Customer-safe explanation of why operators withdrew the pinned platform release.",
+            "type": "string",
+            "maxLength": 32768
+          }
+        }
+      },
       "nodePoolStatusV1": {
         "description": "Product-specific resolved placement and observed node pool state.",
         "type": "object",
@@ -2297,6 +2333,9 @@
           },
           "reservation": {
             "$ref": "#/components/schemas/nodePoolReservationStatusV1"
+          },
+          "release": {
+            "$ref": "#/components/schemas/nodePoolReleaseStatusV1"
           }
         }
       },
