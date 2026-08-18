@@ -1861,7 +1861,7 @@
         "additionalProperties": false,
         "properties": {
           "target": {
-            "description": "Kubernetes version in the applied remote ManagedControlPlane template.",
+            "description": "Kubernetes version applied to the cluster's control plane.",
             "type": "string"
           },
           "observed": {
@@ -2076,7 +2076,7 @@
         ]
       },
       "nodePoolTaintV1": {
-        "description": "Kubernetes taint applied to a node pool worker as it joins the cluster. The taint is written into the worker's kubeadm node registration, so it is applied once during node initialization and is not reconciled onto running nodes afterwards.",
+        "description": "Kubernetes taint applied to a node pool worker as it joins the cluster. The taint is applied during worker node registration, so it takes effect once during node initialization and is not reconciled onto running nodes afterwards.",
         "type": "object",
         "required": [
           "key",
@@ -2272,11 +2272,11 @@
             "minimum": 0
           },
           "kubernetesVersion": {
-            "description": "Kubernetes version in the applied remote MachineDeployment template.",
+            "description": "Kubernetes version applied to the node pool's workers.",
             "type": "string"
           },
           "desiredReplicas": {
-            "description": "Desired worker replica count observed in the applied remote MachineDeployment.",
+            "description": "Desired worker replica count for the node pool.",
             "type": "integer",
             "minimum": 0
           },
@@ -2291,7 +2291,7 @@
             "minimum": 0
           },
           "upToDateReplicas": {
-            "description": "Worker replica count using the current MachineDeployment template.",
+            "description": "Worker replica count running the current node pool template.",
             "type": "integer",
             "minimum": 0
           },
