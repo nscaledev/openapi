@@ -1902,7 +1902,7 @@
             "$ref": "#/components/schemas/resourceReadMetadata"
           },
           "grantable": {
-            "description": "Whether the calling principal holds every permission in this role\nand may therefore grant it to groups. Roles with grantable set to\nfalse are returned so clients can resolve and display them — for\nexample a role a group already carries — but this caller cannot\ngrant them: a group write whose role list contains a role the\ncaller cannot grant is refused.",
+            "description": "Whether the calling principal holds every permission in this role\nand may therefore grant it to groups. Roles with grantable set to\nfalse are returned so clients can resolve and display them — for\nexample a role a group already carries — but this caller cannot\ngrant them: adding one to a group is refused. Roles already on a\ngroup are exempt: re-sending one is accepted, and omitting one\nremoves it, whether or not the caller could grant it.",
             "type": "boolean"
           }
         }
