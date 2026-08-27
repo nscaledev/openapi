@@ -958,6 +958,15 @@
           "AMD"
         ]
       },
+      "architectureV2": {
+        "description": "A CPU architecture.",
+        "type": "string",
+        "enum": [
+          "UNKNOWN",
+          "x86_64",
+          "aarch64"
+        ]
+      },
       "reservationUnitGpuV2": {
         "description": "GPU specification for one host in a reservation unit.",
         "type": "object",
@@ -1000,7 +1009,8 @@
           "cpus",
           "memory",
           "disk",
-          "gpu"
+          "gpu",
+          "architecture"
         ],
         "properties": {
           "cpus": {
@@ -1020,6 +1030,9 @@
           },
           "gpu": {
             "$ref": "#/components/schemas/reservationUnitGpuV2"
+          },
+          "architecture": {
+            "$ref": "#/components/schemas/architectureV2"
           }
         }
       },
@@ -1175,7 +1188,8 @@
         "type": "object",
         "required": [
           "machineFlavorId",
-          "claimedUnitCount"
+          "claimedUnitCount",
+          "host"
         ],
         "properties": {
           "machineFlavorId": {
@@ -1186,6 +1200,9 @@
             "description": "Number of reservation units successfully claimed.",
             "type": "integer",
             "minimum": 0
+          },
+          "host": {
+            "$ref": "#/components/schemas/reservationUnitHostV2"
           },
           "topologyHash": {
             "description": "Hash of the claimed topology projection accepted by the reservation.",
