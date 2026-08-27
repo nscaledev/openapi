@@ -328,6 +328,8 @@ paths:
           $ref: "#/components/responses/forbiddenResponse"
         "404":
           $ref: "#/components/responses/notFoundResponse"
+        "409":
+          $ref: "#/components/responses/conflictResponse"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
     delete:
@@ -4800,15 +4802,6 @@ components:
         The request has been accepted and will be fulfilled asynchronously.
         You may poll the resource and monitor its provisioning and health status
         to await completion of the operation.
-    serviceVersionResponse:
-      description: Build version information for the running service.
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/serviceVersionRead"
-          example:
-            name: unikorn-region-server
-            version: v1.16.7
     conflictResponse:
       description: Resource conflicts with another, usually this means they have the
         same name.
@@ -4820,6 +4813,15 @@ components:
             error: conflict
             error_description: a resource with the same name already exists
             trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    serviceVersionResponse:
+      description: Build version information for the running service.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/serviceVersionRead"
+          example:
+            name: unikorn-region-server
+            version: v1.16.7
   securitySchemes:
     oauth2Authentication:
       description: Operation requires OAuth 2.0 bearer token authentication.
