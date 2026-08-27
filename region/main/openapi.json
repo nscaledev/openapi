@@ -3821,7 +3821,7 @@
         }
       },
       "NFSV2Spec": {
-        "description": "NFS specific",
+        "description": "NFS settings supplied during create or update.",
         "type": "object",
         "required": [
           "rootSquash"
@@ -3830,6 +3830,21 @@
           "rootSquash": {
             "description": "root squash",
             "type": "boolean"
+          },
+          "posixAcl": {
+            "description": "Whether extended POSIX ACL support is enabled. Omission or explicit null resolves to false.\n\nEnabling POSIX ACLs may reduce metadata performance. Extended POSIX ACLs must be managed over\nNFSv3. Disabling this option does not remove existing ACLs; they may remain enforced.\n",
+            "type": "boolean",
+            "nullable": true,
+            "default": false
+          },
+          "atimeUpdateIntervalSeconds": {
+            "description": "Omission or explicit null resolves to 0.\n\nSet to 0 to disable read-driven atime updates. A positive value updates atime during a read\nonly when the existing atime is older than this number of seconds. Maximum: 86,399,999,999,999\nseconds.\n",
+            "type": "integer",
+            "format": "int64",
+            "nullable": true,
+            "default": 0,
+            "minimum": 0,
+            "maximum": 86399999999999
           }
         }
       },
@@ -4093,7 +4108,7 @@
         }
       },
       "storageV2Create": {
-        "description": "A storage create request. When spec.defaultSnapshotProtectionEnabled is omitted, Default Snapshot Protection is enabled. Explicit null defaultSnapshotProtectionEnabled is invalid. When spec.snapshotPolicies is omitted or empty, the API stores no user-managed Snapshot Policies. Non-empty policy lists are stored exactly as supplied.",
+        "description": "A storage create request. Omitted or null NFS POSIX ACL and atime settings resolve to false and 0. When spec.defaultSnapshotProtectionEnabled is omitted, Default Snapshot Protection is enabled. Explicit null defaultSnapshotProtectionEnabled is invalid. When spec.snapshotPolicies is omitted or empty, the API stores no user-managed Snapshot Policies. Non-empty policy lists are stored exactly as supplied.",
         "type": "object",
         "required": [
           "metadata",
@@ -4140,7 +4155,7 @@
         }
       },
       "storageV2Update": {
-        "description": "A storage update request. Omitted spec.defaultSnapshotProtectionEnabled preserves the current Default Snapshot Protection setting, and explicit null is invalid. Omitted spec.snapshotPolicies preserves existing desired user-managed Snapshot Policies, an empty list clears them, and a non-empty list replaces the full list.",
+        "description": "A storage update request. Omitted or null NFS POSIX ACL and atime settings resolve to false and 0 rather than preserving prior state. Omitted spec.defaultSnapshotProtectionEnabled preserves the current Default Snapshot Protection setting, and explicit null is invalid. Omitted spec.snapshotPolicies preserves existing desired user-managed Snapshot Policies, an empty list clears them, and a non-empty list replaces the full list.",
         "type": "object",
         "required": [
           "metadata",
@@ -5264,8 +5279,8 @@
                 "regionId": "d891dbf0-0a01-4efc-ae3a-5d77f6d3424b",
                 "sizeGiB": 200,
                 "storageType": {
-                  "nfs": {
-                    "rootsquash": true
+                  "NFS": {
+                    "rootSquash": true
                   }
                 }
               }
@@ -5294,8 +5309,10 @@
               "spec": {
                 "sizeGiB": 200,
                 "storageType": {
-                  "nfs": {
-                    "rootsquash": true
+                  "NFS": {
+                    "rootSquash": true,
+                    "posixAcl": false,
+                    "atimeUpdateIntervalSeconds": 0
                   }
                 },
                 "attachments": {
@@ -6386,8 +6403,10 @@
               "spec": {
                 "sizeGiB": 200,
                 "storageType": {
-                  "nfs": {
-                    "rootsquash": true
+                  "NFS": {
+                    "rootSquash": true,
+                    "posixAcl": false,
+                    "atimeUpdateIntervalSeconds": 0
                   }
                 },
                 "attachments": {
@@ -6450,8 +6469,10 @@
                 "spec": {
                   "sizeGiB": 200,
                   "storageType": {
-                    "nfs": {
-                      "rootsquash": true
+                    "NFS": {
+                      "rootSquash": true,
+                      "posixAcl": false,
+                      "atimeUpdateIntervalSeconds": 0
                     }
                   },
                   "attachments": {
