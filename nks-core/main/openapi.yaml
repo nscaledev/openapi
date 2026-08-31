@@ -589,7 +589,8 @@ components:
                 apiServer:
                   publicIP: false
                 addons:
-                  hardware: true
+                  hardware:
+                    enabled: true
               status:
                 regionId: uk-lon-1
                 observedGeneration: 3
@@ -658,7 +659,8 @@ components:
               apiServer:
                 publicIP: false
               addons:
-                hardware: true
+                hardware:
+                  enabled: true
             status:
               regionId: uk-lon-1
               observedGeneration: 3
@@ -727,7 +729,8 @@ components:
               apiServer:
                 publicIP: false
               addons:
-                hardware: true
+                hardware:
+                  enabled: true
             status:
               regionId: uk-lon-1
     nodePoolsV1Response:
@@ -1095,22 +1098,33 @@ components:
           items:
             type: string
             pattern: ^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/([0-9]|[12][0-9]|3[0-2])$
+    clusterAddonProfileV1:
+      description: Configuration for a single addon profile.
+      type: object
+      properties:
+        enabled:
+          description: Whether the addon profile is enabled.
+          type: boolean
+    clusterAddonProfileCreateV1:
+      description: Requested configuration for a single addon profile.
+      type: object
+      properties:
+        enabled:
+          description: Whether the addon profile is enabled. Defaults to true when omitted.
+          type: boolean
+          default: true
     clusterAddonsV1:
       description: Addon profiles configured for a cluster.
       type: object
       properties:
         hardware:
-          description: Whether the optional hardware addon profile is enabled.
-          type: boolean
+          $ref: "#/components/schemas/clusterAddonProfileV1"
     clusterAddonsCreateV1:
       description: Addon profiles requested during cluster creation.
       type: object
       properties:
         hardware:
-          description: Whether the optional hardware addon profile is enabled. Defaults to
-            true when omitted during cluster creation.
-          type: boolean
-          default: true
+          $ref: "#/components/schemas/clusterAddonProfileCreateV1"
     clusterNetworkV1:
       description: Kubernetes cluster pod and service network configuration.
       type: object

@@ -901,7 +901,9 @@
                     "publicIP": false
                   },
                   "addons": {
-                    "hardware": true
+                    "hardware": {
+                      "enabled": true
+                    }
                   }
                 },
                 "status": {
@@ -1002,7 +1004,9 @@
                   "publicIP": false
                 },
                 "addons": {
-                  "hardware": true
+                  "hardware": {
+                    "enabled": true
+                  }
                 }
               },
               "status": {
@@ -1101,7 +1105,9 @@
                   "publicIP": false
                 },
                 "addons": {
-                  "hardware": true
+                  "hardware": {
+                    "enabled": true
+                  }
                 }
               },
               "status": {
@@ -1608,13 +1614,33 @@
           }
         }
       },
+      "clusterAddonProfileV1": {
+        "description": "Configuration for a single addon profile.",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "description": "Whether the addon profile is enabled.",
+            "type": "boolean"
+          }
+        }
+      },
+      "clusterAddonProfileCreateV1": {
+        "description": "Requested configuration for a single addon profile.",
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "description": "Whether the addon profile is enabled. Defaults to true when omitted.",
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
       "clusterAddonsV1": {
         "description": "Addon profiles configured for a cluster.",
         "type": "object",
         "properties": {
           "hardware": {
-            "description": "Whether the optional hardware addon profile is enabled.",
-            "type": "boolean"
+            "$ref": "#/components/schemas/clusterAddonProfileV1"
           }
         }
       },
@@ -1623,9 +1649,7 @@
         "type": "object",
         "properties": {
           "hardware": {
-            "description": "Whether the optional hardware addon profile is enabled. Defaults to true when omitted during cluster creation.",
-            "type": "boolean",
-            "default": true
+            "$ref": "#/components/schemas/clusterAddonProfileCreateV1"
           }
         }
       },
