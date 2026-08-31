@@ -1237,6 +1237,10 @@ components:
         platformReleaseId:
           description: Platform release selected for the cluster.
           type: string
+        sshCertificateAuthorityId:
+          description: Optional region SSH certificate authority trusted for cluster
+            workers.
+          type: string
         clusterNetwork:
           $ref: "#/components/schemas/clusterNetworkV1"
         apiServer:
@@ -1257,6 +1261,10 @@ components:
         platformReleaseId:
           description: Platform release selected for the cluster.
           type: string
+        sshCertificateAuthorityId:
+          description: Optional region SSH certificate authority trusted for cluster
+            workers.
+          type: string
         clusterNetwork:
           $ref: "#/components/schemas/clusterNetworkV1"
         apiServer:
@@ -1276,6 +1284,10 @@ components:
           type: string
         platformReleaseId:
           description: Platform release selected for the cluster.
+          type: string
+        sshCertificateAuthorityId:
+          description: Optional region SSH certificate authority trusted for cluster
+            workers. Immutable after creation, including whether it is set.
           type: string
         clusterNetwork:
           $ref: "#/components/schemas/clusterNetworkV1"
