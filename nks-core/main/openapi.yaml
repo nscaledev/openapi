@@ -1098,6 +1098,69 @@ components:
           items:
             type: string
             pattern: ^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/([0-9]|[12][0-9]|3[0-2])$
+        authorization:
+          description: Tenant ClusterRoles bound to caller-specified subjects. Immutable
+            after creation, including whether it is set.
+          $ref: "#/components/schemas/clusterApiServerAuthorizationV1"
+    clusterApiServerAuthorizationV1:
+      description: Tenant ClusterRoles bound to caller-specified subjects.
+      type: object
+      additionalProperties: false
+      required:
+        - clusterRoleBindings
+      properties:
+        clusterRoleBindings:
+          description: Bindings from a built-in tenant ClusterRole to caller-specified
+            subjects, one binding per role.
+          type: array
+          minItems: 1
+          maxItems: 4
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/clusterRoleBindingV1"
+    clusterRoleBindingV1:
+      description: Binds a built-in tenant ClusterRole to caller-specified subjects.
+      type: object
+      additionalProperties: false
+      required:
+        - clusterRole
+        - subjects
+      properties:
+        clusterRole:
+          description: Built-in tenant ClusterRole to bind.
+          type: string
+          enum:
+            - cluster-admin
+            - admin
+            - edit
+            - view
+        subjects:
+          description: User/Group subjects bound to the role.
+          type: array
+          minItems: 1
+          maxItems: 32
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/rbacSubjectV1"
+    rbacSubjectV1:
+      description: One RBAC subject bound to a tenant ClusterRole.
+      type: object
+      additionalProperties: false
+      required:
+        - kind
+        - name
+      properties:
+        kind:
+          description: Subject kind.
+          type: string
+          enum:
+            - User
+            - Group
+        name:
+          description: Subject name.
+          type: string
+          minLength: 1
+          maxLength: 2048
     clusterAddonProfileV1:
       description: Configuration for a single addon profile.
       type: object
@@ -1238,6 +1301,21 @@ components:
           $ref: "#/components/schemas/clusterAddonProfileStatusV1"
         hardware:
           $ref: "#/components/schemas/clusterAddonProfileStatusV1"
+    clusterAuthorizationStatusV1:
+      description: Observed API server authorization binding state. Present only when
+        bindings are configured.
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: "#/components/schemas/clusterAddonComponentStatusV1"
+        reason:
+          description: Stable machine-readable reason for the authorization state.
+          type: string
+        message:
+          description: Human-readable customer-safe message for the authorization state.
+          type: string
     clusterSpecV1:
       description: Desired cluster state.
       type: object
@@ -1427,6 +1505,8 @@ components:
           $ref: "#/components/schemas/clusterNodePoolSummaryV1"
         addons:
           $ref: "#/components/schemas/clusterAddonsStatusV1"
+        authorization:
+          $ref: "#/components/schemas/clusterAuthorizationStatusV1"
         release:
           $ref: "#/components/schemas/clusterReleaseStatusV1"
     clusterV1Read:
