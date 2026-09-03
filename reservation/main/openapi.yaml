@@ -1178,6 +1178,7 @@ components:
         - placementId
         - networkId
         - infrastructureRef
+        - ordinal
       properties:
         regionId:
           description: The region the placement server belongs to.
@@ -1196,6 +1197,13 @@ components:
             The normalized infrastructure reference Reservation used as the
             pinned Region Server boot target.
           type: string
+        ordinal:
+          description: |-
+            The zero-based position of this server within its Placement,
+            assigned once at allocation and stable for the lifetime of the
+            slot. Unique within the Placement.
+          type: integer
+          minimum: 0
         powerState:
           $ref: "#/components/schemas/instanceLifecyclePhase"
         privateIP:

@@ -1653,7 +1653,8 @@
           "reservationId",
           "placementId",
           "networkId",
-          "infrastructureRef"
+          "infrastructureRef",
+          "ordinal"
         ],
         "properties": {
           "regionId": {
@@ -1675,6 +1676,11 @@
           "infrastructureRef": {
             "description": "The normalized infrastructure reference Reservation used as the\npinned Region Server boot target.",
             "type": "string"
+          },
+          "ordinal": {
+            "description": "The zero-based position of this server within its Placement,\nassigned once at allocation and stable for the lifetime of the\nslot. Unique within the Placement.",
+            "type": "integer",
+            "minimum": 0
           },
           "powerState": {
             "$ref": "#/components/schemas/instanceLifecyclePhase"
