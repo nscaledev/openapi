@@ -1102,6 +1102,8 @@ components:
           description: Tenant ClusterRoles bound to caller-specified subjects. Immutable
             after creation, including whether it is set.
           $ref: "#/components/schemas/clusterApiServerAuthorizationV1"
+        authentication:
+          $ref: "#/components/schemas/clusterApiServerAuthenticationV1"
     clusterApiServerAuthorizationV1:
       description: Tenant ClusterRoles bound to caller-specified subjects.
       type: object
@@ -1161,6 +1163,82 @@ components:
           type: string
           minLength: 1
           maxLength: 2048
+    clusterApiServerAuthenticationV1:
+      description: Kubernetes API server authentication configured for a cluster.
+        Fixed at creation; immutable for the cluster's lifetime, including
+        whether each field is set.
+      type: object
+      properties:
+        nscaleWebhook:
+          $ref: "#/components/schemas/clusterNscaleWebhookAuthenticationV1"
+        externalIssuers:
+          description: Additional external JWT/OIDC issuers the cluster's API server trusts.
+          type: array
+          maxItems: 8
+          items:
+            $ref: "#/components/schemas/clusterExternalIssuerV1"
+    clusterNscaleWebhookAuthenticationV1:
+      description: Per-cluster override of the cell-wide Nscale authentication webhook
+        enablement decision.
+      type: object
+      properties:
+        enabled:
+          description: Overrides the cell-wide decision to enable the Nscale
+            authentication webhook for this cluster. Omit to inherit the
+            cell-wide default.
+          type: boolean
+    clusterExternalIssuerV1:
+      description: An external JWT/OIDC issuer the cluster's API server trusts.
+      type: object
+      required:
+        - issuerURL
+        - audiences
+        - usernamePrefix
+      properties:
+        issuerURL:
+          description: Issuer URL clients present tokens from.
+          type: string
+          minLength: 1
+          maxLength: 2048
+        audiences:
+          description: Acceptable token audiences for this issuer.
+          type: array
+          minItems: 1
+          maxItems: 8
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
+            maxLength: 256
+        usernameClaim:
+          description: JWT claim mapped to the authenticated username.
+          type: string
+          maxLength: 256
+          default: sub
+        usernamePrefix:
+          description: Prepended to the username claim value. Required, non-empty, and
+            must not itself start with, or be a prefix of, a reserved prefix
+            (system:, kubeadm:, nks-management:).
+          type: string
+          minLength: 1
+          maxLength: 256
+        groupsClaim:
+          description: JWT claim mapped to the authenticated group list.
+          type: string
+          maxLength: 256
+        groupsPrefix:
+          description: Prepended to each groups claim value. Required when groupsClaim is
+            set; when set, must be non-empty and must not itself start with, or
+            be a prefix of, a reserved prefix (system:, kubeadm:,
+            nks-management:).
+          type: string
+          minLength: 1
+          maxLength: 256
+        caCertificate:
+          description: PEM-encoded CA certificate used to verify the issuer, when it is
+            not signed by a well-known CA.
+          type: string
+          maxLength: 8192
     clusterAddonProfileV1:
       description: Configuration for a single addon profile.
       type: object
