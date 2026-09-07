@@ -3743,6 +3743,11 @@
           "regionId"
         ],
         "properties": {
+          "attachedAt": {
+            "description": "Timestamp when the current volume attachment was first confirmed. Omitted when no current attachment is recorded.",
+            "type": "string",
+            "format": "date-time"
+          },
           "regionId": {
             "description": "The Region in which the volume is provisioned.",
             "allOf": [
