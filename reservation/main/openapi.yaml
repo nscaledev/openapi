@@ -323,6 +323,35 @@ paths:
           $ref: "#/components/responses/notFoundResponse"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
+    put:
+      operationId: updatePlacement
+      description: |-
+        Update a placement. Only the server image (spec.serverSpec.imageId) may
+        change; all other fields are immutable after creation. Changing the
+        image flags the placement's servers as drifted; converge each one with
+        the per-server reconcile action.
+      summary: Update placement
+      tags:
+        - Placements
+      security:
+        - oauth2Authentication: []
+      requestBody:
+        $ref: "#/components/requestBodies/placementV2UpdateRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/placementV2Response"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
     delete:
       operationId: deletePlacement
       description: Delete a placement and all Region servers created for it.
@@ -457,6 +486,40 @@ paths:
           $ref: "#/components/responses/notFoundResponse"
         "409":
           $ref: "#/components/responses/conflictResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/placements/{placementID}/servers/{serverID}/reconcile:
+    description: |-
+      Accepts reconciliation of one drifted server owned by a Placement: the
+      service converges the server to the placement's declared image. The
+      backing host and its pin are preserved; the server's local disk contents
+      are lost. A no-op if the server already runs the placement's image.
+    parameters:
+      - $ref: "#/components/parameters/placementIDParameter"
+      - $ref: "#/components/parameters/serverIDParameter"
+    post:
+      operationId: reconcilePlacementServer
+      description: Reconcile a placement server to the placement image.
+      summary: Reconcile placement server
+      tags:
+        - Placement Servers
+      security:
+        - oauth2Authentication: []
+      responses:
+        "202":
+          description: The request has been accepted and will be fulfilled asynchronously.
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableContentResponse"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
 components:
@@ -988,6 +1051,24 @@ components:
       enum:
         - pack
         - spread
+    placementServerDriftStateV2:
+      description: |-
+        The server's image-convergence state relative to the placement's
+        declared image. UpToDate: image matches and the server is provisioned.
+        Drifted: the image differs and reconciliation has not been accepted.
+        Converging: reconciliation has been accepted but the server is not yet
+        provisioned, whether because it is still converging or because its
+        provisioning has errored (the two cannot be distinguished from the
+        read, so the busier state is reported conservatively; the error itself
+        remains visible in the server's provisioningStatus and healthStatus,
+        and an errored convergence recovers only through a further image
+        change on the placement). Only Converging indicates work may be in
+        progress; Drifted may persist until reconciliation is accepted.
+      type: string
+      enum:
+        - UpToDate
+        - Drifted
+        - Converging
     whenUnsatisfiableV2:
       description: |-
         Fail returns an error if the constraint cannot be fully satisfied.
@@ -1125,6 +1206,7 @@ components:
         - regionId
         - reservationId
         - networkId
+        - statusCurrent
       properties:
         regionId:
           description: The region the placement belongs to.
@@ -1135,8 +1217,28 @@ components:
         networkId:
           description: The network the placement belongs to.
           type: string
+        statusCurrent:
+          description: |-
+            Whether the observed status, including updatedHostCount and
+            driftedHostCount, reflects the placement's current spec. It is false
+            between a spec change (such as an image update) and the next
+            reconcile that re-observes the servers, during which the image
+            convergence counts must not be trusted.
+          type: boolean
         readyHostCount:
           description: Number of hosts whose Region server resources are ready.
+          type: integer
+          minimum: 0
+        updatedHostCount:
+          description: Number of servers fully converged on the placement's desired image,
+            i.e. running that image and provisioned. Only meaningful when
+            statusCurrent is true.
+          type: integer
+          minimum: 0
+        driftedHostCount:
+          description: Number of servers not yet converged on the placement's desired
+            image, including servers whose image has been pushed but that are
+            still re-provisioning. Only meaningful when statusCurrent is true.
           type: integer
           minimum: 0
     placementV2Read:
@@ -1158,6 +1260,17 @@ components:
       type: array
       items:
         $ref: "#/components/schemas/placementV2Read"
+    placementV2Update:
+      description: A placement update request. Only spec.serverSpec.imageId may change.
+      type: object
+      required:
+        - metadata
+        - spec
+      properties:
+        metadata:
+          $ref: "#/components/schemas/resourceMetadata"
+        spec:
+          $ref: "#/components/schemas/placementV2Spec"
     placementV2Create:
       description: A placement creation request.
       type: object
@@ -1215,6 +1328,8 @@ components:
         macAddress:
           description: The MAC address of the server.
           type: string
+        driftState:
+          $ref: "#/components/schemas/placementServerDriftStateV2"
     placementServerV2Read:
       description: A placement server.
       type: object
@@ -1693,6 +1808,13 @@ components:
         - Stopped
         - Error
   requestBodies:
+    placementV2UpdateRequest:
+      description: A request to update a placement.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/placementV2Update"
     reservationV2CreateRequest:
       description: A request to create a reservation.
       required: true
