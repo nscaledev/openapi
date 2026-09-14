@@ -705,6 +705,8 @@ paths:
           $ref: "#/components/responses/forbiddenResponse"
         "404":
           $ref: "#/components/responses/notFoundResponse"
+        "409":
+          $ref: "#/components/responses/conflictResponse"
         "422":
           $ref: "#/components/responses/unprocessableContentResponse"
         "500":

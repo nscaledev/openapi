@@ -1059,6 +1059,9 @@
           "404": {
             "$ref": "#/components/responses/notFoundResponse"
           },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
           "422": {
             "$ref": "#/components/responses/unprocessableContentResponse"
           },
