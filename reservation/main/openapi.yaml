@@ -1330,6 +1330,19 @@ components:
           type: string
         driftState:
           $ref: "#/components/schemas/placementServerDriftStateV2"
+        topologyPath:
+          description: |-
+            Ordered physical topology level names for the host backing this
+            server, from the host outward: the NVLink domain first, then its
+            pod, then its spine group, and so on. Provided so a caller can
+            label the corresponding node with its topology without a separate
+            topology call. Names are display coordinates, not provider object
+            identifiers; the caller assigns its own label keys per position.
+            The path length varies by provider and the field is omitted when
+            the host has no topology path.
+          type: array
+          items:
+            type: string
     placementServerV2Read:
       description: A placement server.
       type: object

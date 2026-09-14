@@ -1828,6 +1828,13 @@
           },
           "driftState": {
             "$ref": "#/components/schemas/placementServerDriftStateV2"
+          },
+          "topologyPath": {
+            "description": "Ordered physical topology level names for the host backing this\nserver, from the host outward: the NVLink domain first, then its\npod, then its spine group, and so on. Provided so a caller can\nlabel the corresponding node with its topology without a separate\ntopology call. Names are display coordinates, not provider object\nidentifiers; the caller assigns its own label keys per position.\nThe path length varies by provider and the field is omitted when\nthe host has no topology path.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
