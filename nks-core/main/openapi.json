@@ -696,7 +696,7 @@
       "platformReleaseArchitectureQueryParameter": {
         "name": "architecture",
         "in": "query",
-        "description": "Allows platform releases to be filtered by supported architecture.",
+        "description": "Allows platform releases to be filtered by supported architecture. When combined with regionID, matches only a release that has actually resolved a compute image for the requested architecture in one of the requested regions, not merely one that declares the architecture and is available in the region for a different architecture.",
         "schema": {
           "type": "array",
           "items": {
