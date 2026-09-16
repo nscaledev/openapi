@@ -3509,6 +3509,13 @@
           "$ref": "#/components/schemas/serverV2VolumeStatus"
         }
       },
+      "serverV2VolumeList": {
+        "description": "Complete desired set of existing Volumes to attach to the Server.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/volumeId"
+        }
+      },
       "serverV2Spec": {
         "description": "A server's specification.",
         "type": "object",
@@ -3540,6 +3547,9 @@
             "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. On update the field is replaced wholesale: omitting\nit clears the stored value. A changed value is not applied to the running guest —\nit takes effect only when the server is next rebuilt (image change) or recreated.",
             "type": "string",
             "format": "byte"
+          },
+          "volumes": {
+            "$ref": "#/components/schemas/serverV2VolumeList"
           }
         }
       },
@@ -4356,7 +4366,7 @@
             "minimum": 1
           },
           "supportedFlavorIds": {
-            "description": "Optional allowlist of Region flavors compatible with this volume class. Omitted or empty means no compatibility restriction.",
+            "description": "Optional allowlist of Region flavors that can attach Volumes of this class to Servers. Omitted or empty means Server attachment is not supported; standalone Volume creation remains available.",
             "type": "array",
             "uniqueItems": true,
             "items": {
