@@ -14,7 +14,7 @@ compute/main/openapi.json
 ...
 ```
 
-`main/` always reflects whatever's currently on the source service's `main` branch. `vX.Y.Z/` is an immutable snapshot of an actual tagged release, using that repo's own release tag verbatim — never a prerelease (`vX.Y.Z-rc1` etc. still get their own version folder, just never become `latest/`). `latest/` always mirrors whichever stable release is newest, so anything linking to `<service>/latest/openapi.yaml` — a Mintlify overview page, a codegen pipeline, whatever — never needs updating when a new version ships. That's the whole repo — no index, no generated site, no changelog file. Git history on this repo *is* the changelog.
+`main/` always reflects whatever's currently on the source service's `main` branch. `vX.Y.Z/` is an immutable snapshot of an actual tagged release, using that repo's own release tag — never a prerelease (`vX.Y.Z-rc1` etc. still get their own version folder, just never become `latest/`). The folder name always carries the leading `v`, so a repo whose tags don't (release-please with `include-v-in-tag: false` produces a bare `0.6.1`) must pass `version: v${{ ... }}` and add it back. That isn't cosmetic: `latest/` promotion only recognises `vX.Y.Z`, reads a bare `0.6.1` as a prerelease, and would leave `<service>/latest/` silently pinned forever. `latest/` always mirrors whichever stable release is newest, so anything linking to `<service>/latest/openapi.yaml` — a Mintlify overview page, a codegen pipeline, whatever — never needs updating when a new version ships. That's the whole repo — no index, no generated site, no changelog file. Git history on this repo *is* the changelog.
 
 This repo is **not** the polished API docs experience — that's [docs.nscale.com](https://docs.nscale.com), built with Mintlify. It's the raw, technical layer underneath: the thing Mintlify, Postman, codegen tools, and anything else all pull from.
 
@@ -34,7 +34,9 @@ Specs are **never hand-edited in this repo**. Each source service repo calls the
 
 Pin `<commit-sha>` to this repo's current `main` HEAD rather than referencing `@main` directly — it's a separate repo, so an unpinned branch ref means anyone who can push here could silently change what every caller's CI executes with `OPENAPI_PUBLISH_TOKEN` in scope. Bump the pinned SHA by hand when you want a caller to pick up a change to the action.
 
-Call it with `version: main` from a main-push workflow, and with `version: ${{ github.ref_name }}` from a tag-release workflow. The action bundles (dereferences `$ref`s), sanitizes (strips internal-only operations, servers, and vendor extensions), lints, converts to JSON, and commits directly to `main` here under a bot identity (`nscale-openapi-bot`). `CODEOWNERS` and `.github/workflows/protect-published-specs.yml` block human edits to any `<service>/main/` or `<service>/vX.Y.Z/` path.
+Call it with `version: main` from a main-push workflow, and with `version: ${{ github.ref_name }}` from a tag-release workflow. The action bundles (dereferences `$ref`s), sanitizes (strips internal-only operations, servers, and vendor extensions), lints, rejects any spec with an `internal` path segment, converts to JSON, and commits directly to `main` here under a bot identity (`nscale-openapi-bot`).
+
+That last check exists because sanitization only removes what a source repo explicitly marked `x-hidden`/`x-internal`, and an unmarked internal surface is the normal case rather than a hypothetical — `nscale-environments`, for one, deliberately keeps its service-to-service routes in the artifact its own drift check reads, and marks none of them. Point `spec-path` at a spec like that and the whole internal API lands in a public repo. If this check fails your publish, the fix is in the source repo: emit a public-only spec and point `spec-path` at that, rather than marking routes one by one. `CODEOWNERS` and `.github/workflows/protect-published-specs.yml` block human edits to any `<service>/main/` or `<service>/vX.Y.Z/` path.
 
 **Prerequisite:** each source repo needs an `OPENAPI_PUBLISH_TOKEN` secret — a token with `contents: write` on this repo — before the action can push. That's provisioned per-repo by a human; the action doesn't create it.
 
@@ -48,8 +50,11 @@ Node 20+, no global installs required:
 # Sanitize a raw (already-bundled/dereferenced) spec
 node scripts/sanitize.mjs <input.yaml> <output.yaml> <service-id>
 
-# Lint + forbidden-string scan a sanitized spec
+# Lint + forbidden-string scan + internal-path check a sanitized spec
 scripts/validate.sh <path/to/openapi.yaml>
+
+# Just the internal-path check on its own
+node scripts/check-internal-paths.mjs <path/to/openapi.yaml>
 
 # Run the pipeline's tests
 npm test
