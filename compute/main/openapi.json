@@ -818,6 +818,44 @@
           }
         }
       },
+      "instanceVolumeList": {
+        "description": "Complete desired set of existing Volumes to attach to the Instance.\nOn update, omit this field to keep the current set. Send an empty list to\ndetach all Volumes. Send a non-empty list to replace the current set.\nEvery referenced Volume must support the selected instance flavor. If\ncompatibility cannot be confirmed, the request is rejected with HTTP 422.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/volumeId"
+        }
+      },
+      "instanceVolumeStatus": {
+        "description": "Observed attachment state for a Volume associated with an Instance.",
+        "type": "object",
+        "required": [
+          "id",
+          "provisioningStatus"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/volumeId"
+          },
+          "provisioningStatus": {
+            "$ref": "#/components/schemas/resourceProvisioningStatus"
+          },
+          "device": {
+            "description": "The provider-assigned guest device name, when available.",
+            "type": "string"
+          },
+          "message": {
+            "description": "Optional API-safe description of the attachment state.",
+            "type": "string"
+          }
+        }
+      },
+      "instanceVolumeStatusList": {
+        "description": "Observed Volume attachment state, including attachments still being removed.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/instanceVolumeStatus"
+        }
+      },
       "instanceSpec": {
         "description": "A compute instance.\nSome stored desired-state changes only take effect on the backing server when that server is\nrebuilt or recreated. Currently, changing flavorId or imageId causes the backing server to\nbe rebuilt or recreated. In those cases, backing server IP addresses are not preserved and\nmay change when the replacement server is created. Instance names are immutable; rename\nattempts are rejected with HTTP 422.\nThe imageId field may reference any image that Region reports as available to the\norganization in the target region; it is not limited to images returned by the curated\nCompute image catalog.",
         "type": "object",
@@ -834,6 +872,9 @@
           },
           "networking": {
             "$ref": "#/components/schemas/instanceNetworking"
+          },
+          "volumes": {
+            "$ref": "#/components/schemas/instanceVolumeList"
           },
           "sshCertificateAuthorityId": {
             "$ref": "#/components/schemas/sshCertificateAuthorityId"
@@ -903,6 +944,9 @@
           "macAddress": {
             "description": "The MAC address of the server.",
             "type": "string"
+          },
+          "volumes": {
+            "$ref": "#/components/schemas/instanceVolumeStatusList"
           }
         }
       },
@@ -1767,6 +1811,11 @@
       },
       "imageId": {
         "description": "An image ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "volumeId": {
+        "description": "A volume ID.",
         "type": "string",
         "format": "uuid"
       },
