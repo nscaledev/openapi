@@ -1293,6 +1293,44 @@ components:
         - infrastructureRef
         - ordinal
       properties:
+        desiredState:
+          description: The accepted member intent, omitted until lifecycle initialization.
+          type: string
+          enum:
+            - Running
+            - Drained
+        lifecycleState:
+          description: The persisted member lifecycle projection, omitted until lifecycle
+            initialization.
+          type: string
+          enum:
+            - Provisioning
+            - Running
+            - Draining
+            - Drained
+            - Failed
+        lifecycleRevision:
+          description: The revision of the member lifecycle snapshot.
+          type: integer
+          format: int64
+          minimum: 1
+        operationGeneration:
+          description: The latest accepted member operation generation.
+          type: integer
+          format: int64
+          minimum: 0
+        observedGeneration:
+          description: The latest completed member operation generation.
+          type: integer
+          format: int64
+          minimum: 0
+        reconcileETag:
+          description: |-
+            Opaque, quoted strong action tag binding this member lifecycle
+            revision and the owning Placement spec generation. Omitted until
+            lifecycle initialization. Prepared for conditional reconciliation;
+            this release does not yet enforce If-Match on reconcile.
+          type: string
         regionId:
           description: The region the placement server belongs to.
           type: string
