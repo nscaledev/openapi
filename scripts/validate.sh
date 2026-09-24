@@ -17,4 +17,11 @@ if grep -inE "${FORBIDDEN_PATTERN}" "${SPEC_PATH}"; then
   exit 1
 fi
 
+# The scan above catches internal *hostnames*; this catches internal *routes*,
+# which look nothing alike and are not covered by the sanitizer either unless
+# the source repo marked them. See check-internal-paths.mjs for why it parses
+# path keys instead of grepping.
+echo "validate: checking ${SPEC_PATH} for internal paths"
+node "$(dirname "$0")/check-internal-paths.mjs" "${SPEC_PATH}"
+
 echo "validate: ${SPEC_PATH} passed"

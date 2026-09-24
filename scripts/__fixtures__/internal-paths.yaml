@@ -1,0 +1,42 @@
+openapi: 3.1.0
+info:
+  title: Internal path fixture
+  version: 1.0.0
+paths:
+  /api/v1/public/things:
+    get:
+      summary: A genuinely public operation
+      responses:
+        "200":
+          description: OK
+        "500":
+          # Prose mentioning "internal" is why this check reads path keys and
+          # not the file as text — every real spec here carries lines like this.
+          description: Internal Server Error
+  /api/v1/resource-manager/internal/resource-pools:
+    get:
+      summary: Service-to-service only, and carries no x-internal marker
+      responses:
+        "200":
+          description: OK
+  /api/v1/environment-manager/internal/environments/{environment_id}:
+    get:
+      summary: Second offender, to prove every match is reported
+      parameters:
+        - name: environment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+  /api/v1/internal-users:
+    get:
+      # Not flagged: the segment is "internal-users", not "internal". Widening
+      # the rule to prefixes would flag public resources whose names merely
+      # start with the word.
+      summary: Public resource whose name begins with "internal"
+      responses:
+        "200":
+          description: OK
