@@ -1687,6 +1687,40 @@ components:
           description: Reservation ID to consume capacity from. Required when
             provisioningMode is reservation.
           type: string
+        constraints:
+          $ref: "#/components/schemas/nodePoolPlacementConstraintsV1"
+    nodePoolPlacementConstraintsV1:
+      description: Immutable topology placement policy for a reservation-backed node pool.
+      type: object
+      additionalProperties: false
+      required:
+        - policy
+      properties:
+        policy:
+          description: Pack fills domains sequentially; spread distributes hosts across
+            domains.
+          type: string
+          enum:
+            - pack
+            - spread
+        maxSkew:
+          description: Maximum difference in host count between domains. Valid only for
+            spread.
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        minDomains:
+          description: Minimum topology domains receiving a host. Valid only for spread.
+          type: integer
+          minimum: 1
+          maximum: 2147483647
+        whenUnsatisfiable:
+          description: Fail rejects an unsatisfied spread; bestEffort chooses the closest
+            layout.
+          type: string
+          enum:
+            - fail
+            - bestEffort
     nodePoolComputeV1:
       description: Compute-backed worker capacity selector.
       type: object
