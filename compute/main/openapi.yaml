@@ -531,6 +531,45 @@ components:
           type: boolean
         allowedSourceAddresses:
           $ref: "#/components/schemas/allowedSourceAddresses"
+    instanceVolumeList:
+      description: >-
+        Complete desired set of existing Volumes to attach to the Instance.
+
+        On update, omit this field to keep the current set. Send an empty list
+        to
+
+        detach all Volumes. Send a non-empty list to replace the current set.
+
+        Every referenced Volume must support the selected instance flavor. If
+
+        compatibility cannot be confirmed, the request is rejected with HTTP
+        422.
+      type: array
+      items:
+        $ref: "#/components/schemas/volumeId"
+    instanceVolumeStatus:
+      description: Observed attachment state for a Volume associated with an Instance.
+      type: object
+      required:
+        - id
+        - provisioningStatus
+      properties:
+        id:
+          $ref: "#/components/schemas/volumeId"
+        provisioningStatus:
+          $ref: "#/components/schemas/resourceProvisioningStatus"
+        device:
+          description: The provider-assigned guest device name, when available.
+          type: string
+        message:
+          description: Optional API-safe description of the attachment state.
+          type: string
+    instanceVolumeStatusList:
+      description: Observed Volume attachment state, including attachments still being
+        removed.
+      type: array
+      items:
+        $ref: "#/components/schemas/instanceVolumeStatus"
     instanceSpec:
       description: >-
         A compute instance.
@@ -567,6 +606,8 @@ components:
           $ref: "#/components/schemas/imageId"
         networking:
           $ref: "#/components/schemas/instanceNetworking"
+        volumes:
+          $ref: "#/components/schemas/instanceVolumeList"
         sshCertificateAuthorityId:
           $ref: "#/components/schemas/sshCertificateAuthorityId"
         userData:
@@ -621,6 +662,8 @@ components:
         macAddress:
           description: The MAC address of the server.
           type: string
+        volumes:
+          $ref: "#/components/schemas/instanceVolumeStatusList"
     instanceRead:
       description: A compute instance.
       type: object
@@ -1272,6 +1315,10 @@ components:
       description: An image ID.
       type: string
       format: uuid
+    volumeId:
+      description: A volume ID.
+      type: string
+      format: uuid
     sshCertificateAuthorityId:
       description: An SSH certificate authority ID.
       type: string
@@ -1283,15 +1330,20 @@ components:
         should treat Running (not provisioned) as the "ready to use" state.
         Queued and Building are observed during create — Queued for
         baremetal servers waiting on hardware, Building for servers the
-        provider is actively bringing up.
+        provider is actively bringing up. Rebuilding means an already
+        provisioned server is being reimaged in place and is not usable until
+        it completes. Error means the provider reported the server in a
+        terminal error state.
       type: string
       enum:
         - Pending
         - Queued
         - Building
+        - Rebuilding
         - Running
         - Stopping
         - Stopped
+        - Error
     projectId:
       description: A project ID.
       type: string
