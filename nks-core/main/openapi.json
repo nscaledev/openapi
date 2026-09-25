@@ -903,6 +903,9 @@
                   "addons": {
                     "hardware": {
                       "enabled": true
+                    },
+                    "nodeHealth": {
+                      "enabled": true
                     }
                   }
                 },
@@ -1006,6 +1009,9 @@
                 "addons": {
                   "hardware": {
                     "enabled": true
+                  },
+                  "nodeHealth": {
+                    "enabled": true
                   }
                 }
               },
@@ -1106,6 +1112,9 @@
                 },
                 "addons": {
                   "hardware": {
+                    "enabled": true
+                  },
+                  "nodeHealth": {
                     "enabled": true
                   }
                 }
@@ -1808,6 +1817,9 @@
         "properties": {
           "hardware": {
             "$ref": "#/components/schemas/clusterAddonProfileV1"
+          },
+          "nodeHealth": {
+            "$ref": "#/components/schemas/clusterAddonProfileV1"
           }
         }
       },
@@ -1816,6 +1828,9 @@
         "type": "object",
         "properties": {
           "hardware": {
+            "$ref": "#/components/schemas/clusterAddonProfileCreateV1"
+          },
+          "nodeHealth": {
             "$ref": "#/components/schemas/clusterAddonProfileCreateV1"
           }
         }
@@ -1949,7 +1964,7 @@
         }
       },
       "clusterAddonsStatusV1": {
-        "description": "Observed addon rollout state grouped by profile. Hardware remains visible while a previous installation is being removed and is omitted only after removal is confirmed.",
+        "description": "Observed addon rollout state grouped by profile. Hardware and nodeHealth remain visible while a previous installation is being removed and are omitted only after removal is confirmed. nodeHealth is also omitted while the applied release provides no node-health profile.",
         "type": "object",
         "required": [
           "core"
@@ -1959,6 +1974,9 @@
             "$ref": "#/components/schemas/clusterAddonProfileStatusV1"
           },
           "hardware": {
+            "$ref": "#/components/schemas/clusterAddonProfileStatusV1"
+          },
+          "nodeHealth": {
             "$ref": "#/components/schemas/clusterAddonProfileStatusV1"
           }
         }
@@ -2731,6 +2749,9 @@
             "$ref": "#/components/schemas/platformReleaseAddonProfileV1"
           },
           "hardware": {
+            "$ref": "#/components/schemas/platformReleaseAddonProfileV1"
+          },
+          "nodeHealth": {
             "$ref": "#/components/schemas/platformReleaseAddonProfileV1"
           }
         }
