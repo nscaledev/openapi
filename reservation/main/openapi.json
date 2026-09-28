@@ -785,11 +785,14 @@
         },
         {
           "$ref": "#/components/parameters/serverIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/reconcileIfMatchParameter"
         }
       ],
       "post": {
         "operationId": "reconcilePlacementServer",
-        "description": "Reconcile a placement server to the placement image.",
+        "description": "Reconcile a placement server to the placement image. Conditional\nreconciliation is not active in this release: requests carrying\nIf-Match return 409 without accepting work. Headerless Legacy\nrequests retain their existing behavior.",
         "summary": "Reconcile placement server",
         "tags": [
           "Placement Servers"
@@ -818,8 +821,28 @@
           "409": {
             "$ref": "#/components/responses/conflictResponse"
           },
+          "412": {
+            "description": "Reserved for conditional admission: the original token is stale.\nRead current state and decide whether to submit a new action;\ndo not automatically refresh the token and retry. After an\nuncertain response, this does not identify which request succeeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
           "422": {
             "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "428": {
+            "description": "Reserved for conditional admission: the required If-Match token\nis missing. Obtain the server-issued reconcileETag from a member read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           },
           "500": {
             "$ref": "#/components/responses/internalServerErrorResponse"
@@ -830,6 +853,15 @@
   },
   "components": {
     "parameters": {
+      "reconcileIfMatchParameter": {
+        "name": "If-Match",
+        "in": "header",
+        "description": "The original server-issued status.reconcileETag from a member read,\nincluding its double quotes. Retry with the same value; never refresh\nit automatically after a conflict. Conditional admission will require\none strong entity tag (missing: 428, stale: 412, malformed: 400).\nIt remains optional for Legacy compatibility; this release rejects\ntoken-bearing requests with 409 because conditional execution is inactive.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
       "reservationIDParameter": {
         "name": "reservationID",
         "in": "path",
@@ -1824,7 +1856,7 @@
             "minimum": 0
           },
           "reconcileETag": {
-            "description": "Opaque, quoted strong action tag binding this member lifecycle\nrevision and the owning Placement spec generation. Omitted until\nlifecycle initialization. Prepared for conditional reconciliation;\nthis release does not yet enforce If-Match on reconcile.",
+            "description": "Opaque, quoted strong action tag binding this member lifecycle\nrevision and the owning Placement spec generation. Omitted until\nlifecycle initialization. Prepared for conditional reconciliation;\nthis release rejects token-bearing reconcile requests with 409\nuntil conditional execution is available.",
             "type": "string"
           },
           "regionId": {

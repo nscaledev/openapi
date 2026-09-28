@@ -497,9 +497,14 @@ paths:
     parameters:
       - $ref: "#/components/parameters/placementIDParameter"
       - $ref: "#/components/parameters/serverIDParameter"
+      - $ref: "#/components/parameters/reconcileIfMatchParameter"
     post:
       operationId: reconcilePlacementServer
-      description: Reconcile a placement server to the placement image.
+      description: |-
+        Reconcile a placement server to the placement image. Conditional
+        reconciliation is not active in this release: requests carrying
+        If-Match return 409 without accepting work. Headerless Legacy
+        requests retain their existing behavior.
       summary: Reconcile placement server
       tags:
         - Placement Servers
@@ -518,12 +523,51 @@ paths:
           $ref: "#/components/responses/notFoundResponse"
         "409":
           $ref: "#/components/responses/conflictResponse"
+        "412":
+          description: |-
+            Reserved for conditional admission: the original token is stale.
+            Read current state and decide whether to submit a new action;
+            do not automatically refresh the token and retry. After an
+            uncertain response, this does not identify which request succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
         "422":
           $ref: "#/components/responses/unprocessableContentResponse"
+        "428":
+          description: >-
+            Reserved for conditional admission: the required If-Match token
+
+            is missing. Obtain the server-issued reconcileETag from a member
+            read.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
 components:
   parameters:
+    reconcileIfMatchParameter:
+      name: If-Match
+      in: header
+      description: >-
+        The original server-issued status.reconcileETag from a member read,
+
+        including its double quotes. Retry with the same value; never refresh
+
+        it automatically after a conflict. Conditional admission will require
+
+        one strong entity tag (missing: 428, stale: 412, malformed: 400).
+
+        It remains optional for Legacy compatibility; this release rejects
+
+        token-bearing requests with 409 because conditional execution is
+        inactive.
+      required: false
+      schema:
+        type: string
     reservationIDParameter:
       name: reservationID
       in: path
@@ -1329,7 +1373,8 @@ components:
             Opaque, quoted strong action tag binding this member lifecycle
             revision and the owning Placement spec generation. Omitted until
             lifecycle initialization. Prepared for conditional reconciliation;
-            this release does not yet enforce If-Match on reconcile.
+            this release rejects token-bearing reconcile requests with 409
+            until conditional execution is available.
           type: string
         regionId:
           description: The region the placement server belongs to.
