@@ -1228,7 +1228,7 @@ components:
         usernamePrefix:
           description: Prepended to the username claim value. Required, non-empty, and
             must not itself start with, or be a prefix of, a reserved prefix
-            (system:, kubeadm:, nks-management:).
+            (system:, kubeadm:, nks-management:, nks:, nscale.com/).
           type: string
           minLength: 1
           maxLength: 256
@@ -1240,7 +1240,7 @@ components:
           description: Prepended to each groups claim value. Required when groupsClaim is
             set; when set, must be non-empty and must not itself start with, or
             be a prefix of, a reserved prefix (system:, kubeadm:,
-            nks-management:).
+            nks-management:, nks:, nscale.com/).
           type: string
           minLength: 1
           maxLength: 256
