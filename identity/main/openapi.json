@@ -41,7 +41,7 @@
     "/api/v1/organizations": {
       "description": "Allows management of organizations.  An organization may use ad hoc\nauthentication, where users select their identity provider manually,\nor domain based authentication where, provided with an email address,\nthe domain is matched against the organization and the identity provider\nimplicitly selected.  Domain based authentication allows integration with\nuser provided OIDC compliant identity services.",
       "get": {
-        "description": "Returns a list of organizations that the user is a member of.  If an\nemail address is provided in the query this allows a user with sufficient\nprivilege to check if a given user is a member of any organizations.",
+        "description": "Returns a list of organizations that the user is a member of.  If an\nemail address is provided in the query this allows a user with sufficient\nprivilege to check if a given user is a member of any organizations.\nThe include parameter adds quotas or a visible project count to each\norganization that the caller can inspect. Rows that the caller cannot\ninspect omit the extra.",
         "summary": "List organizations",
         "tags": [
           "Organizations"
@@ -54,11 +54,17 @@
         "parameters": [
           {
             "$ref": "#/components/parameters/userEmailParameter"
+          },
+          {
+            "$ref": "#/components/parameters/organizationListIncludeParameter"
           }
         ],
         "responses": {
           "200": {
             "$ref": "#/components/responses/organizationsResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
           },
           "401": {
             "$ref": "#/components/responses/unauthorizedResponse"
@@ -969,6 +975,23 @@
           "type": "string"
         }
       },
+      "organizationListIncludeParameter": {
+        "name": "include",
+        "in": "query",
+        "description": "Extra data to return for each organization. Repeat the parameter for\neach value (?include=quotas&include=projectsCount). A comma-separated\nlist returns 400. Each value appears only where the caller can read\nit. An organization that the caller cannot inspect keeps its base\nfields and omits the extra.",
+        "style": "form",
+        "explode": true,
+        "schema": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "quotas",
+              "projectsCount"
+            ]
+          }
+        }
+      },
       "referenceParameter": {
         "name": "reference",
         "in": "path",
@@ -1747,6 +1770,22 @@
           },
           "spec": {
             "$ref": "#/components/schemas/organizationSpec"
+          },
+          "quotas": {
+            "description": "The quotas of the organization, as GET\n/api/v1/organizations/{id}/quotas returns them. Present only on the\norganization list, when include names quotas and the caller has\norganization-scope read on identity:quotas.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/quotaReadList"
+              }
+            ]
+          },
+          "quotasError": {
+            "description": "Present instead of quotas when include names quotas, the caller can\nread the quotas, and the quota data of the organization does not\nrender. The value is a short generic reason.",
+            "type": "string"
+          },
+          "projectsCount": {
+            "description": "The number of projects in the organization that the caller can\nsee. Present only on the organization list, when include names\nprojectsCount and the caller can see projects in this organization.",
+            "type": "integer"
           }
         }
       },
@@ -3785,21 +3824,6 @@
           }
         }
       },
-      "notFoundResponse": {
-        "description": "Unable to find a resource.",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/error"
-            },
-            "example": {
-              "error": "not_found",
-              "error_description": "the requested resource does not exist",
-              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
-            }
-          }
-        }
-      },
       "badRequestResponse": {
         "description": "Request body failed schema validation, or the request does not contain\nall the required fields.",
         "content": {
@@ -3810,6 +3834,21 @@
             "example": {
               "error": "invalid_request",
               "error_description": "request body invalid",
+              "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "notFoundResponse": {
+        "description": "Unable to find a resource.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            },
+            "example": {
+              "error": "not_found",
+              "error_description": "the requested resource does not exist",
               "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
             }
           }
