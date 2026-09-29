@@ -198,6 +198,9 @@
           "201": {
             "$ref": "#/components/responses/serviceAccountCreateResponse"
           },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
           "401": {
             "$ref": "#/components/responses/unauthorizedResponse"
           },
@@ -237,6 +240,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/serviceAccountResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
           },
           "401": {
             "$ref": "#/components/responses/unauthorizedResponse"
@@ -379,6 +385,9 @@
           "201": {
             "$ref": "#/components/responses/userResponse"
           },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
           "401": {
             "$ref": "#/components/responses/unauthorizedResponse"
           },
@@ -421,6 +430,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/userResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
           },
           "401": {
             "$ref": "#/components/responses/unauthorizedResponse"
