@@ -1622,7 +1622,7 @@
             }
           },
           "authorization": {
-            "description": "Tenant ClusterRoles bound to caller-specified subjects. Immutable after creation, including whether it is set.",
+            "description": "Tenant ClusterRoles bound to caller-specified subjects. After creation, role bindings and subjects may only be removed, including by omitting authorization entirely, and removing them needs create permission on the cluster's project; authorization cannot be added to a cluster created without it.",
             "$ref": "#/components/schemas/clusterApiServerAuthorizationV1"
           },
           "authentication": {
@@ -1707,7 +1707,7 @@
         }
       },
       "clusterApiServerAuthenticationV1": {
-        "description": "Kubernetes API server authentication configured for a cluster. Fixed at creation; immutable for the cluster's lifetime, including whether each field is set.",
+        "description": "Kubernetes API server authentication configured for a cluster. After creation, external issuers may only be removed, and removing them needs create permission on the cluster's project; whether authentication is set, and the nscaleWebhook override, are fixed for the cluster's lifetime.",
         "type": "object",
         "properties": {
           "nscaleWebhook": {
