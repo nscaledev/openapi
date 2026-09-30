@@ -1815,7 +1815,8 @@
           "placementId",
           "networkId",
           "infrastructureRef",
-          "ordinal"
+          "ordinal",
+          "hostReadiness"
         ],
         "properties": {
           "desiredState": {
@@ -1901,6 +1902,20 @@
           },
           "driftState": {
             "$ref": "#/components/schemas/placementServerDriftStateV2"
+          },
+          "hostReadiness": {
+            "description": "Whether the host this server is bound to currently permits new boot\nwork. Only Ready permits it. NotReady means the host refuses new\nboot work. Unresolved means the server's binding no longer resolves\nto a host. Unknown means the service has no verdict. The service\nrefreshes this value periodically, so a change to the host appears\nafter the next refresh rather than on each read.",
+            "type": "string",
+            "enum": [
+              "Ready",
+              "NotReady",
+              "Unresolved",
+              "Unknown"
+            ]
+          },
+          "hostReadinessReason": {
+            "description": "Why the host has its current readiness, omitted when there is no\nreason to report.",
+            "type": "string"
           },
           "topologyPath": {
             "description": "Ordered physical topology level names for the host backing this\nserver, from the host outward: the NVLink domain first, then its\npod, then its spine group, and so on. Provided so a caller can\nlabel the corresponding node with its topology without a separate\ntopology call. Names are display coordinates, not provider object\nidentifiers; the caller assigns its own label keys per position.\nThe path length varies by provider and the field is omitted when\nthe host has no topology path.",

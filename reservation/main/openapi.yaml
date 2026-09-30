@@ -1336,6 +1336,7 @@ components:
         - networkId
         - infrastructureRef
         - ordinal
+        - hostReadiness
       properties:
         desiredState:
           description: The accepted member intent, omitted until lifecycle initialization.
@@ -1413,6 +1414,25 @@ components:
           type: string
         driftState:
           $ref: "#/components/schemas/placementServerDriftStateV2"
+        hostReadiness:
+          description: |-
+            Whether the host this server is bound to currently permits new boot
+            work. Only Ready permits it. NotReady means the host refuses new
+            boot work. Unresolved means the server's binding no longer resolves
+            to a host. Unknown means the service has no verdict. The service
+            refreshes this value periodically, so a change to the host appears
+            after the next refresh rather than on each read.
+          type: string
+          enum:
+            - Ready
+            - NotReady
+            - Unresolved
+            - Unknown
+        hostReadinessReason:
+          description: |-
+            Why the host has its current readiness, omitted when there is no
+            reason to report.
+          type: string
         topologyPath:
           description: |-
             Ordered physical topology level names for the host backing this
