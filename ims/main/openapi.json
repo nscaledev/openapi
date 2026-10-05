@@ -2066,7 +2066,7 @@
     },
     "/api/v1/model-inventory/private/instances/{deployed_product_id}": {
       "delete": {
-        "description": "Queue BYOM undeployment and report any endpoint Secret left for operator cleanup.",
+        "description": "Queue BYOM undeployment and report any IMS-provisioned Secret left for operator cleanup.",
         "operationId": "undeploy_private_model_instance_api_v1_model_inventory_private_instances__deployed_product_id__delete",
         "parameters": [
           {
@@ -2854,7 +2854,7 @@
     },
     "/api/v1/model-inventory/unreferenced-endpoint-secrets": {
       "get": {
-        "description": "List endpoint Secrets in scope that no private Hosted Model references.",
+        "description": "List IMS-provisioned Secrets in scope that no private Hosted Model references.",
         "operationId": "list_unreferenced_endpoint_secrets_api_v1_model_inventory_unreferenced_endpoint_secrets_get",
         "parameters": [
           {
@@ -5029,7 +5029,7 @@
         "type": "object"
       },
       "OpaqueSecretDeployment": {
-        "description": "Opaque-secret lifecycle identity plus its non-secret logical reference.",
+        "description": "Opaque-secret lifecycle identity plus its non-secret logical reference and the role it serves.",
         "properties": {
           "configuration_id": {
             "title": "Configuration Id",
@@ -5051,6 +5051,10 @@
             "title": "Product Id",
             "type": "string"
           },
+          "role": {
+            "$ref": "#/components/schemas/OpaqueSecretRole",
+            "description": "Which credential the Secret carries: endpoint access, or the model's s3:// source key pair."
+          },
           "secret_ref": {
             "title": "Secret Ref",
             "type": "string"
@@ -5062,10 +5066,20 @@
           "configuration_id",
           "deployment_request_id",
           "customer_request_id",
-          "secret_ref"
+          "secret_ref",
+          "role"
         ],
         "title": "OpaqueSecretDeployment",
         "type": "object"
+      },
+      "OpaqueSecretRole": {
+        "description": "Which credential an IMS-provisioned opaque Secret carries.\n\nThe role is fixed by the Secret name prefix IMS configures, so a deployed product id alone\nnames the Secret and nothing in the Secret's own configuration has to be read back.",
+        "enum": [
+          "endpoint-access",
+          "source-model"
+        ],
+        "title": "OpaqueSecretRole",
+        "type": "string"
       },
       "OutputValueProjection": {
         "description": "One Envir Product Deployer output value projection.",
@@ -5204,6 +5218,17 @@
             "title": "Profile Logical Name",
             "type": "string"
           },
+          "source_secret_deployment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpaqueSecretDeployment"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source-model credential Secret IMS provisioned for an s3:// Profile that named none. Absent when the Profile carried its own reference or the source needs no credential."
+          },
           "status": {
             "$ref": "#/components/schemas/DeploymentLifecycleStatus"
           }
@@ -5338,7 +5363,7 @@
         "type": "object"
       },
       "PrivateModelUndeploymentRequests": {
-        "description": "Queued BYOM undeployment plus any endpoint Secret an operator must remove.",
+        "description": "Queued BYOM undeployment plus any IMS-provisioned Secret an operator must remove.",
         "properties": {
           "byom_undeployment_request": {
             "$ref": "#/components/schemas/ModelDeploymentRequest"
@@ -5353,6 +5378,17 @@
               }
             ],
             "description": "Endpoint Secret that outlives this model. IMS does not delete it because Envir cannot prove no other product references it. Remove it once nothing does."
+          },
+          "source_secret_cleanup_required": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpaqueSecretDeployment"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Source-model credential Secret IMS provisioned for this model and that outlives it, left in place for the same reason as the endpoint Secret."
           }
         },
         "required": [
@@ -6012,7 +6048,7 @@
         "type": "string"
       },
       "UnreferencedOpaqueSecret": {
-        "description": "One endpoint Secret deployment that no readable model in scope references.\n\nThe customer request id is deliberately absent: it is only knowable from the referencing BYOM\nconfiguration, and reading the Secret's own configuration would materialize its raw value.",
+        "description": "One IMS-provisioned Secret deployment that no readable model in scope references.\n\nThe customer request id is deliberately absent: it is only knowable from the referencing BYOM\nconfiguration, and reading the Secret's own configuration would materialize its raw value.",
         "properties": {
           "configuration_id": {
             "title": "Configuration Id",
@@ -6033,9 +6069,28 @@
             "title": "Product Id",
             "type": "string"
           },
+          "role": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpaqueSecretRole"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Role read from the published reference; absent whenever secret_ref is."
+          },
           "secret_ref": {
-            "title": "Secret Ref",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Logical reference the Secret published. Absent while it is still deploying, when nothing has been published and the Secret is matched on the reference either role would fix for its id.",
+            "title": "Secret Ref"
           }
         },
         "required": [
@@ -6043,7 +6098,6 @@
           "deployed_product_id",
           "configuration_id",
           "deployment_request_id",
-          "secret_ref",
           "environment"
         ],
         "title": "UnreferencedOpaqueSecret",
