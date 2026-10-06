@@ -547,6 +547,26 @@ paths:
                 $ref: "#/components/schemas/error"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
+  /api/version:
+    description: Service build version information.
+    get:
+      operationId: getVersion
+      summary: Get the deployed service version
+      description: |-
+        Returns the build version stamped into the running binary at release
+        time, allowing clients and CI gates to verify exactly which release is
+        deployed.
+      tags:
+        - Version
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/serviceVersionResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
 components:
   parameters:
     reconcileIfMatchParameter:
@@ -1923,6 +1943,21 @@ components:
         - Stopping
         - Stopped
         - Error
+    serviceVersionRead:
+      description: |-
+        Build version information for the running service, stamped into the
+        binary at release time.  Developer builds report version 0.0.0.
+      type: object
+      required:
+        - name
+        - version
+      properties:
+        name:
+          description: The service application name.
+          type: string
+        version:
+          description: The service release version, e.g. v1.2.3.
+          type: string
   requestBodies:
     placementV2UpdateRequest:
       description: A request to update a placement.
@@ -2423,6 +2458,15 @@ components:
             error: unprocessable_content
             error_description: the request body was in the wrong format
             trace_id: 57bc14d9bd461f0b5a72db830149b67a
+    serviceVersionResponse:
+      description: Build version information for the running service.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/serviceVersionRead"
+          example:
+            name: unikorn-region-server
+            version: v1.16.7
 servers:
   - url: https://reservation.nks.europe-west4.nscale.com
     description: Production
