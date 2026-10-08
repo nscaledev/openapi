@@ -326,10 +326,11 @@ paths:
     put:
       operationId: updatePlacement
       description: |-
-        Update a placement. Only the server image (spec.serverSpec.imageId) may
-        change; all other fields are immutable after creation. Changing the
-        image flags the placement's servers as drifted; converge each one with
-        the per-server reconcile action.
+        Update a placement. Only the server image (spec.serverSpec.imageId)
+        and the update strategy (spec.updateStrategy) may change; all other
+        fields are immutable after creation. Changing the image flags the
+        placement's servers as drifted; they converge per the update strategy,
+        or one at a time with the per-server reconcile action.
       summary: Update placement
       tags:
         - Placements
@@ -1226,6 +1227,42 @@ components:
             use upon launch.
           type: string
           format: byte
+    placementUpdateStrategyTypeV2:
+      description: |-
+        How servers converge to the placement's desired image after the image
+        changes. Manual leaves convergence to explicit per-server reconcile
+        actions. RollingUpdate lets the service converge drifted servers
+        automatically, capped at maxUnavailable in flight.
+      type: string
+      enum:
+        - Manual
+        - RollingUpdate
+    placementRollingUpdateV2:
+      description: Tuning for the RollingUpdate strategy.
+      type: object
+      properties:
+        maxUnavailable:
+          description: |-
+            Servers that may converge at once: a count ("1") or a percentage of
+            count ("25%", rounded up); default 1. Must resolve to at least one
+            server for either type. A service-side ceiling also bounds it.
+          type: string
+          pattern: ^([0-9]{1,9}|([0-9]|[1-9][0-9]|100)%)$
+    placementUpdateStrategyV2:
+      description: |-
+        Controls how a placement's servers converge to the desired image after
+        an image change. Defaults to Manual. Omitted on update, the stored
+        strategy is kept; send type Manual to switch back.
+      type: object
+      default:
+        type: Manual
+      required:
+        - type
+      properties:
+        type:
+          $ref: "#/components/schemas/placementUpdateStrategyTypeV2"
+        rollingUpdate:
+          $ref: "#/components/schemas/placementRollingUpdateV2"
     placementV2Spec:
       description: A placement's specification.
       type: object
@@ -1244,6 +1281,8 @@ components:
           $ref: "#/components/schemas/placementReadinessPolicyV2"
         serverSpec:
           $ref: "#/components/schemas/placementServerSpecV2"
+        updateStrategy:
+          $ref: "#/components/schemas/placementUpdateStrategyV2"
     placementV2CreateSpec:
       description: A placement creation specification.
       type: object
@@ -1305,6 +1344,24 @@ components:
             still re-provisioning. Only meaningful when statusCurrent is true.
           type: integer
           minimum: 0
+        inFlightCount:
+          description: Number of servers that are not provisioned, whatever the cause,
+            each holding a slot of the rollout budget. A subset of
+            driftedHostCount. Only meaningful when statusCurrent is true.
+          type: integer
+          minimum: 0
+        stalledCount:
+          description: Number of in-flight servers whose provisioning has errored,
+            surfacing a RollingUpdate that cannot make progress. A subset of
+            inFlightCount. Only meaningful when statusCurrent is true.
+          type: integer
+          minimum: 0
+        maxUnavailable:
+          description: The rollout budget resolved from updateStrategy for the current
+            spec, i.e. the maximum number of servers allowed in flight at once.
+            Zero in Manual mode. Only meaningful when statusCurrent is true.
+          type: integer
+          minimum: 0
     placementV2Read:
       description: A placement.
       type: object
@@ -1325,7 +1382,8 @@ components:
       items:
         $ref: "#/components/schemas/placementV2Read"
     placementV2Update:
-      description: A placement update request. Only spec.serverSpec.imageId may change.
+      description: A placement update request. Only spec.serverSpec.imageId and
+        spec.updateStrategy may change.
       type: object
       required:
         - metadata
