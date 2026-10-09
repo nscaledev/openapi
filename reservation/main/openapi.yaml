@@ -1153,10 +1153,10 @@ components:
         - Prefer
         - Ignore
     placementReadinessPolicyV2:
-      description: Controls how current host readiness affects Placement selection.
+      description: |-
+        Controls how current host readiness affects Placement selection.
+        Defaults to Prefer.
       type: object
-      default:
-        mode: Prefer
       required:
         - mode
       properties:
@@ -1254,8 +1254,6 @@ components:
         an image change. Defaults to Manual. Omitted on update, the stored
         strategy is kept; send type Manual to switch back.
       type: object
-      default:
-        type: Manual
       required:
         - type
       properties:

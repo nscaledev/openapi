@@ -1592,11 +1592,8 @@
         ]
       },
       "placementReadinessPolicyV2": {
-        "description": "Controls how current host readiness affects Placement selection.",
+        "description": "Controls how current host readiness affects Placement selection.\nDefaults to Prefer.",
         "type": "object",
-        "default": {
-          "mode": "Prefer"
-        },
         "required": [
           "mode"
         ],
@@ -1702,9 +1699,6 @@
       "placementUpdateStrategyV2": {
         "description": "Controls how a placement's servers converge to the desired image after\nan image change. Defaults to Manual. Omitted on update, the stored\nstrategy is kept; send type Manual to switch back.",
         "type": "object",
-        "default": {
-          "type": "Manual"
-        },
         "required": [
           "type"
         ],
