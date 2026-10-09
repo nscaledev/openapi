@@ -1103,6 +1103,94 @@
         }
       }
     },
+    "/api/v2/filestorage/{filestorageID}/snapshots": {
+      "description": "Manual snapshots of a file storage resource.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/filestorageIDParameter"
+        }
+      ],
+      "get": {
+        "description": "List manual snapshots of a file storage resource, ordered by name then ID. Expired snapshots are omitted.",
+        "summary": "List manual file storage snapshots",
+        "tags": [
+          "File storage snapshots"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/fileStorageSnapshotsV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/filestorage/{filestorageID}/snapshots/{filestorageSnapshotID}": {
+      "description": "A manual snapshot of a file storage resource.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/filestorageIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/filestorageSnapshotIDParameter"
+        }
+      ],
+      "get": {
+        "description": "Get a manual snapshot of a file storage resource. Missing, inaccessible, and expired snapshots return not found.",
+        "summary": "Get a manual file storage snapshot",
+        "tags": [
+          "File storage snapshots"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/fileStorageSnapshotV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
     "/api/v2/filestorageclasses": {
       "description": "Lists all available storage classes, detailing supported protocols, capacity limits, and service characteristics. Enables users to discover storage options suitable for their workloads.",
       "get": {
@@ -1516,6 +1604,15 @@
           "$ref": "#/components/schemas/fileStorageId"
         }
       },
+      "filestorageSnapshotIDParameter": {
+        "name": "filestorageSnapshotID",
+        "in": "path",
+        "description": "The Manual Snapshot unique identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/fileStorageSnapshotId"
+        }
+      },
       "projectIDQueryParameter": {
         "name": "projectID",
         "in": "query",
@@ -1633,6 +1730,11 @@
       },
       "fileStorageId": {
         "description": "A file storage ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "fileStorageSnapshotId": {
+        "description": "A Manual File Storage Snapshot ID.",
         "type": "string",
         "format": "uuid"
       },
@@ -4263,6 +4365,71 @@
           "$ref": "#/components/schemas/storageV2Read"
         }
       },
+      "fileStorageSnapshotV2Read": {
+        "description": "A manual file storage snapshot. Health and snapshot details record capture readiness, not current availability.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/fileStorageSnapshotV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/fileStorageSnapshotV2Status"
+          }
+        }
+      },
+      "fileStorageSnapshotV2Spec": {
+        "description": "Immutable Manual Snapshot capture intent.",
+        "type": "object",
+        "required": [
+          "fileStorageId"
+        ],
+        "properties": {
+          "fileStorageId": {
+            "$ref": "#/components/schemas/fileStorageId"
+          },
+          "expirationTime": {
+            "description": "Optional immutable expiration deadline. The snapshot is hidden once the deadline is reached. Omission means no automatic expiration.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "protectedPath": {
+            "description": "Optional immutable canonical relative protected path within the File Storage. Omission selects the File Storage root.",
+            "type": "string",
+            "maxLength": 1024,
+            "pattern": "^([^/]+/)*[^/]+$"
+          }
+        }
+      },
+      "fileStorageSnapshotV2Status": {
+        "description": "Snapshot details observed during capture.",
+        "type": "object",
+        "properties": {
+          "snapshotTime": {
+            "description": "Optional provider-observed capture time; distinct from Region creation time.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "absoluteProtectedPath": {
+            "description": "Optional absolute path captured by the snapshot.",
+            "type": "string"
+          }
+        }
+      },
+      "fileStorageSnapshotsV2Read": {
+        "description": "A list of manual file storage snapshots.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/fileStorageSnapshotV2Read"
+        }
+      },
       "storageClassListV2Read": {
         "description": "A list of storage classes.",
         "type": "array",
@@ -6438,6 +6605,26 @@
             },
             "example": {
               "privateKey": "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz\nc2gtZWQyNTUxOQAAACCtvR5BFiAX6+UGoPw/uG/U1Da+iN1lNHYWzk8YhPOeUwAA\nAKAhzCVJIcwlSQAAAAtzc2gtZWQyNTUxOQAAACCtvR5BFiAX6+UGoPw/uG/U1Da+\niN1lNHYWzk8YhPOeUwAAAEClYjYgxFjEM4qh3sl7IS2dpBzSxkRT0NTy9ILygiaA\ntq29HkEWIBfr5Qag/D+4b9TUNr6I3WU0dhbOTxiE855TAAAAHXVuaWtvcm4gZXBo\nZW1lcmFsIGVkMjU1MTkga2V5\n-----END OPENSSH PRIVATE KEY-----"
+            }
+          }
+        }
+      },
+      "fileStorageSnapshotV2Response": {
+        "description": "A Manual File Storage Snapshot.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/fileStorageSnapshotV2Read"
+            }
+          }
+        }
+      },
+      "fileStorageSnapshotsV2Response": {
+        "description": "A list of manual file storage snapshots.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/fileStorageSnapshotsV2Read"
             }
           }
         }
