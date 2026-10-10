@@ -2605,7 +2605,8 @@ components:
         resource type.
 
 
-        `observed` is absent when no live figure is available.
+        Private BYOM inventory leaves `observed` absent until Envir has measured
+        it.
       properties:
         desired:
           anyOf:
@@ -2616,6 +2617,14 @@ components:
             - type: string
             - type: "null"
           title: Observed
+        observed_at:
+          anyOf:
+            - format: date-time
+              type: string
+            - type: "null"
+          description: Time Envir successfully collected this observation; retained values
+            keep their original time.
+          title: Observed At
       title: ConsumedResource
       type: object
     ConsumedResourceRange:

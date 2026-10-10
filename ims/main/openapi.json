@@ -4160,7 +4160,7 @@
         "type": "object"
       },
       "ConsumedResource": {
-        "description": "Desired allocation range and observed actual amount for one compute resource type.\n\n`observed` is absent when no live figure is available.",
+        "description": "Desired allocation range and observed actual amount for one compute resource type.\n\nPrivate BYOM inventory leaves `observed` absent until Envir has measured it.",
         "properties": {
           "desired": {
             "anyOf": [
@@ -4182,6 +4182,19 @@
               }
             ],
             "title": "Observed"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Time Envir successfully collected this observation; retained values keep their original time.",
+            "title": "Observed At"
           }
         },
         "title": "ConsumedResource",
