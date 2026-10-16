@@ -489,24 +489,23 @@ paths:
           $ref: "#/components/responses/conflictResponse"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
-  /api/v2/placements/{placementID}/servers/{serverID}/reconcile:
-    description: |-
-      Accepts reconciliation of one drifted server owned by a Placement: the
-      service converges the server to the placement's declared image. The
-      backing host and its pin are preserved; the server's local disk contents
-      are lost. A no-op if the server already runs the placement's image.
+  /api/v2/placements/{placementID}/servers/{serverID}/boot:
+    description: Boot a validated Drained member using the Placement image and
+      retained host.
     parameters:
       - $ref: "#/components/parameters/placementIDParameter"
       - $ref: "#/components/parameters/serverIDParameter"
-      - $ref: "#/components/parameters/reconcileIfMatchParameter"
+      - $ref: "#/components/parameters/bootIfMatchParameter"
     post:
-      operationId: reconcilePlacementServer
-      description: |-
-        Reconcile a placement server to the placement image. Conditional
-        reconciliation is not active in this release: requests carrying
-        If-Match return 409 without accepting work. Headerless Legacy
-        requests retain their existing behavior.
-      summary: Reconcile placement server
+      operationId: bootPlacementServer
+      description: >-
+        Requires reservation:placement-servers/update and the original
+
+        bootETag in If-Match. Retry with the same token after an uncertain
+        reply.
+
+        Production rejects this action while Explicit execution is disabled.
+      summary: Boot placement server
       tags:
         - Placement Servers
       security:
@@ -525,11 +524,8 @@ paths:
         "409":
           $ref: "#/components/responses/conflictResponse"
         "412":
-          description: |-
-            Reserved for conditional admission: the original token is stale.
-            Read current state and decide whether to submit a new action;
-            do not automatically refresh the token and retry. After an
-            uncertain response, this does not identify which request succeeded.
+          description: The original Boot token is stale. Read current state and decide
+            whether to submit a new action.
           content:
             application/json:
               schema:
@@ -537,17 +533,53 @@ paths:
         "422":
           $ref: "#/components/responses/unprocessableContentResponse"
         "428":
-          description: >-
-            Reserved for conditional admission: the required If-Match token
-
-            is missing. Obtain the server-issued reconcileETag from a member
-            read.
+          description: If-Match is required. Use the bootETag from a member read.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
+        "503":
+          $ref: "#/components/responses/memberAdmissionUnavailableResponse"
+  /api/v2/placements/{placementID}/servers/{serverID}/reconcile:
+    description: |-
+      Accepts reconciliation of one drifted server owned by a Placement: the
+      service converges the server to the placement's declared image. The
+      backing host and its pin are preserved; the server's local disk contents
+      are lost. A no-op if the server already runs the placement's image.
+    parameters:
+      - $ref: "#/components/parameters/placementIDParameter"
+      - $ref: "#/components/parameters/serverIDParameter"
+    post:
+      operationId: reconcilePlacementServer
+      description: |-
+        Reconcile a placement server to the current Placement image.
+        The request has no body or client precondition.
+      summary: Reconcile placement server
+      tags:
+        - Placement Servers
+      security:
+        - oauth2Authentication: []
+      responses:
+        "202":
+          description: The request has been accepted and will be fulfilled asynchronously.
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "422":
+          $ref: "#/components/responses/unprocessableContentResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+        "503":
+          $ref: "#/components/responses/memberAdmissionUnavailableResponse"
   /api/version:
     description: Service build version information.
     get:
@@ -570,22 +602,13 @@ paths:
           $ref: "#/components/responses/internalServerErrorResponse"
 components:
   parameters:
-    reconcileIfMatchParameter:
+    bootIfMatchParameter:
       name: If-Match
       in: header
-      description: >-
-        The original server-issued status.reconcileETag from a member read,
-
-        including its double quotes. Retry with the same value; never refresh
-
-        it automatically after a conflict. Conditional admission will require
-
-        one strong entity tag (missing: 428, stale: 412, malformed: 400).
-
-        It remains optional for Legacy compatibility; this release rejects
-
-        token-bearing requests with 409 because conditional execution is
-        inactive.
+      description: |-
+        The original quoted bootETag from a member read. One strong tag is
+        required by admission; missing returns 428, malformed returns 400 and
+        stale returns 412. Keep the original value after an uncertain response.
       required: false
       schema:
         type: string
@@ -1445,13 +1468,11 @@ components:
           type: integer
           format: int64
           minimum: 0
-        reconcileETag:
+        bootETag:
           description: |-
-            Opaque, quoted strong action tag binding this member lifecycle
-            revision and the owning Placement spec generation. Omitted until
-            lifecycle initialization. Prepared for conditional reconciliation;
-            this release rejects token-bearing reconcile requests with 409
-            until conditional execution is available.
+            Opaque quoted strong Boot tag binding the member lifecycle revision
+            and Placement configuration generation. Omitted for uninitialized
+            Legacy members. Supply the original value in If-Match on Boot.
           type: string
         regionId:
           description: The region the placement server belongs to.
@@ -2084,6 +2105,19 @@ components:
                 minDomains: 3
                 whenUnsatisfiable: fail
   responses:
+    memberAdmissionUnavailableResponse:
+      description: Required member state is temporarily unavailable. Retry after the
+        specified delay.
+      headers:
+        Retry-After:
+          description: Delay in decimal seconds before another request.
+          schema:
+            type: string
+            pattern: ^[0-9]+$
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
     reservationUnitsV2Response:
       description: A list of reservation units.
       content:
