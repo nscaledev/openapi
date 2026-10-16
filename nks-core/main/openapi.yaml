@@ -609,6 +609,7 @@ components:
                     private:
                       address: api.production-cluster.private.example.com
                       port: 6443
+                serviceAccountIssuer: https://oidc.nks.no-glo1.nscale.com/1e44f19a-21a9-43cc-a460-5d6f21247f65
                 controlPlane:
                   readyReplicas: 3
                   desiredReplicas: 3
@@ -681,6 +682,7 @@ components:
                   private:
                     address: api.production-cluster.private.example.com
                     port: 6443
+              serviceAccountIssuer: https://oidc.nks.no-glo1.nscale.com/1e44f19a-21a9-43cc-a460-5d6f21247f65
               controlPlane:
                 readyReplicas: 3
                 desiredReplicas: 3
@@ -1599,6 +1601,13 @@ components:
           $ref: "#/components/schemas/clusterKubernetesVersionStatusV1"
         apiServer:
           $ref: "#/components/schemas/clusterApiServerStatusV1"
+        serviceAccountIssuer:
+          description: The public OIDC issuer URL of the cluster's ServiceAccount tokens.
+            Use it to configure external relying parties. It appears once the
+            cell records the cluster's public issuer. It is absent when the
+            cluster uses only its in-cluster issuer.
+          type: string
+          format: uri
         controlPlane:
           $ref: "#/components/schemas/clusterControlPlaneSummaryV1"
         nodePools:
