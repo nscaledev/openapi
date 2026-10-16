@@ -1,0 +1,45 @@
+name: Notify SDKs
+
+# Tells downstream SDKs that a spec was published, so they can regenerate.
+# Fires on the publish-spec action's pushes to main (a release also rewrites
+# <service>/latest/, so the path filter catches those too).
+#
+# The dispatch is only a nudge: nscaledev/nscale-sdk-go works out for itself
+# which packages drifted, against the tip of main at the time it runs, and opens
+# a PR per package (see its spec-refresh.yml). It also runs nightly, so a missed
+# dispatch only delays a refresh rather than losing it.
+#
+# Runs as the nscale-actions GitHub App, which needs contents: write on
+# nscale-sdk-go to send a repository_dispatch. Needs NSCALE_ACTIONS_APP_ID
+# (variable) and NSCALE_ACTIONS_APP_PK (secret) visible to this repo.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "*/main/openapi.yaml"
+      - "*/latest/openapi.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  go-sdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mint App token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ vars.NSCALE_ACTIONS_APP_ID }}
+          private-key: ${{ secrets.NSCALE_ACTIONS_APP_PK }}
+          owner: nscaledev
+          repositories: nscale-sdk-go
+
+      - name: Dispatch openapi-published
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SHA: ${{ github.sha }}
+        run: |
+          gh api repos/nscaledev/nscale-sdk-go/dispatches \
+            -f event_type=openapi-published \
+            -f "client_payload[sha]=$SHA"
