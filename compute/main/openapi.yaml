@@ -574,17 +574,22 @@ components:
       description: >-
         A compute instance.
 
-        Some stored desired-state changes only take effect on the backing server
-        when that server is
+        Changing imageId rebuilds the backing server in place, once it has
+        booted at least once:
 
-        rebuilt or recreated. Currently, changing flavorId or imageId causes the
-        backing server to
+        its IP addresses and volumes are kept, its root disk is wiped and
+        reimaged, and it keeps
 
-        be rebuilt or recreated. In those cases, backing server IP addresses are
-        not preserved and
+        the userData it was created with. Changing flavorId replaces the
 
-        may change when the replacement server is created. Instance names are
-        immutable; rename
+        backing server: IP addresses are not preserved, and the new server uses
+        the current
+
+        userData. sshCertificateAuthorityId is set at create only: an update
+        that omits it keeps
+
+        it, and one that changes it is rejected with HTTP 422. Instance names
+        are immutable; rename
 
         attempts are rejected with HTTP 422.
 
@@ -618,7 +623,22 @@ components:
             The format of the data is governed by the cloud-init standard, and
             may be a script,
 
-            a MIME multipart archive, etc.
+            a MIME multipart archive, etc. It must be UTF-8 text cloud-init
+            recognises: a marker
+
+            such as #cloud-config or #!, or MIME with a MIME-Version header near
+            the start.
+
+            Without an SSH certificate authority, gzip is also accepted.
+            Cloud-init part-handlers
+
+            (#part-handler) are rejected, as the payload or as a top-level MIME
+            part. On update
+
+            it is checked only when it or the flavor changes, against the
+            instance's stored SSH
+
+            certificate authority.
           type: string
           format: byte
     instanceCreateSpec:

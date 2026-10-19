@@ -857,7 +857,7 @@
         }
       },
       "instanceSpec": {
-        "description": "A compute instance.\nSome stored desired-state changes only take effect on the backing server when that server is\nrebuilt or recreated. Currently, changing flavorId or imageId causes the backing server to\nbe rebuilt or recreated. In those cases, backing server IP addresses are not preserved and\nmay change when the replacement server is created. Instance names are immutable; rename\nattempts are rejected with HTTP 422.\nThe imageId field may reference any image that Region reports as available to the\norganization in the target region; it is not limited to images returned by the curated\nCompute image catalog.",
+        "description": "A compute instance.\nChanging imageId rebuilds the backing server in place, once it has booted at least once:\nits IP addresses and volumes are kept, its root disk is wiped and reimaged, and it keeps\nthe userData it was created with. Changing flavorId replaces the\nbacking server: IP addresses are not preserved, and the new server uses the current\nuserData. sshCertificateAuthorityId is set at create only: an update that omits it keeps\nit, and one that changes it is rejected with HTTP 422. Instance names are immutable; rename\nattempts are rejected with HTTP 422.\nThe imageId field may reference any image that Region reports as available to the\norganization in the target region; it is not limited to images returned by the curated\nCompute image catalog.",
         "type": "object",
         "required": [
           "flavorId",
@@ -880,7 +880,7 @@
             "$ref": "#/components/schemas/sshCertificateAuthorityId"
           },
           "userData": {
-            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc.",
+            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. It must be UTF-8 text cloud-init recognises: a marker\nsuch as #cloud-config or #!, or MIME with a MIME-Version header near the start.\nWithout an SSH certificate authority, gzip is also accepted. Cloud-init part-handlers\n(#part-handler) are rejected, as the payload or as a top-level MIME part. On update\nit is checked only when it or the flavor changes, against the instance's stored SSH\ncertificate authority.",
             "type": "string",
             "format": "byte"
           }
