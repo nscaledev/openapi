@@ -3726,7 +3726,7 @@
             "$ref": "#/components/schemas/serverV2Networking"
           },
           "userData": {
-            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. On update the field is replaced wholesale: omitting\nit clears the stored value. A changed value is not applied to the running guest —\nit takes effect only when the server is next rebuilt (image change) or recreated.",
+            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. Cloud-init part-handlers (#part-handler) are rejected,\nas the payload or as a top-level MIME part. On update the field is replaced wholesale: omitting\nit clears the stored value. A changed value is not applied to the running guest —\nit takes effect only when the server is next rebuilt (image change) or recreated.",
             "type": "string",
             "format": "byte"
           },
