@@ -3374,7 +3374,7 @@ components:
           type: string
         source_secret_deployment:
           anyOf:
-            - $ref: "#/components/schemas/OpaqueSecretDeployment"
+            - $ref: "#/components/schemas/SourceSecretDeployment"
             - type: "null"
           description: Source-model credential Secret IMS provisioned for an s3:// Profile
             that named none. Absent when the Profile carried its own reference
@@ -3486,7 +3486,7 @@ components:
             once nothing does.
         source_secret_cleanup_required:
           anyOf:
-            - $ref: "#/components/schemas/OpaqueSecretDeployment"
+            - $ref: "#/components/schemas/SourceSecretDeployment"
             - type: "null"
           description: Source-model credential Secret IMS provisioned for this model and
             that outlives it, left in place for the same reason as the endpoint
@@ -3912,6 +3912,58 @@ components:
         - private
       title: Source
       type: string
+    SourceModelCredentialKind:
+      description: Which IMS-held key pair a provisioned source-model Secret carries.
+      enum:
+        - tenant
+        - public-catalog
+      title: SourceModelCredentialKind
+      type: string
+    SourceSecretDeployment:
+      description: Source-model Secret lifecycle identity plus which IMS-held key pair
+        it carries.
+      properties:
+        configuration_id:
+          title: Configuration Id
+          type: string
+        credential:
+          anyOf:
+            - $ref: "#/components/schemas/SourceModelCredentialKind"
+            - type: "null"
+          description: "Which IMS-held key pair the Secret carries, as the deploy recorded
+            it on the BYOM configuration: `tenant`, read-only to one tenant's
+            own catalog prefix, or `public-catalog`, read-only to the public
+            tenant's catalog prefix. Absent when the configuration carries no
+            record."
+        customer_request_id:
+          title: Customer Request Id
+          type: string
+        deployed_product_id:
+          title: Deployed Product Id
+          type: string
+        deployment_request_id:
+          title: Deployment Request Id
+          type: string
+        product_id:
+          title: Product Id
+          type: string
+        role:
+          $ref: "#/components/schemas/OpaqueSecretRole"
+          description: "Which credential the Secret carries: endpoint access, or the
+            model's s3:// source key pair."
+        secret_ref:
+          title: Secret Ref
+          type: string
+      required:
+        - product_id
+        - deployed_product_id
+        - configuration_id
+        - deployment_request_id
+        - customer_request_id
+        - secret_ref
+        - role
+      title: SourceSecretDeployment
+      type: object
     UnreferencedOpaqueSecret:
       description: >-
         One IMS-provisioned Secret deployment that no readable model in scope
