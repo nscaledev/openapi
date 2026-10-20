@@ -14,6 +14,67 @@ info:
     that service.
   version: 1.13.0
 paths:
+  /api/v1/organizations/{organizationID}/regions:
+    description: >-
+      Regions define a cloud.  This may be geographical or any logical
+      partition.
+
+      Either way, this is the primitive that is used to associate metadata such
+      as
+
+      geographical locale, an organization's reserved blob of compute etc.
+
+      Each region has its own provider associated with it, for example
+      OpenStack, and
+
+      its own set of credentials so things can be scoped to a specific slice of
+      a
+
+      shared cloud through whatever mechanism is available on that cloud
+      provider.
+    parameters:
+      - $ref: "#/components/parameters/organizationIDParameter"
+    get:
+      summary: List regions
+      tags:
+        - Regions
+      description: List all regions.
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/regionsResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v1/organizations/{organizationID}/regions/{regionID}/flavors:
+    description: Compute flavor services.
+    parameters:
+      - $ref: "#/components/parameters/organizationIDParameter"
+      - $ref: "#/components/parameters/regionIDParameter"
+    get:
+      summary: List flavors
+      tags:
+        - Flavors
+      description: Lists all compute flavors.
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          $ref: "#/components/responses/flavorsResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
   /api/v1/organizations/{organizationID}/regions/{regionID}/images:
     description: Compute image services.
     parameters:
