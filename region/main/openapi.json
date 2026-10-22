@@ -2310,6 +2310,20 @@
           }
         }
       },
+      "infiniBandSpec": {
+        "description": "InfiniBand specification.",
+        "type": "object",
+        "required": [
+          "portCount"
+        ],
+        "properties": {
+          "portCount": {
+            "description": "The number of InfiniBand ports available to the flavor.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
       "flavorSpec": {
         "description": "A flavor.",
         "type": "object",
@@ -2345,6 +2359,9 @@
           },
           "gpu": {
             "$ref": "#/components/schemas/gpuSpec"
+          },
+          "infiniBand": {
+            "$ref": "#/components/schemas/infiniBandSpec"
           },
           "pinnedOnly": {
             "description": "When true, a server using this flavor must specify an infrastructureRef to identify the target host.",
