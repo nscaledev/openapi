@@ -3590,13 +3590,14 @@
         }
       },
       "instanceLifecyclePhase": {
-        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up. Rebuilding means an already\nprovisioned server is being reimaged in place and is not usable until\nit completes. Error means the provider reported the server in a\nterminal error state.\n",
+        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up. Rebuilding means an already\nprovisioned server is being reimaged in place and is not usable until\nit completes. Rebooting means a soft or hard reboot has been accepted\nand is in flight; it returns to Running once the provider has\nprocessed the request. To confirm the guest actually restarted, use\nOS-level evidence such as a changed boot ID or boot time. Error \nmeans the provider reported the server in a terminal error state.\n",
         "type": "string",
         "enum": [
           "Pending",
           "Queued",
           "Building",
           "Rebuilding",
+          "Rebooting",
           "Running",
           "Stopping",
           "Stopped",
