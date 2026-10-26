@@ -8,7 +8,7 @@ description: >
   a stable path that always points at the newest release, so downstream
   docs can link to it once and never need updating. A no-op (no commit,
   exit 0) when the sanitized spec is unchanged from what's already
-  published at <service>/main/.
+  published at <service>/<version>/.
 
 inputs:
   service:
@@ -70,15 +70,15 @@ runs:
       id: check
       shell: bash
       run: |
-        # Compares against <service>/main/ — the latest known-published state
-        # — rather than the target version folder, which for a brand new
-        # release tag never exists yet and would always look "changed".
-        # This is what makes "only publish when the spec actually changed"
-        # true for both main-pushes and releases, not just main-pushes.
-        REFERENCE="_openapi-publish/${{ inputs.service }}/main/openapi.yaml"
+        # Compares against the target version folder itself, so a re-run of
+        # the same main-push or release is a no-op. Never against
+        # <service>/main/ for a release: the main-push that precedes a tag
+        # has normally already published the identical spec there, so every
+        # release would look "unchanged" and never get its vX.Y.Z/ folder.
+        REFERENCE="_openapi-publish/${{ inputs.service }}/${{ inputs.version }}/openapi.yaml"
         if [ -f "$REFERENCE" ] && diff -q "$REFERENCE" "${{ runner.temp }}/sanitized.yaml" > /dev/null; then
           echo "changed=false" >> "$GITHUB_OUTPUT"
-          echo "Spec is unchanged from ${{ inputs.service }}/main — nothing to publish."
+          echo "Spec is unchanged from ${{ inputs.service }}/${{ inputs.version }} — nothing to publish."
         else
           echo "changed=true" >> "$GITHUB_OUTPUT"
         fi
