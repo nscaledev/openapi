@@ -582,6 +582,9 @@
           "404": {
             "$ref": "#/components/responses/notFoundResponse"
           },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerErrorResponse"
           }
@@ -931,6 +934,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
           },
           "500": {
             "$ref": "#/components/responses/internalServerErrorResponse"
