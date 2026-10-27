@@ -522,6 +522,45 @@
           }
         }
       },
+      "put": {
+        "operationId": "updatePlacement",
+        "description": "Update a placement. Only the server image (spec.serverSpec.imageId)\nand the update strategy (spec.updateStrategy) may change; all other\nfields are immutable after creation. Changing the image flags the\nplacement's servers as drifted; they converge per the update strategy,\nor one at a time with the per-server reconcile action.",
+        "summary": "Update placement",
+        "tags": [
+          "Placements"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/placementV2UpdateRequest"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/placementV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
       "delete": {
         "operationId": "deletePlacement",
         "description": "Delete a placement and all Region servers created for it.",
@@ -737,10 +776,175 @@
           }
         }
       }
+    },
+    "/api/v2/placements/{placementID}/servers/{serverID}/boot": {
+      "description": "Boot a validated Drained member using the Placement image and retained host.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/placementIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/serverIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/bootIfMatchParameter"
+        }
+      ],
+      "post": {
+        "operationId": "bootPlacementServer",
+        "description": "Requires reservation:placement-servers/update and the original\nbootETag in If-Match. Retry with the same token after an uncertain reply.\nProduction rejects this action while Explicit execution is disabled.",
+        "summary": "Boot placement server",
+        "tags": [
+          "Placement Servers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted and will be fulfilled asynchronously."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "412": {
+            "description": "The original Boot token is stale. Read current state and decide whether to submit a new action.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "428": {
+            "description": "If-Match is required. Use the bootETag from a member read.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          },
+          "503": {
+            "$ref": "#/components/responses/memberAdmissionUnavailableResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/placements/{placementID}/servers/{serverID}/reconcile": {
+      "description": "Accepts reconciliation of one drifted server owned by a Placement: the\nservice converges the server to the placement's declared image. The\nbacking host and its pin are preserved; the server's local disk contents\nare lost. A no-op if the server already runs the placement's image.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/placementIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/serverIDParameter"
+        }
+      ],
+      "post": {
+        "operationId": "reconcilePlacementServer",
+        "description": "Reconcile a placement server to the current Placement image.\nThe request has no body or client precondition.",
+        "summary": "Reconcile placement server",
+        "tags": [
+          "Placement Servers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "The request has been accepted and will be fulfilled asynchronously."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          },
+          "503": {
+            "$ref": "#/components/responses/memberAdmissionUnavailableResponse"
+          }
+        }
+      }
+    },
+    "/api/version": {
+      "description": "Service build version information.",
+      "get": {
+        "operationId": "getVersion",
+        "summary": "Get the deployed service version",
+        "description": "Returns the build version stamped into the running binary at release\ntime, allowing clients and CI gates to verify exactly which release is\ndeployed.",
+        "tags": [
+          "Version"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/serviceVersionResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
     }
   },
   "components": {
     "parameters": {
+      "bootIfMatchParameter": {
+        "name": "If-Match",
+        "in": "header",
+        "description": "The original quoted bootETag from a member read. One strong tag is\nrequired by admission; missing returns 428, malformed returns 400 and\nstale returns 412. Keep the original value after an uncertain response.",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      },
       "reservationIDParameter": {
         "name": "reservationID",
         "in": "path",
@@ -958,6 +1162,15 @@
           "AMD"
         ]
       },
+      "architectureV2": {
+        "description": "A CPU architecture.",
+        "type": "string",
+        "enum": [
+          "UNKNOWN",
+          "x86_64",
+          "aarch64"
+        ]
+      },
       "reservationUnitGpuV2": {
         "description": "GPU specification for one host in a reservation unit.",
         "type": "object",
@@ -1000,7 +1213,8 @@
           "cpus",
           "memory",
           "disk",
-          "gpu"
+          "gpu",
+          "architecture"
         ],
         "properties": {
           "cpus": {
@@ -1020,6 +1234,9 @@
           },
           "gpu": {
             "$ref": "#/components/schemas/reservationUnitGpuV2"
+          },
+          "architecture": {
+            "$ref": "#/components/schemas/architectureV2"
           }
         }
       },
@@ -1175,7 +1392,8 @@
         "type": "object",
         "required": [
           "machineFlavorId",
-          "claimedUnitCount"
+          "claimedUnitCount",
+          "host"
         ],
         "properties": {
           "machineFlavorId": {
@@ -1186,6 +1404,9 @@
             "description": "Number of reservation units successfully claimed.",
             "type": "integer",
             "minimum": 0
+          },
+          "host": {
+            "$ref": "#/components/schemas/reservationUnitHostV2"
           },
           "topologyHash": {
             "description": "Hash of the claimed topology projection accepted by the reservation.",
@@ -1400,6 +1621,15 @@
           "spread"
         ]
       },
+      "placementServerDriftStateV2": {
+        "description": "The server's image-convergence state relative to the placement's\ndeclared image. UpToDate: image matches and the server is provisioned.\nDrifted: the image differs and reconciliation has not been accepted.\nConverging: reconciliation has been accepted but the server is not yet\nprovisioned, whether because it is still converging or because its\nprovisioning has errored (the two cannot be distinguished from the\nread, so the busier state is reported conservatively; the error itself\nremains visible in the server's provisioningStatus and healthStatus,\nand an errored convergence recovers only through a further image\nchange on the placement). Only Converging indicates work may be in\nprogress; Drifted may persist until reconciliation is accepted.",
+        "type": "string",
+        "enum": [
+          "UpToDate",
+          "Drifted",
+          "Converging"
+        ]
+      },
       "whenUnsatisfiableV2": {
         "description": "Fail returns an error if the constraint cannot be fully satisfied.\nBest effort applies the constraint as closely as it can.",
         "type": "string",
@@ -1418,11 +1648,8 @@
         ]
       },
       "placementReadinessPolicyV2": {
-        "description": "Controls how current host readiness affects Placement selection.",
+        "description": "Controls how current host readiness affects Placement selection.\nDefaults to Prefer.",
         "type": "object",
-        "default": {
-          "mode": "Prefer"
-        },
         "required": [
           "mode"
         ],
@@ -1506,6 +1733,40 @@
           }
         }
       },
+      "placementUpdateStrategyTypeV2": {
+        "description": "How servers converge to the placement's desired image after the image\nchanges. Manual leaves convergence to explicit per-server reconcile\nactions. RollingUpdate lets the service converge drifted servers\nautomatically, capped at maxUnavailable in flight.",
+        "type": "string",
+        "enum": [
+          "Manual",
+          "RollingUpdate"
+        ]
+      },
+      "placementRollingUpdateV2": {
+        "description": "Tuning for the RollingUpdate strategy.",
+        "type": "object",
+        "properties": {
+          "maxUnavailable": {
+            "description": "Servers that may converge at once: a count (\"1\") or a percentage of\ncount (\"25%\", rounded up); default 1. Must resolve to at least one\nserver for either type. A service-side ceiling also bounds it.",
+            "type": "string",
+            "pattern": "^([0-9]{1,9}|([0-9]|[1-9][0-9]|100)%)$"
+          }
+        }
+      },
+      "placementUpdateStrategyV2": {
+        "description": "Controls how a placement's servers converge to the desired image after\nan image change. Defaults to Manual. Omitted on update, the stored\nstrategy is kept; send type Manual to switch back.",
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/placementUpdateStrategyTypeV2"
+          },
+          "rollingUpdate": {
+            "$ref": "#/components/schemas/placementRollingUpdateV2"
+          }
+        }
+      },
       "placementV2Spec": {
         "description": "A placement's specification.",
         "type": "object",
@@ -1528,6 +1789,9 @@
           },
           "serverSpec": {
             "$ref": "#/components/schemas/placementServerSpecV2"
+          },
+          "updateStrategy": {
+            "$ref": "#/components/schemas/placementUpdateStrategyV2"
           }
         }
       },
@@ -1563,7 +1827,8 @@
         "required": [
           "regionId",
           "reservationId",
-          "networkId"
+          "networkId",
+          "statusCurrent"
         ],
         "properties": {
           "regionId": {
@@ -1578,8 +1843,37 @@
             "description": "The network the placement belongs to.",
             "type": "string"
           },
+          "statusCurrent": {
+            "description": "Whether the observed status, including updatedHostCount and\ndriftedHostCount, reflects the placement's current spec. It is false\nbetween a spec change (such as an image update) and the next\nreconcile that re-observes the servers, during which the image\nconvergence counts must not be trusted.",
+            "type": "boolean"
+          },
           "readyHostCount": {
             "description": "Number of hosts whose Region server resources are ready.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "updatedHostCount": {
+            "description": "Number of servers fully converged on the placement's desired image, i.e. running that image and provisioned. Only meaningful when statusCurrent is true.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "driftedHostCount": {
+            "description": "Number of servers not yet converged on the placement's desired image, including servers whose image has been pushed but that are still re-provisioning. Only meaningful when statusCurrent is true.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "inFlightCount": {
+            "description": "Number of servers that are not provisioned, whatever the cause, each holding a slot of the rollout budget. A subset of driftedHostCount. Only meaningful when statusCurrent is true.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "stalledCount": {
+            "description": "Number of in-flight servers whose provisioning has errored, surfacing a RollingUpdate that cannot make progress. A subset of inFlightCount. Only meaningful when statusCurrent is true.",
+            "type": "integer",
+            "minimum": 0
+          },
+          "maxUnavailable": {
+            "description": "The rollout budget resolved from updateStrategy for the current spec, i.e. the maximum number of servers allowed in flight at once. Zero in Manual mode. Only meaningful when statusCurrent is true.",
             "type": "integer",
             "minimum": 0
           }
@@ -1612,6 +1906,22 @@
           "$ref": "#/components/schemas/placementV2Read"
         }
       },
+      "placementV2Update": {
+        "description": "A placement update request. Only spec.serverSpec.imageId and spec.updateStrategy may change.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/placementV2Spec"
+          }
+        }
+      },
       "placementV2Create": {
         "description": "A placement creation request.",
         "type": "object",
@@ -1636,9 +1946,52 @@
           "reservationId",
           "placementId",
           "networkId",
-          "infrastructureRef"
+          "infrastructureRef",
+          "ordinal",
+          "hostReadiness"
         ],
         "properties": {
+          "desiredState": {
+            "description": "The accepted member intent, omitted until lifecycle initialization.",
+            "type": "string",
+            "enum": [
+              "Running",
+              "Drained"
+            ]
+          },
+          "lifecycleState": {
+            "description": "The persisted member lifecycle projection, omitted until lifecycle initialization.",
+            "type": "string",
+            "enum": [
+              "Provisioning",
+              "Running",
+              "Draining",
+              "Drained",
+              "Failed"
+            ]
+          },
+          "lifecycleRevision": {
+            "description": "The revision of the member lifecycle snapshot.",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1
+          },
+          "operationGeneration": {
+            "description": "The latest accepted member operation generation.",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "observedGeneration": {
+            "description": "The latest completed member operation generation.",
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0
+          },
+          "bootETag": {
+            "description": "Opaque quoted strong Boot tag binding the member lifecycle revision\nand Placement configuration generation. Omitted for uninitialized\nLegacy members. Supply the original value in If-Match on Boot.",
+            "type": "string"
+          },
           "regionId": {
             "description": "The region the placement server belongs to.",
             "type": "string"
@@ -1659,6 +2012,11 @@
             "description": "The normalized infrastructure reference Reservation used as the\npinned Region Server boot target.",
             "type": "string"
           },
+          "ordinal": {
+            "description": "The zero-based position of this server within its Placement,\nassigned once at allocation and stable for the lifetime of the\nslot. Unique within the Placement.",
+            "type": "integer",
+            "minimum": 0
+          },
           "powerState": {
             "$ref": "#/components/schemas/instanceLifecyclePhase"
           },
@@ -1673,6 +2031,30 @@
           "macAddress": {
             "description": "The MAC address of the server.",
             "type": "string"
+          },
+          "driftState": {
+            "$ref": "#/components/schemas/placementServerDriftStateV2"
+          },
+          "hostReadiness": {
+            "description": "Whether the host this server is bound to currently permits new boot\nwork. Only Ready permits it. NotReady means the host refuses new\nboot work. Unresolved means the server's binding no longer resolves\nto a host. Unknown means the service has no verdict. The service\nrefreshes this value periodically, so a change to the host appears\nafter the next refresh rather than on each read.",
+            "type": "string",
+            "enum": [
+              "Ready",
+              "NotReady",
+              "Unresolved",
+              "Unknown"
+            ]
+          },
+          "hostReadinessReason": {
+            "description": "Why the host has its current readiness, omitted when there is no\nreason to report.",
+            "type": "string"
+          },
+          "topologyPath": {
+            "description": "Ordered physical topology level names for the host backing this\nserver, from the host outward: the NVLink domain first, then its\npod, then its spine group, and so on. Provided so a caller can\nlabel the corresponding node with its topology without a separate\ntopology call. Names are display coordinates, not provider object\nidentifiers; the caller assigns its own label keys per position.\nThe path length varies by provider and the field is omitted when\nthe host has no topology path.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -2204,21 +2586,51 @@
         ]
       },
       "instanceLifecyclePhase": {
-        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up. Rebuilding means an already\nprovisioned server is being reimaged in place and is not usable until\nit completes. Error means the provider reported the server in a\nterminal error state.\n",
+        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up. Rebuilding means an already\nprovisioned server is being reimaged in place and is not usable until\nit completes. Rebooting means a soft or hard reboot has been accepted\nand is in flight; it returns to Running once the provider has\nprocessed the request. To confirm the guest actually restarted, use\nOS-level evidence such as a changed boot ID or boot time. Error \nmeans the provider reported the server in a terminal error state.\n",
         "type": "string",
         "enum": [
           "Pending",
           "Queued",
           "Building",
           "Rebuilding",
+          "Rebooting",
           "Running",
           "Stopping",
           "Stopped",
           "Error"
         ]
+      },
+      "serviceVersionRead": {
+        "description": "Build version information for the running service, stamped into the\nbinary at release time.  Developer builds report version 0.0.0.",
+        "type": "object",
+        "required": [
+          "name",
+          "version"
+        ],
+        "properties": {
+          "name": {
+            "description": "The service application name.",
+            "type": "string"
+          },
+          "version": {
+            "description": "The service release version, e.g. v1.2.3.",
+            "type": "string"
+          }
+        }
       }
     },
     "requestBodies": {
+      "placementV2UpdateRequest": {
+        "description": "A request to update a placement.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/placementV2Update"
+            }
+          }
+        }
+      },
       "reservationV2CreateRequest": {
         "description": "A request to create a reservation.",
         "required": true,
@@ -2313,6 +2725,25 @@
       }
     },
     "responses": {
+      "memberAdmissionUnavailableResponse": {
+        "description": "Required member state is temporarily unavailable. Retry after the specified delay.",
+        "headers": {
+          "Retry-After": {
+            "description": "Delay in decimal seconds before another request.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
       "reservationUnitsV2Response": {
         "description": "A list of reservation units.",
         "content": {
@@ -2876,6 +3307,20 @@
               "error": "unprocessable_content",
               "error_description": "the request body was in the wrong format",
               "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "serviceVersionResponse": {
+        "description": "Build version information for the running service.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serviceVersionRead"
+            },
+            "example": {
+              "name": "unikorn-region-server",
+              "version": "v1.16.7"
             }
           }
         }
