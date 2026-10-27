@@ -1288,8 +1288,8 @@ paths:
       summary: Deploy Private Model
   /api/v1/model-inventory/private/instances/{deployed_product_id}:
     delete:
-      description: Queue BYOM undeployment and report any IMS-provisioned Secret left
-        for operator cleanup.
+      description: Queue live BYOM undeployment, or acknowledge a failed instance
+        whose cleanup Envir confirmed.
       operationId: undeploy_private_model_instance_api_v1_model_inventory_private_instances__deployed_product_id__delete
       parameters:
         - in: path
@@ -1331,6 +1331,12 @@ paths:
               for project- or environment-scoped grants.
             title: X-Project-Id
       responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrivateModelDismissal"
+          description: Failed instance dismissed
         "202":
           content:
             application/json:
@@ -3470,6 +3476,22 @@ components:
         - deployment_name
         - profile_logical_name
       title: PrivateModelDeploymentRequest
+      type: object
+    PrivateModelDismissal:
+      description: Acknowledgment of a cleaned-up failed instance, without a new
+        undeployment request.
+      properties:
+        deployed_product_id:
+          title: Deployed Product Id
+          type: string
+        outcome:
+          const: dismissed
+          default: dismissed
+          title: Outcome
+          type: string
+      required:
+        - deployed_product_id
+      title: PrivateModelDismissal
       type: object
     PrivateModelUndeploymentRequests:
       description: Queued BYOM undeployment plus any IMS-provisioned Secret an
