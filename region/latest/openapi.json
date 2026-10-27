@@ -6,6 +6,83 @@
     "version": "1.13.0"
   },
   "paths": {
+    "/api/v1/organizations/{organizationID}/regions": {
+      "description": "Regions define a cloud.  This may be geographical or any logical partition.\nEither way, this is the primitive that is used to associate metadata such as\ngeographical locale, an organization's reserved blob of compute etc.\nEach region has its own provider associated with it, for example OpenStack, and\nits own set of credentials so things can be scoped to a specific slice of a\nshared cloud through whatever mechanism is available on that cloud provider.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/organizationIDParameter"
+        }
+      ],
+      "get": {
+        "summary": "List regions",
+        "tags": [
+          "Regions"
+        ],
+        "description": "List all regions.",
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/regionsResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v1/organizations/{organizationID}/regions/{regionID}/flavors": {
+      "description": "Compute flavor services.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/organizationIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/regionIDParameter"
+        }
+      ],
+      "get": {
+        "summary": "List flavors",
+        "tags": [
+          "Flavors"
+        ],
+        "description": "Lists all compute flavors.",
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/flavorsResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
     "/api/v1/organizations/{organizationID}/regions/{regionID}/images": {
       "description": "Compute image services.",
       "parameters": [
@@ -469,6 +546,9 @@
           },
           "404": {
             "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
           },
           "500": {
             "$ref": "#/components/responses/internalServerErrorResponse"
@@ -1027,7 +1107,7 @@
         }
       },
       "put": {
-        "description": "Update this storage. Snapshot Policies are managed as inline parent File Storage\ndesired state. Omitted spec.snapshotPolicies preserves existing user-managed\npolicies, an empty list clears all user-managed policies, and a non-empty list\nreplaces the full user-managed policy list. Default Snapshot Protection is\ncontrolled separately by spec.defaultSnapshotProtectionEnabled.",
+        "description": "Update this storage. Snapshot Policies are managed as inline parent File Storage\ndesired state. Omitted spec.snapshotPolicies preserves existing user-managed\npolicies, an empty list clears all user-managed policies, and a non-empty list\nreplaces the full user-managed policy list. For an existing policy name,\nprotectedPath is immutable; schedule and retention may change. Default Snapshot\nProtection is controlled separately by spec.defaultSnapshotProtectionEnabled.",
         "summary": "Update file storage",
         "tags": [
           "File storage"
@@ -1056,6 +1136,9 @@
           "404": {
             "$ref": "#/components/responses/notFoundResponse"
           },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
           "422": {
             "$ref": "#/components/responses/unprocessableContentResponse"
           },
@@ -1078,6 +1161,174 @@
         "responses": {
           "202": {
             "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/filestorage/{filestorageID}/snapshots": {
+      "description": "Manual snapshots of a file storage resource.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/filestorageIDParameter"
+        }
+      ],
+      "post": {
+        "description": "Create a Manual Snapshot under a File Storage. Returns the complete pending resource. A deleting parent conflicts.",
+        "summary": "Create a manual file storage snapshot",
+        "tags": [
+          "File storage snapshots"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/fileStorageSnapshotV2Create"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/fileStorageSnapshotV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/unprocessableContentResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "List Manual Snapshots of a File Storage, ordered by name then ID. Inaccessible and expired snapshots are omitted.",
+        "summary": "List manual file storage snapshots",
+        "tags": [
+          "File storage snapshots"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/tagSelectorParameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/fileStorageSnapshotsV2Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/filestorage/{filestorageID}/snapshots/{filestorageSnapshotID}": {
+      "description": "A manual snapshot of a file storage resource.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/filestorageIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/filestorageSnapshotIDParameter"
+        }
+      ],
+      "delete": {
+        "description": "Record deletion intent for a Manual Snapshot without provider calls.",
+        "summary": "Delete a manual file storage snapshot",
+        "tags": [
+          "File storage snapshots"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "$ref": "#/components/responses/acceptedResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          }
+        }
+      },
+      "get": {
+        "description": "Get a Manual Snapshot. Missing, inaccessible, and expired snapshots return not found.",
+        "summary": "Get a manual file storage snapshot",
+        "tags": [
+          "File storage snapshots"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/fileStorageSnapshotV2Response"
           },
           "400": {
             "$ref": "#/components/responses/badRequestResponse"
@@ -1337,7 +1588,7 @@
     "/api/v2/volumeclasses": {
       "description": "Lists provider-neutral block-storage classes available from Regions visible to the caller. Results can be narrowed to one or more Regions.",
       "get": {
-        "description": "Lists provider-neutral VolumeClasses from Regions visible to the caller. Repeat the regionID query parameter to narrow results to one or more Regions. Missing or inaccessible Regions are omitted, so selectors can produce an empty or partial list. Media and performance caps are returned only when published by the Region.",
+        "description": "Lists provider-neutral VolumeClasses from Regions visible to the caller. Repeat the regionID query parameter to narrow results to one or more Regions. Missing or inaccessible Regions are omitted, so selectors can produce an empty or partial list. Without a regionID filter, Regions whose provider inventory cannot be fetched are logged and omitted so available Regions can still be returned. Provider failures for explicitly selected Regions fail the request. Media and performance caps are returned only when published by the Region.",
         "summary": "List volume classes",
         "tags": [
           "Volume classes"
@@ -1510,6 +1761,15 @@
           "$ref": "#/components/schemas/fileStorageId"
         }
       },
+      "filestorageSnapshotIDParameter": {
+        "name": "filestorageSnapshotID",
+        "in": "path",
+        "description": "The Manual Snapshot unique identifier.",
+        "required": true,
+        "schema": {
+          "$ref": "#/components/schemas/fileStorageSnapshotId"
+        }
+      },
       "projectIDQueryParameter": {
         "name": "projectID",
         "in": "query",
@@ -1627,6 +1887,11 @@
       },
       "fileStorageId": {
         "description": "A file storage ID.",
+        "type": "string",
+        "format": "uuid"
+      },
+      "fileStorageSnapshotId": {
+        "description": "A Manual File Storage Snapshot ID.",
         "type": "string",
         "format": "uuid"
       },
@@ -2045,6 +2310,20 @@
           }
         }
       },
+      "infiniBandSpec": {
+        "description": "InfiniBand specification.",
+        "type": "object",
+        "required": [
+          "portCount"
+        ],
+        "properties": {
+          "portCount": {
+            "description": "The number of InfiniBand ports available to the flavor.",
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      },
       "flavorSpec": {
         "description": "A flavor.",
         "type": "object",
@@ -2080,6 +2359,9 @@
           },
           "gpu": {
             "$ref": "#/components/schemas/gpuSpec"
+          },
+          "infiniBand": {
+            "$ref": "#/components/schemas/infiniBandSpec"
           },
           "pinnedOnly": {
             "description": "When true, a server using this flavor must specify an infrastructureRef to identify the target host.",
@@ -3308,13 +3590,14 @@
         }
       },
       "instanceLifecyclePhase": {
-        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up. Rebuilding means an already\nprovisioned server is being reimaged in place and is not usable until\nit completes. Error means the provider reported the server in a\nterminal error state.\n",
+        "description": "The lifecycle phase of an instance. Once provisioning_status reaches\nprovisioned, this becomes the live readiness signal: API consumers\nshould treat Running (not provisioned) as the \"ready to use\" state.\nQueued and Building are observed during create — Queued for\nbaremetal servers waiting on hardware, Building for servers the\nprovider is actively bringing up. Rebuilding means an already\nprovisioned server is being reimaged in place and is not usable until\nit completes. Rebooting means a soft or hard reboot has been accepted\nand is in flight; it returns to Running once the provider has\nprocessed the request. To confirm the guest actually restarted, use\nOS-level evidence such as a changed boot ID or boot time. Error \nmeans the provider reported the server in a terminal error state.\n",
         "type": "string",
         "enum": [
           "Pending",
           "Queued",
           "Building",
           "Rebuilding",
+          "Rebooting",
           "Running",
           "Stopping",
           "Stopped",
@@ -3467,6 +3750,49 @@
           }
         }
       },
+      "serverV2VolumeStatus": {
+        "description": "Observed attachment state for a desired Volume.",
+        "type": "object",
+        "required": [
+          "id",
+          "provisioningStatus"
+        ],
+        "properties": {
+          "id": {
+            "description": "The attached Volume ID.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/volumeId"
+              }
+            ]
+          },
+          "provisioningStatus": {
+            "$ref": "#/components/schemas/resourceProvisioningStatus"
+          },
+          "device": {
+            "description": "The provider-assigned guest device name, when available.",
+            "type": "string"
+          },
+          "message": {
+            "description": "Optional safe human-readable description of the attachment state.",
+            "type": "string"
+          }
+        }
+      },
+      "serverV2VolumeStatusList": {
+        "description": "Observed attachment state for the Server's desired Volumes.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/serverV2VolumeStatus"
+        }
+      },
+      "serverV2VolumeList": {
+        "description": "Complete desired set of existing Volumes to attach to the Server.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/volumeId"
+        }
+      },
       "serverV2Spec": {
         "description": "A server's specification.",
         "type": "object",
@@ -3495,9 +3821,12 @@
             "$ref": "#/components/schemas/serverV2Networking"
           },
           "userData": {
-            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. On update the field is replaced wholesale: omitting\nit clears the stored value. A changed value is not applied to the running guest —\nit takes effect only when the server is next rebuilt (image change) or recreated.",
+            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. Cloud-init part-handlers (#part-handler) are rejected,\nas the payload or as a top-level MIME part. On update the field is replaced wholesale: omitting\nit clears the stored value. A changed value is not applied to the running guest —\nit takes effect only when the server is next rebuilt (image change) or recreated.",
             "type": "string",
             "format": "byte"
+          },
+          "volumes": {
+            "$ref": "#/components/schemas/serverV2VolumeList"
           }
         }
       },
@@ -3603,6 +3932,9 @@
           },
           "remainingProviderCreateGates": {
             "$ref": "#/components/schemas/serverRemainingProviderCreateGates"
+          },
+          "volumes": {
+            "$ref": "#/components/schemas/serverV2VolumeStatusList"
           }
         }
       },
@@ -3701,6 +4033,11 @@
           "regionId"
         ],
         "properties": {
+          "attachedAt": {
+            "description": "Timestamp when the current volume attachment was first confirmed. Omitted when no current attachment is recorded.",
+            "type": "string",
+            "format": "date-time"
+          },
           "regionId": {
             "description": "The Region in which the volume is provisioned.",
             "allOf": [
@@ -3925,6 +4262,12 @@
             "type": "string",
             "maxLength": 19,
             "pattern": "^[a-z]([-a-z0-9]*[a-z0-9])?$"
+          },
+          "protectedPath": {
+            "description": "Optional relative path protected by this policy. Omission protects the File Storage root. It is immutable for an existing policy name.",
+            "type": "string",
+            "maxLength": 1024,
+            "pattern": "^([^/]+/)*[^/]+$"
           },
           "schedule": {
             "$ref": "#/components/schemas/storageSnapshotScheduleV2Spec"
@@ -4197,6 +4540,108 @@
           "$ref": "#/components/schemas/storageV2Read"
         }
       },
+      "fileStorageSnapshotV2Create": {
+        "description": "Manual Snapshot resource.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "metadata",
+          "spec"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/resourceMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/fileStorageSnapshotV2CreateSpec"
+          }
+        }
+      },
+      "fileStorageSnapshotV2CreateSpec": {
+        "description": "Capture intent. Omitted expiration means no automatic expiration; omitted protected path selects the File Storage root.",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "expirationTime": {
+            "description": "Optional expiration deadline using the platform date-time format. Fractional seconds are truncated before validating that the normalized deadline is strictly later than request acceptance time. Malformed timestamps return 400; non-future normalized deadlines return 422.",
+            "type": "string",
+            "format": "date-time",
+            "example": "2030-01-01T00:00:00Z"
+          },
+          "protectedPath": {
+            "description": "Optional canonical relative path within the File Storage. Empty, absolute, repeated or trailing slashes and exact dot or dot-dot components are rejected.",
+            "type": "string",
+            "maxLength": 1024,
+            "pattern": "^([^/]+/)*[^/]+$",
+            "example": "datasets/model"
+          }
+        }
+      },
+      "fileStorageSnapshotV2Read": {
+        "description": "A manual file storage snapshot. Health and snapshot details record capture readiness, not current availability.",
+        "type": "object",
+        "required": [
+          "metadata",
+          "spec",
+          "status"
+        ],
+        "properties": {
+          "metadata": {
+            "$ref": "#/components/schemas/projectScopedResourceReadMetadata"
+          },
+          "spec": {
+            "$ref": "#/components/schemas/fileStorageSnapshotV2Spec"
+          },
+          "status": {
+            "$ref": "#/components/schemas/fileStorageSnapshotV2Status"
+          }
+        }
+      },
+      "fileStorageSnapshotV2Spec": {
+        "description": "Immutable Manual Snapshot capture intent.",
+        "type": "object",
+        "required": [
+          "fileStorageId"
+        ],
+        "properties": {
+          "fileStorageId": {
+            "$ref": "#/components/schemas/fileStorageId"
+          },
+          "expirationTime": {
+            "description": "Optional immutable expiration deadline. The snapshot is hidden once the deadline is reached. Omission means no automatic expiration.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "protectedPath": {
+            "description": "Optional immutable canonical relative protected path within the File Storage. Omission selects the File Storage root.",
+            "type": "string",
+            "maxLength": 1024,
+            "pattern": "^([^/]+/)*[^/]+$"
+          }
+        }
+      },
+      "fileStorageSnapshotV2Status": {
+        "description": "Snapshot details observed during capture.",
+        "type": "object",
+        "properties": {
+          "snapshotTime": {
+            "description": "Optional provider-observed capture time; distinct from Region creation time.",
+            "type": "string",
+            "format": "date-time"
+          },
+          "absoluteProtectedPath": {
+            "description": "Optional absolute path captured by the snapshot.",
+            "type": "string"
+          }
+        }
+      },
+      "fileStorageSnapshotsV2Read": {
+        "description": "A list of manual file storage snapshots.",
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/fileStorageSnapshotV2Read"
+        }
+      },
       "storageClassListV2Read": {
         "description": "A list of storage classes.",
         "type": "array",
@@ -4306,7 +4751,7 @@
             "minimum": 1
           },
           "supportedFlavorIds": {
-            "description": "Optional allowlist of Region flavors compatible with this volume class. Omitted or empty means no compatibility restriction.",
+            "description": "Optional allowlist of Region flavors that can attach Volumes of this class to Servers. Omitted or empty means Server attachment is not supported; standalone Volume creation remains available.",
             "type": "array",
             "uniqueItems": true,
             "items": {
@@ -6376,6 +6821,26 @@
           }
         }
       },
+      "fileStorageSnapshotV2Response": {
+        "description": "A Manual File Storage Snapshot.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/fileStorageSnapshotV2Read"
+            }
+          }
+        }
+      },
+      "fileStorageSnapshotsV2Response": {
+        "description": "A list of manual file storage snapshots.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/fileStorageSnapshotsV2Read"
+            }
+          }
+        }
+      },
       "storageV2Response": {
         "description": "A storage.",
         "content": {
@@ -6686,20 +7151,6 @@
       "acceptedResponse": {
         "description": "The request has been accepted and will be fulfilled asynchronously.\nYou may poll the resource and monitor its provisioning and health status\nto await completion of the operation."
       },
-      "serviceVersionResponse": {
-        "description": "Build version information for the running service.",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/serviceVersionRead"
-            },
-            "example": {
-              "name": "unikorn-region-server",
-              "version": "v1.16.7"
-            }
-          }
-        }
-      },
       "conflictResponse": {
         "description": "Resource conflicts with another, usually this means they have the same name.",
         "content": {
@@ -6711,6 +7162,20 @@
               "error": "conflict",
               "error_description": "a resource with the same name already exists",
               "trace_id": "57bc14d9bd461f0b5a72db830149b67a"
+            }
+          }
+        }
+      },
+      "serviceVersionResponse": {
+        "description": "Build version information for the running service.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/serviceVersionRead"
+            },
+            "example": {
+              "name": "unikorn-region-server",
+              "version": "v1.16.7"
             }
           }
         }
