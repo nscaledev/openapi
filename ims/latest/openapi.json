@@ -5365,6 +5365,29 @@
             "title": "Profile Logical Name",
             "type": "string"
           },
+          "replicas": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ReplicaRange"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Instances to run, keyed by the Profile's roles, which must all be named. Each role runs from `min` to `max` instances: `min` defaults to 1, `max` defaults to `min`, and `min` must not exceed `max`. Equal values run a fixed count. The Profile sets no limit; the resource pool's capacity does. Omitted, the deployment runs the instance count stored in the Profile's inputs, or one instance when it stores none.",
+            "examples": [
+              {
+                "aggregated": {
+                  "max": 2,
+                  "min": 2
+                }
+              }
+            ],
+            "title": "Replicas"
+          },
           "resource_pool_id": {
             "anyOf": [
               {
@@ -5512,6 +5535,10 @@
             "title": "Product Id",
             "type": "string"
           },
+          "roles": {
+            "$ref": "#/components/schemas/ProfileRoles",
+            "description": "The instance roles this Profile describes. An `aggregated` instance serves both prefill and decode. A deployment chooses how many instances of each role to run."
+          },
           "source": {
             "$ref": "#/components/schemas/Source"
           },
@@ -5535,6 +5562,7 @@
           "objective_descriptor",
           "objective_values",
           "supported_flavor_ids",
+          "roles",
           "source"
         ],
         "title": "Profile",
@@ -5595,6 +5623,23 @@
         ],
         "title": "ProfilePage",
         "type": "object"
+      },
+      "ProfileRole": {
+        "description": "One kind of instance a Profile describes.\n\nAn `aggregated` instance serves both prefill and decode. Disaggregated Profiles, whose\ninstances split into prefill and decode roles, do not exist yet.",
+        "enum": [
+          "aggregated"
+        ],
+        "title": "ProfileRole",
+        "type": "string"
+      },
+      "ProfileRoles": {
+        "description": "The roles a Profile declares. The Profile bounds no instance count; the deploy request chooses it.",
+        "items": {
+          "$ref": "#/components/schemas/ProfileRole"
+        },
+        "minItems": 1,
+        "title": "ProfileRoles",
+        "type": "array"
       },
       "PublicHostedModel": {
         "description": "Public-safe Hosted Model shape served by public and federation routes.",
@@ -6079,6 +6124,27 @@
           }
         },
         "title": "PublicProfileInputsV100",
+        "type": "object"
+      },
+      "ReplicaRange": {
+        "additionalProperties": false,
+        "description": "The instance range a deploy request chooses for one role: a fixed count when `min` equals `max`.",
+        "properties": {
+          "max": {
+            "description": "Most instances of this role to run. Defaults to `min`; must be at least `min`.",
+            "minimum": 1,
+            "title": "Max",
+            "type": "integer"
+          },
+          "min": {
+            "default": 1,
+            "description": "Fewest instances of this role to run.",
+            "minimum": 1,
+            "title": "Min",
+            "type": "integer"
+          }
+        },
+        "title": "ReplicaRange",
         "type": "object"
       },
       "Source": {
