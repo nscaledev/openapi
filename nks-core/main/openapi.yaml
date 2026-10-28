@@ -1576,8 +1576,9 @@ components:
           description: Whether at least one eligible target was observed.
           type: boolean
         eligibleTargets:
-          description: Eligible platform release IDs in upgrade order. Present as an empty
-            array when eligibility was observed and no upgrade is available.
+          description: Eligible platform release IDs in upgrade order, limited to releases
+            the cluster's organization may select. Present as an empty array
+            when eligibility was observed and no upgrade is available.
           type: array
           uniqueItems: true
           items:
