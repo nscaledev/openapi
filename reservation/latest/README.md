@@ -1,4 +1,4 @@
-# reservation — latest (v0.0.25)
+# reservation — latest (v0.0.26)
 
 [Open in Swagger UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/nscaledev/openapi/main/reservation/latest/openapi.yaml)
 
