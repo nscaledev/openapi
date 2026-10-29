@@ -787,12 +787,12 @@
           "$ref": "#/components/parameters/serverIDParameter"
         },
         {
-          "$ref": "#/components/parameters/bootIfMatchParameter"
+          "$ref": "#/components/parameters/memberIfMatchParameter"
         }
       ],
       "post": {
         "operationId": "bootPlacementServer",
-        "description": "Requires reservation:placement-servers/update and the original\nbootETag in If-Match. Retry with the same token after an uncertain reply.\nProduction rejects this action while Explicit execution is disabled.",
+        "description": "Requires reservation:placement-servers/update and the original\nentityTag in If-Match. Retry with the same tag after an uncertain reply;\na 412 then may mean the first request was applied, so reread and decide.\nProduction rejects this action while Explicit execution is disabled.",
         "summary": "Boot placement server",
         "tags": [
           "Placement Servers"
@@ -822,27 +822,75 @@
             "$ref": "#/components/responses/conflictResponse"
           },
           "412": {
-            "description": "The original Boot token is stale. Read current state and decide whether to submit a new action.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/memberActionPreconditionFailedResponse"
           },
           "422": {
             "$ref": "#/components/responses/unprocessableContentResponse"
           },
           "428": {
-            "description": "If-Match is required. Use the bootETag from a member read.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/preconditionRequiredResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          },
+          "503": {
+            "$ref": "#/components/responses/memberAdmissionUnavailableResponse"
+          }
+        }
+      }
+    },
+    "/api/v2/placements/{placementID}/servers/{serverID}/drain": {
+      "description": "Remove the backing workload while retaining the member and its host hold.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/placementIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/serverIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/memberIfMatchParameter"
+        }
+      ],
+      "post": {
+        "operationId": "drainPlacementServer",
+        "description": "Requires reservation:placement-servers/update and the original\nentityTag in If-Match. Retry with the same tag after an uncertain reply;\na 412 then may mean the first request was applied, so reread and decide.\nProduction rejects this action while Explicit execution is disabled.",
+        "summary": "Drain placement server",
+        "tags": [
+          "Placement Servers"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The current token identifies a member already observed Drained; nothing changed."
+          },
+          "202": {
+            "description": "The request has been accepted and will be fulfilled asynchronously."
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "412": {
+            "$ref": "#/components/responses/memberActionPreconditionFailedResponse"
+          },
+          "428": {
+            "$ref": "#/components/responses/preconditionRequiredResponse"
           },
           "500": {
             "$ref": "#/components/responses/internalServerErrorResponse"
@@ -876,6 +924,9 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "The member is already observed Drained; nothing changed."
+          },
           "202": {
             "description": "The request has been accepted and will be fulfilled asynchronously."
           },
@@ -936,10 +987,10 @@
   },
   "components": {
     "parameters": {
-      "bootIfMatchParameter": {
+      "memberIfMatchParameter": {
         "name": "If-Match",
         "in": "header",
-        "description": "The original quoted bootETag from a member read. One strong tag is\nrequired by admission; missing returns 428, malformed returns 400 and\nstale returns 412. Keep the original value after an uncertain response.",
+        "description": "The original quoted entityTag from a member read, the same tag for\nBoot and Drain. One strong tag is required by admission; missing\nreturns 428, malformed returns 400 and stale returns 412. Keep the\noriginal value after an uncertain response.",
         "required": false,
         "schema": {
           "type": "string"
@@ -1952,7 +2003,7 @@
         ],
         "properties": {
           "desiredState": {
-            "description": "The accepted member intent, omitted until lifecycle initialization.",
+            "description": "The accepted desired state of the member, omitted for Legacy members.",
             "type": "string",
             "enum": [
               "Running",
@@ -1960,7 +2011,7 @@
             ]
           },
           "lifecycleState": {
-            "description": "The persisted member lifecycle projection, omitted until lifecycle initialization.",
+            "description": "The member's progress towards its desired state, omitted for\nLegacy members. An accepted Boot reads Provisioning and an\naccepted Drain reads Draining before the service has observed\nthem.",
             "type": "string",
             "enum": [
               "Provisioning",
@@ -1970,26 +2021,20 @@
               "Failed"
             ]
           },
-          "lifecycleRevision": {
-            "description": "The revision of the member lifecycle snapshot.",
-            "type": "integer",
-            "format": "int64",
-            "minimum": 1
-          },
-          "operationGeneration": {
-            "description": "The latest accepted member operation generation.",
+          "generation": {
+            "description": "The version of the member's accepted desired state. It changes\nwhenever the desired state or chosen image changes; it is not a\ncount of requests.",
             "type": "integer",
             "format": "int64",
             "minimum": 0
           },
           "observedGeneration": {
-            "description": "The latest completed member operation generation.",
+            "description": "The desired-state version the service last processed. Equality\nwith generation alone does not mean success; consult\nlifecycleState.",
             "type": "integer",
             "format": "int64",
             "minimum": 0
           },
-          "bootETag": {
-            "description": "Opaque quoted strong Boot tag binding the member lifecycle revision\nand Placement configuration generation. Omitted for uninitialized\nLegacy members. Supply the original value in If-Match on Boot.",
+          "entityTag": {
+            "description": "Opaque quoted strong tag identifying the member version the\nclient read: the member's identity, its desired-state version and\nthe Placement configuration generation. Omitted for Legacy\nmembers. Supply the original value in If-Match on Boot or Drain;\neither action accepts it, subject to its own state checks.",
             "type": "string"
           },
           "regionId": {
@@ -2048,6 +2093,11 @@
           "hostReadinessReason": {
             "description": "Why the host has its current readiness, omitted when there is no\nreason to report.",
             "type": "string"
+          },
+          "hostReadinessObservedAt": {
+            "description": "When the host was last read for the published hostReadiness.\nPresent for members whose readiness the service records per\nmember; omitted for others. A verdict older than the service's\nfreshness limit reads as Unknown.",
+            "type": "string",
+            "format": "date-time"
           },
           "topologyPath": {
             "description": "Ordered physical topology level names for the host backing this\nserver, from the host outward: the NVLink domain first, then its\npod, then its spine group, and so on. Provided so a caller can\nlabel the corresponding node with its topology without a separate\ntopology call. Names are display coordinates, not provider object\nidentifiers; the caller assigns its own label keys per position.\nThe path length varies by provider and the field is omitted when\nthe host has no topology path.",
@@ -2972,6 +3022,16 @@
       },
       "preconditionFailedResponse": {
         "description": "The If-Match precondition no longer matches the resource's current\nentity tag; the request was not applied. Re-read the resource,\nobtain its current entity tag, and retry.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
+      "memberActionPreconditionFailedResponse": {
+        "description": "The entityTag no longer matches the member; this request was not\napplied. An earlier request sent with the same tag may have been, for\nexample when its reply was lost. Read the current member state and\ndecide whether to submit a new action rather than retrying with a\nfresh tag.",
         "content": {
           "application/json": {
             "schema": {

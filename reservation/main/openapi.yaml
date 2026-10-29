@@ -495,15 +495,13 @@ paths:
     parameters:
       - $ref: "#/components/parameters/placementIDParameter"
       - $ref: "#/components/parameters/serverIDParameter"
-      - $ref: "#/components/parameters/bootIfMatchParameter"
+      - $ref: "#/components/parameters/memberIfMatchParameter"
     post:
       operationId: bootPlacementServer
-      description: >-
+      description: |-
         Requires reservation:placement-servers/update and the original
-
-        bootETag in If-Match. Retry with the same token after an uncertain
-        reply.
-
+        entityTag in If-Match. Retry with the same tag after an uncertain reply;
+        a 412 then may mean the first request was applied, so reread and decide.
         Production rejects this action while Explicit execution is disabled.
       summary: Boot placement server
       tags:
@@ -524,20 +522,53 @@ paths:
         "409":
           $ref: "#/components/responses/conflictResponse"
         "412":
-          description: The original Boot token is stale. Read current state and decide
-            whether to submit a new action.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+          $ref: "#/components/responses/memberActionPreconditionFailedResponse"
         "422":
           $ref: "#/components/responses/unprocessableContentResponse"
         "428":
-          description: If-Match is required. Use the bootETag from a member read.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+          $ref: "#/components/responses/preconditionRequiredResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+        "503":
+          $ref: "#/components/responses/memberAdmissionUnavailableResponse"
+  /api/v2/placements/{placementID}/servers/{serverID}/drain:
+    description: Remove the backing workload while retaining the member and its host hold.
+    parameters:
+      - $ref: "#/components/parameters/placementIDParameter"
+      - $ref: "#/components/parameters/serverIDParameter"
+      - $ref: "#/components/parameters/memberIfMatchParameter"
+    post:
+      operationId: drainPlacementServer
+      description: |-
+        Requires reservation:placement-servers/update and the original
+        entityTag in If-Match. Retry with the same tag after an uncertain reply;
+        a 412 then may mean the first request was applied, so reread and decide.
+        Production rejects this action while Explicit execution is disabled.
+      summary: Drain placement server
+      tags:
+        - Placement Servers
+      security:
+        - oauth2Authentication: []
+      responses:
+        "200":
+          description: The current token identifies a member already observed Drained;
+            nothing changed.
+        "202":
+          description: The request has been accepted and will be fulfilled asynchronously.
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "412":
+          $ref: "#/components/responses/memberActionPreconditionFailedResponse"
+        "428":
+          $ref: "#/components/responses/preconditionRequiredResponse"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
         "503":
@@ -562,6 +593,8 @@ paths:
       security:
         - oauth2Authentication: []
       responses:
+        "200":
+          description: The member is already observed Drained; nothing changed.
         "202":
           description: The request has been accepted and will be fulfilled asynchronously.
         "400":
@@ -602,13 +635,14 @@ paths:
           $ref: "#/components/responses/internalServerErrorResponse"
 components:
   parameters:
-    bootIfMatchParameter:
+    memberIfMatchParameter:
       name: If-Match
       in: header
       description: |-
-        The original quoted bootETag from a member read. One strong tag is
-        required by admission; missing returns 428, malformed returns 400 and
-        stale returns 412. Keep the original value after an uncertain response.
+        The original quoted entityTag from a member read, the same tag for
+        Boot and Drain. One strong tag is required by admission; missing
+        returns 428, malformed returns 400 and stale returns 412. Keep the
+        original value after an uncertain response.
       required: false
       schema:
         type: string
@@ -1438,14 +1472,17 @@ components:
         - hostReadiness
       properties:
         desiredState:
-          description: The accepted member intent, omitted until lifecycle initialization.
+          description: The accepted desired state of the member, omitted for Legacy members.
           type: string
           enum:
             - Running
             - Drained
         lifecycleState:
-          description: The persisted member lifecycle projection, omitted until lifecycle
-            initialization.
+          description: |-
+            The member's progress towards its desired state, omitted for
+            Legacy members. An accepted Boot reads Provisioning and an
+            accepted Drain reads Draining before the service has observed
+            them.
           type: string
           enum:
             - Provisioning
@@ -1453,26 +1490,29 @@ components:
             - Draining
             - Drained
             - Failed
-        lifecycleRevision:
-          description: The revision of the member lifecycle snapshot.
-          type: integer
-          format: int64
-          minimum: 1
-        operationGeneration:
-          description: The latest accepted member operation generation.
+        generation:
+          description: |-
+            The version of the member's accepted desired state. It changes
+            whenever the desired state or chosen image changes; it is not a
+            count of requests.
           type: integer
           format: int64
           minimum: 0
         observedGeneration:
-          description: The latest completed member operation generation.
+          description: |-
+            The desired-state version the service last processed. Equality
+            with generation alone does not mean success; consult
+            lifecycleState.
           type: integer
           format: int64
           minimum: 0
-        bootETag:
+        entityTag:
           description: |-
-            Opaque quoted strong Boot tag binding the member lifecycle revision
-            and Placement configuration generation. Omitted for uninitialized
-            Legacy members. Supply the original value in If-Match on Boot.
+            Opaque quoted strong tag identifying the member version the
+            client read: the member's identity, its desired-state version and
+            the Placement configuration generation. Omitted for Legacy
+            members. Supply the original value in If-Match on Boot or Drain;
+            either action accepts it, subject to its own state checks.
           type: string
         regionId:
           description: The region the placement server belongs to.
@@ -1530,6 +1570,14 @@ components:
             Why the host has its current readiness, omitted when there is no
             reason to report.
           type: string
+        hostReadinessObservedAt:
+          description: |-
+            When the host was last read for the published hostReadiness.
+            Present for members whose readiness the service records per
+            member; omitted for others. A verdict older than the service's
+            freshness limit reads as Unknown.
+          type: string
+          format: date-time
         topologyPath:
           description: |-
             Ordered physical topology level names for the host backing this
@@ -2293,6 +2341,17 @@ components:
         The If-Match precondition no longer matches the resource's current
         entity tag; the request was not applied. Re-read the resource,
         obtain its current entity tag, and retry.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
+    memberActionPreconditionFailedResponse:
+      description: |-
+        The entityTag no longer matches the member; this request was not
+        applied. An earlier request sent with the same tag may have been, for
+        example when its reply was lost. Read the current member state and
+        decide whether to submit a new action rather than retrying with a
+        fresh tag.
       content:
         application/json:
           schema:
