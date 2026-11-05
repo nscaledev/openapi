@@ -2131,7 +2131,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PrivateModelDismissal"
+                  "$ref": "#/components/schemas/PrivateModelInstanceDeletion"
                 }
               }
             },
@@ -2141,11 +2141,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PrivateModelUndeploymentRequests"
+                  "$ref": "#/components/schemas/PrivateModelInstanceDeletion"
                 }
               }
             },
-            "description": "Successful Response"
+            "description": "BYOM undeployment queued"
           },
           "400": {
             "content": {
@@ -5408,31 +5408,23 @@
         "title": "PrivateModelDeploymentRequest",
         "type": "object"
       },
-      "PrivateModelDismissal": {
-        "description": "Acknowledgment of a cleaned-up failed instance, without a new undeployment request.",
+      "PrivateModelInstanceDeletion": {
+        "description": "One response shape for both private instance deletion outcomes.\n\nA queued undeploy carries its BYOM request and any Secret an operator must remove. A dismissal\nhides a cleaned-up failure without submitting anything, so those fields are explicit nulls.",
         "properties": {
+          "byom_undeployment_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModelDeploymentRequest"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Queued BYOM delete request. Null when the instance was dismissed."
+          },
           "deployed_product_id": {
             "title": "Deployed Product Id",
             "type": "string"
-          },
-          "outcome": {
-            "const": "dismissed",
-            "default": "dismissed",
-            "title": "Outcome",
-            "type": "string"
-          }
-        },
-        "required": [
-          "deployed_product_id"
-        ],
-        "title": "PrivateModelDismissal",
-        "type": "object"
-      },
-      "PrivateModelUndeploymentRequests": {
-        "description": "Queued BYOM undeployment plus any IMS-provisioned Secret an operator must remove.",
-        "properties": {
-          "byom_undeployment_request": {
-            "$ref": "#/components/schemas/ModelDeploymentRequest"
           },
           "opaque_secret_cleanup_required": {
             "anyOf": [
@@ -5444,6 +5436,9 @@
               }
             ],
             "description": "Endpoint Secret that outlives this model. IMS does not delete it because Envir cannot prove no other product references it. Remove it once nothing does."
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/PrivateModelInstanceDeletionOutcome"
           },
           "source_secret_cleanup_required": {
             "anyOf": [
@@ -5458,10 +5453,23 @@
           }
         },
         "required": [
-          "byom_undeployment_request"
+          "outcome",
+          "deployed_product_id",
+          "byom_undeployment_request",
+          "opaque_secret_cleanup_required",
+          "source_secret_cleanup_required"
         ],
-        "title": "PrivateModelUndeploymentRequests",
+        "title": "PrivateModelInstanceDeletion",
         "type": "object"
+      },
+      "PrivateModelInstanceDeletionOutcome": {
+        "description": "What deleting a private instance did.",
+        "enum": [
+          "undeploying",
+          "dismissed"
+        ],
+        "title": "PrivateModelInstanceDeletionOutcome",
+        "type": "string"
       },
       "ProductDeployment": {
         "description": "Private lifecycle identity for one Envir deployed product.",
