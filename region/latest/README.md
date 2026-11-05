@@ -1,4 +1,4 @@
-# region — latest (v1.27.0)
+# region — latest (v1.28.0)
 
 [Open in Swagger UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/nscaledev/openapi/main/region/latest/openapi.yaml)
 
