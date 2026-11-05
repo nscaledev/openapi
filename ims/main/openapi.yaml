@@ -4088,6 +4088,21 @@ components:
         profile_logical_name:
           title: Profile Logical Name
           type: string
+        replicas:
+          anyOf:
+            - additionalProperties:
+                $ref: "#/components/schemas/ReplicaRange"
+              type: object
+            - type: "null"
+          description: "Instances the deployment was created to run, keyed by role, in the
+            deploy request's `replicas` shape. Read from the stored BYOM
+            configuration: one instance when it stores no count, absent when the
+            stored count is invalid."
+          examples:
+            - aggregated:
+                max: 2
+                min: 2
+          title: Replicas
         source_secret_deployment:
           anyOf:
             - $ref: "#/components/schemas/SourceSecretDeployment"
