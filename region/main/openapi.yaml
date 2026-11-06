@@ -2775,11 +2775,11 @@ components:
             a MIME multipart archive, etc. Cloud-init part-handlers
             (#part-handler) are rejected,
 
-            as the payload or as a top-level MIME part. On update the field is
-            replaced wholesale: omitting
+            as the payload or as a top-level MIME part. On update, omitting the
+            field keeps the stored
 
-            it clears the stored value. A changed value is not applied to the
-            running guest —
+            value, and an empty string clears it. A changed value is not applied
+            to the running guest —
 
             it takes effect only when the server is next rebuilt (image change)
             or recreated.
