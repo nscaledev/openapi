@@ -2740,6 +2740,138 @@
         "summary": "Undeploy Private Model Instance"
       }
     },
+    "/api/v1/model-inventory/private/on-demand": {
+      "post": {
+        "description": "Deploy one Hosted Model from an authoritative Profile onto the project's on-demand capacity. Refused as unavailable until IMS can reach Environment Manager's on-demand onboarding.",
+        "operationId": "deploy_on_demand_model_api_v1_model_inventory_private_on_demand_post",
+        "parameters": [
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OnDemandModelDeploymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "On-demand deployment is not available yet"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Deploy On Demand Model"
+      }
+    },
     "/api/v1/model-inventory/private/{model_name}": {
       "get": {
         "description": "Get a private Hosted Model by name or return matching deployed model names for a prefix.",
@@ -6188,6 +6320,51 @@
           "resolved_digest"
         ],
         "title": "OciProvenance",
+        "type": "object"
+      },
+      "OnDemandModelDeploymentRequest": {
+        "additionalProperties": false,
+        "description": "Select one authoritative Profile to deploy on the caller project's on-demand capacity.\n\nOnboarding owns placement, so it names no Environment, pool or flavor; an on-demand endpoint is never open.",
+        "properties": {
+          "deployment_name": {
+            "minLength": 1,
+            "title": "Deployment Name",
+            "type": "string"
+          },
+          "model_access_key": {
+            "description": "Access key required by clients of the deployed model endpoint.",
+            "format": "password",
+            "title": "Model Access Key",
+            "type": "string",
+            "writeOnly": true
+          },
+          "profile_logical_name": {
+            "minLength": 1,
+            "title": "Profile Logical Name",
+            "type": "string"
+          },
+          "replicas": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/ReplicaRange"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Instances to run, keyed by the Profile's roles, as for a private deployment.",
+            "title": "Replicas"
+          }
+        },
+        "required": [
+          "deployment_name",
+          "profile_logical_name",
+          "model_access_key"
+        ],
+        "title": "OnDemandModelDeploymentRequest",
         "type": "object"
       },
       "OpaqueSecretDeployment": {
