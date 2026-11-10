@@ -2892,6 +2892,319 @@
         "summary": "Deploy On Demand Model"
       }
     },
+    "/api/v1/model-inventory/private/on-demand/instances/{deployed_product_id}": {
+      "delete": {
+        "description": "Queue undeployment of one on-demand BYOM instance, or acknowledge a failed one whose cleanup Envir confirmed. Refused as unavailable while on-demand onboarding is off.",
+        "operationId": "undeploy_on_demand_model_instance_api_v1_model_inventory_private_on_demand_instances__deployed_product_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deployed_product_id",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Deployed Product Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "force",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Force",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnDemandModelInstanceDeletion"
+                }
+              }
+            },
+            "description": "Failed instance dismissed"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnDemandModelInstanceDeletion"
+                }
+              }
+            },
+            "description": "BYOM undeployment queued"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Undeploy On Demand Model Instance"
+      }
+    },
+    "/api/v1/model-inventory/private/on-demand/requests/{request_id}": {
+      "get": {
+        "description": "Get one on-demand model deployment or undeployment request. Refused as unavailable while on-demand onboarding is off.",
+        "operationId": "get_on_demand_deployment_request_api_v1_model_inventory_private_on_demand_requests__request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OnDemandModelDeployment"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get On Demand Deployment Request"
+      }
+    },
     "/api/v1/model-inventory/private/{model_name}": {
       "get": {
         "description": "Get a private Hosted Model by name or return matching deployed model names for a prefix.",
@@ -6343,12 +6656,8 @@
         "type": "object"
       },
       "OnDemandModelDeployment": {
-        "description": "The submitted on-demand deployment request, without its placement or Envir's free-form text.",
+        "description": "The submitted on-demand deployment request, without its placement or Envir's free-form text.\n\nIt carries no configuration id: Product Configurator answers one with the Environment and pool.",
         "properties": {
-          "configuration_id": {
-            "title": "Configuration Id",
-            "type": "string"
-          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -6356,6 +6665,10 @@
           },
           "deployed_product_id": {
             "title": "Deployed Product Id",
+            "type": "string"
+          },
+          "deployment_request_url": {
+            "title": "Deployment Request Url",
             "type": "string"
           },
           "organization_id": {
@@ -6392,11 +6705,11 @@
           "organization_id",
           "project_id",
           "product_id",
-          "configuration_id",
           "status",
           "phase",
           "created_at",
-          "updated_at"
+          "updated_at",
+          "deployment_request_url"
         ],
         "title": "OnDemandModelDeployment",
         "type": "object"
@@ -6444,6 +6757,36 @@
           "model_access_key"
         ],
         "title": "OnDemandModelDeploymentRequest",
+        "type": "object"
+      },
+      "OnDemandModelInstanceDeletion": {
+        "description": "Deleting an on-demand instance: its queued BYOM delete, or a dismissed failure.\n\nUnlike the dedicated answer it reports no Secret. The customer cannot act on one, so IMS logs and counts\na Secret that outlives the model for the operator instead.",
+        "properties": {
+          "byom_undeployment_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OnDemandModelDeployment"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Queued BYOM delete request. Null when the instance was dismissed."
+          },
+          "deployed_product_id": {
+            "title": "Deployed Product Id",
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/PrivateModelInstanceDeletionOutcome"
+          }
+        },
+        "required": [
+          "outcome",
+          "deployed_product_id",
+          "byom_undeployment_request"
+        ],
+        "title": "OnDemandModelInstanceDeletion",
         "type": "object"
       },
       "OpaqueSecretDeployment": {
