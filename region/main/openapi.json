@@ -2635,7 +2635,7 @@
         }
       },
       "routes": {
-        "description": "A list of network routes.",
+        "description": "A list of network routes. On update, omitting the list keeps the stored\nroutes, and an empty list removes them.",
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/route"
