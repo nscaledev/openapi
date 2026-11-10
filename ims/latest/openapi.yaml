@@ -959,9 +959,163 @@ paths:
       summary: Get Public Model Catalog
   /api/v1/model-inventory:
     get:
-      description: List public Hosted Models.
+      description: List public Hosted Models with filter, fuzzy search, sort and
+        facets, answered from the replica's public snapshot of the configured
+        tenant's published view.
       operationId: list_public_model_inventory_api_v1_model_inventory_get
       parameters:
+        - description: Fuzzy search over model name, display name and developer.
+          in: query
+          name: q
+          required: false
+          schema:
+            anyOf:
+              - maxLength: 128
+                type: string
+              - type: "null"
+            description: Fuzzy search over model name, display name and developer.
+            title: Q
+        - description: Case-insensitive exact; repeatable, any-of.
+          in: query
+          name: developer
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Case-insensitive exact; repeatable, any-of.
+            title: Developer
+        - description: Case-insensitive exact; repeatable, any-of.
+          in: query
+          name: vendor
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Case-insensitive exact; repeatable, any-of.
+            title: Vendor
+        - description: Derived from endpoint capabilities; repeatable, any-of.
+          in: query
+          name: task
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/InventoryTask"
+                type: array
+              - type: "null"
+            description: Derived from endpoint capabilities; repeatable, any-of.
+            title: Task
+        - description: Endpoint capability not consumed by `task`; repeatable, any-of.
+          in: query
+          name: capability
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Endpoint capability not consumed by `task`; repeatable, any-of.
+            title: Capability
+        - description: With `capability`, require one endpoint carrying every listed
+            capability.
+          in: query
+          name: capability_all
+          required: false
+          schema:
+            default: false
+            description: With `capability`, require one endpoint carrying every listed
+              capability.
+            title: Capability All
+            type: boolean
+        - description: Data type such as `fp8`, compared normalised; repeatable, any-of.
+          in: query
+          name: data_type
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Data type such as `fp8`, compared normalised; repeatable, any-of.
+            title: Data Type
+        - description: Inclusive.
+          in: query
+          name: context_length_tokens_min
+          required: false
+          schema:
+            anyOf:
+              - minimum: 1
+                type: integer
+              - type: "null"
+            description: Inclusive.
+            title: Context Length Tokens Min
+        - description: Inclusive.
+          in: query
+          name: context_length_tokens_max
+          required: false
+          schema:
+            anyOf:
+              - minimum: 1
+                type: integer
+              - type: "null"
+            description: Inclusive.
+            title: Context Length Tokens Max
+        - description: Total parameters in billions, inclusive.
+          in: query
+          name: model_size_min
+          required: false
+          schema:
+            anyOf:
+              - minimum: 0
+                type: number
+              - type: "null"
+            description: Total parameters in billions, inclusive.
+            title: Model Size Min
+        - description: Total parameters in billions, inclusive.
+          in: query
+          name: model_size_max
+          required: false
+          schema:
+            anyOf:
+              - minimum: 0
+                type: number
+              - type: "null"
+            description: Total parameters in billions, inclusive.
+            title: Model Size Max
+        - description: Comma-separated keys from name, developer, vendor, created_at,
+            context_length_tokens and model_size; a `-` prefix sorts descending.
+            Without `sort`, `q` orders by relevance.
+          in: query
+          name: sort
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Comma-separated keys from name, developer, vendor, created_at,
+              context_length_tokens and model_size; a `-` prefix sorts
+              descending. Without `sort`, `q` orders by relevance.
+            title: Sort
+        - description: "`facets` adds value counts."
+          in: query
+          name: include
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/InventoryListInclude"
+                type: array
+              - type: "null"
+            description: "`facets` adds value counts."
+            title: Include
         - in: query
           name: model_name_prefix
           required: false
@@ -1066,26 +1220,20 @@ paths:
   /api/v1/model-inventory/private:
     get:
       description: List private BYOM Hosted Models within the caller's scope,
-        including deployments that are not serving. Successful inactive records
-        are omitted. Optional filters narrow the listing to one environment and
-        to an any-of set of deployment statuses.
+        including deployments that are not serving, with filter, fuzzy search,
+        sort and facets. Successful inactive records are omitted. Answered from
+        a snapshot loaded with the caller's bearer.
       operationId: list_private_model_inventory_api_v1_model_inventory_private_get
       parameters:
-        - in: query
-          name: model_name_prefix
-          required: false
-          schema:
-            anyOf:
-              - type: string
-              - type: "null"
-            title: Model Name Prefix
-        - in: query
+        - description: Instances in one environment.
+          in: query
           name: environment_id
           required: false
           schema:
             anyOf:
               - type: string
               - type: "null"
+            description: Instances in one environment.
             title: Environment Id
         - description: Repeatable any-of filter on deployment status. Every status is
             reported when omitted.
@@ -1101,6 +1249,166 @@ paths:
             description: Repeatable any-of filter on deployment status. Every status is
               reported when omitted.
             title: Deployment Status
+        - description: Fuzzy search over model name, display name and developer.
+          in: query
+          name: q
+          required: false
+          schema:
+            anyOf:
+              - maxLength: 128
+                type: string
+              - type: "null"
+            description: Fuzzy search over model name, display name and developer.
+            title: Q
+        - description: Case-insensitive exact; repeatable, any-of.
+          in: query
+          name: developer
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Case-insensitive exact; repeatable, any-of.
+            title: Developer
+        - description: Case-insensitive exact; repeatable, any-of.
+          in: query
+          name: vendor
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Case-insensitive exact; repeatable, any-of.
+            title: Vendor
+        - description: Derived from endpoint capabilities; repeatable, any-of.
+          in: query
+          name: task
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/InventoryTask"
+                type: array
+              - type: "null"
+            description: Derived from endpoint capabilities; repeatable, any-of.
+            title: Task
+        - description: Endpoint capability not consumed by `task`; repeatable, any-of.
+          in: query
+          name: capability
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Endpoint capability not consumed by `task`; repeatable, any-of.
+            title: Capability
+        - description: With `capability`, require one endpoint carrying every listed
+            capability.
+          in: query
+          name: capability_all
+          required: false
+          schema:
+            default: false
+            description: With `capability`, require one endpoint carrying every listed
+              capability.
+            title: Capability All
+            type: boolean
+        - description: Data type such as `fp8`, compared normalised; repeatable, any-of.
+          in: query
+          name: data_type
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Data type such as `fp8`, compared normalised; repeatable, any-of.
+            title: Data Type
+        - description: Inclusive.
+          in: query
+          name: context_length_tokens_min
+          required: false
+          schema:
+            anyOf:
+              - minimum: 1
+                type: integer
+              - type: "null"
+            description: Inclusive.
+            title: Context Length Tokens Min
+        - description: Inclusive.
+          in: query
+          name: context_length_tokens_max
+          required: false
+          schema:
+            anyOf:
+              - minimum: 1
+                type: integer
+              - type: "null"
+            description: Inclusive.
+            title: Context Length Tokens Max
+        - description: Total parameters in billions, inclusive.
+          in: query
+          name: model_size_min
+          required: false
+          schema:
+            anyOf:
+              - minimum: 0
+                type: number
+              - type: "null"
+            description: Total parameters in billions, inclusive.
+            title: Model Size Min
+        - description: Total parameters in billions, inclusive.
+          in: query
+          name: model_size_max
+          required: false
+          schema:
+            anyOf:
+              - minimum: 0
+                type: number
+              - type: "null"
+            description: Total parameters in billions, inclusive.
+            title: Model Size Max
+        - description: Comma-separated keys from name, developer, vendor, created_at,
+            context_length_tokens and model_size; a `-` prefix sorts descending.
+            Without `sort`, `q` orders by relevance.
+          in: query
+          name: sort
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Comma-separated keys from name, developer, vendor, created_at,
+              context_length_tokens and model_size; a `-` prefix sorts
+              descending. Without `sort`, `q` orders by relevance.
+            title: Sort
+        - description: "`facets` adds value counts."
+          in: query
+          name: include
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/InventoryListInclude"
+                type: array
+              - type: "null"
+            description: "`facets` adds value counts."
+            title: Include
+        - in: query
+          name: model_name_prefix
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Model Name Prefix
         - in: query
           name: page
           required: false
@@ -1394,6 +1702,101 @@ paths:
       security:
         - HTTPBearer: []
       summary: Undeploy Private Model Instance
+  /api/v1/model-inventory/private/on-demand:
+    post:
+      description: Deploy one Hosted Model from an authoritative Profile onto the
+        project's on-demand capacity. Refused as unavailable while on-demand
+        onboarding is off.
+      operationId: deploy_on_demand_model_api_v1_model_inventory_private_on_demand_post
+      parameters:
+        - description: Organization scope selector; required when access control is
+            enforced.
+          in: header
+          name: X-Organization-Id
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Organization scope selector; required when access control is
+              enforced.
+            title: X-Organization-Id
+        - description: Project scope selector; required when access control is enforced
+            for project- or environment-scoped grants.
+          in: header
+          name: X-Project-Id
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Project scope selector; required when access control is enforced
+              for project- or environment-scoped grants.
+            title: X-Project-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OnDemandModelDeploymentRequest"
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OnDemandModelDeployment"
+          description: Successful Response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Bad Request
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: On-demand deployment is being set up
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Validation Error
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal Server Error
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Unavailable
+      security:
+        - HTTPBearer: []
+      summary: Deploy On Demand Model
   /api/v1/model-inventory/private/{model_name}:
     get:
       description: Get a private Hosted Model by name or return matching deployed
@@ -1490,9 +1893,163 @@ paths:
       summary: Get Private Model Inventory
   /api/v1/model-inventory/public:
     get:
-      description: List public Hosted Models.
+      description: List public Hosted Models with filter, fuzzy search, sort and
+        facets, answered from the replica's public snapshot of the configured
+        tenant's published view.
       operationId: list_public_model_inventory_api_v1_model_inventory_public_get
       parameters:
+        - description: Fuzzy search over model name, display name and developer.
+          in: query
+          name: q
+          required: false
+          schema:
+            anyOf:
+              - maxLength: 128
+                type: string
+              - type: "null"
+            description: Fuzzy search over model name, display name and developer.
+            title: Q
+        - description: Case-insensitive exact; repeatable, any-of.
+          in: query
+          name: developer
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Case-insensitive exact; repeatable, any-of.
+            title: Developer
+        - description: Case-insensitive exact; repeatable, any-of.
+          in: query
+          name: vendor
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Case-insensitive exact; repeatable, any-of.
+            title: Vendor
+        - description: Derived from endpoint capabilities; repeatable, any-of.
+          in: query
+          name: task
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/InventoryTask"
+                type: array
+              - type: "null"
+            description: Derived from endpoint capabilities; repeatable, any-of.
+            title: Task
+        - description: Endpoint capability not consumed by `task`; repeatable, any-of.
+          in: query
+          name: capability
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Endpoint capability not consumed by `task`; repeatable, any-of.
+            title: Capability
+        - description: With `capability`, require one endpoint carrying every listed
+            capability.
+          in: query
+          name: capability_all
+          required: false
+          schema:
+            default: false
+            description: With `capability`, require one endpoint carrying every listed
+              capability.
+            title: Capability All
+            type: boolean
+        - description: Data type such as `fp8`, compared normalised; repeatable, any-of.
+          in: query
+          name: data_type
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Data type such as `fp8`, compared normalised; repeatable, any-of.
+            title: Data Type
+        - description: Inclusive.
+          in: query
+          name: context_length_tokens_min
+          required: false
+          schema:
+            anyOf:
+              - minimum: 1
+                type: integer
+              - type: "null"
+            description: Inclusive.
+            title: Context Length Tokens Min
+        - description: Inclusive.
+          in: query
+          name: context_length_tokens_max
+          required: false
+          schema:
+            anyOf:
+              - minimum: 1
+                type: integer
+              - type: "null"
+            description: Inclusive.
+            title: Context Length Tokens Max
+        - description: Total parameters in billions, inclusive.
+          in: query
+          name: model_size_min
+          required: false
+          schema:
+            anyOf:
+              - minimum: 0
+                type: number
+              - type: "null"
+            description: Total parameters in billions, inclusive.
+            title: Model Size Min
+        - description: Total parameters in billions, inclusive.
+          in: query
+          name: model_size_max
+          required: false
+          schema:
+            anyOf:
+              - minimum: 0
+                type: number
+              - type: "null"
+            description: Total parameters in billions, inclusive.
+            title: Model Size Max
+        - description: Comma-separated keys from name, developer, vendor, created_at,
+            context_length_tokens and model_size; a `-` prefix sorts descending.
+            Without `sort`, `q` orders by relevance.
+          in: query
+          name: sort
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Comma-separated keys from name, developer, vendor, created_at,
+              context_length_tokens and model_size; a `-` prefix sorts
+              descending. Without `sort`, `q` orders by relevance.
+            title: Sort
+        - description: "`facets` adds value counts."
+          in: query
+          name: include
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/InventoryListInclude"
+                type: array
+              - type: "null"
+            description: "`facets` adds value counts."
+            title: Include
         - in: query
           name: model_name_prefix
           required: false
@@ -1870,17 +2427,81 @@ paths:
       summary: List Unreferenced Endpoint Secrets
   /api/v1/profiles:
     get:
-      description: List public Profiles.
+      description: List public Profiles with filter, fuzzy search and sort, answered
+        from the replica's public snapshot.
       operationId: list_public_profiles_api_v1_profiles_get
       parameters:
-        - in: query
+        - description: Exact model name.
+          in: query
           name: model_name
           required: false
           schema:
             anyOf:
               - type: string
               - type: "null"
+            description: Exact model name.
             title: Model Name
+        - description: Repeatable, any-of.
+          in: query
+          name: classifier
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/ProfileClassifier"
+                type: array
+              - type: "null"
+            description: Repeatable, any-of.
+            title: Classifier
+        - description: Exact; repeatable, any-of.
+          in: query
+          name: objective_descriptor
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Exact; repeatable, any-of.
+            title: Objective Descriptor
+        - description: Profile `MODEL_TASK`; repeatable.
+          in: query
+          name: task
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/ByomModelTask"
+                type: array
+              - type: "null"
+            description: Profile `MODEL_TASK`; repeatable.
+            title: Task
+        - description: Fuzzy search over logical name and model name.
+          in: query
+          name: q
+          required: false
+          schema:
+            anyOf:
+              - maxLength: 128
+                type: string
+              - type: "null"
+            description: Fuzzy search over logical name and model name.
+            title: Q
+        - description: Comma-separated keys from logical_name, model_name and classifier;
+            a `-` prefix sorts descending. Without `sort`, `q` orders by
+            relevance.
+          in: query
+          name: sort
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Comma-separated keys from logical_name, model_name and classifier;
+              a `-` prefix sorts descending. Without `sort`, `q` orders by
+              relevance.
+            title: Sort
         - in: query
           name: page
           required: false
@@ -1976,17 +2597,82 @@ paths:
       summary: List Public Profiles
   /api/v1/profiles/private:
     get:
-      description: List private Profiles within the caller's scope.
+      description: List private Profiles within the caller's scope with filter, fuzzy
+        search and sort, answered from the replica's snapshot of the tenant's
+        Profiles after validating it against the Profile store.
       operationId: list_private_profiles_api_v1_profiles_private_get
       parameters:
-        - in: query
+        - description: Exact model name.
+          in: query
           name: model_name
           required: false
           schema:
             anyOf:
               - type: string
               - type: "null"
+            description: Exact model name.
             title: Model Name
+        - description: Repeatable, any-of.
+          in: query
+          name: classifier
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/ProfileClassifier"
+                type: array
+              - type: "null"
+            description: Repeatable, any-of.
+            title: Classifier
+        - description: Exact; repeatable, any-of.
+          in: query
+          name: objective_descriptor
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Exact; repeatable, any-of.
+            title: Objective Descriptor
+        - description: Profile `MODEL_TASK`; repeatable.
+          in: query
+          name: task
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/ByomModelTask"
+                type: array
+              - type: "null"
+            description: Profile `MODEL_TASK`; repeatable.
+            title: Task
+        - description: Fuzzy search over logical name and model name.
+          in: query
+          name: q
+          required: false
+          schema:
+            anyOf:
+              - maxLength: 128
+                type: string
+              - type: "null"
+            description: Fuzzy search over logical name and model name.
+            title: Q
+        - description: Comma-separated keys from logical_name, model_name and classifier;
+            a `-` prefix sorts descending. Without `sort`, `q` orders by
+            relevance.
+          in: query
+          name: sort
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Comma-separated keys from logical_name, model_name and classifier;
+              a `-` prefix sorts descending. Without `sort`, `q` orders by
+              relevance.
+            title: Sort
         - in: query
           name: page
           required: false
@@ -2256,17 +2942,81 @@ paths:
       summary: Get Private Profile
   /api/v1/profiles/public:
     get:
-      description: List public Profiles.
+      description: List public Profiles with filter, fuzzy search and sort, answered
+        from the replica's public snapshot.
       operationId: list_public_profiles_api_v1_profiles_public_get
       parameters:
-        - in: query
+        - description: Exact model name.
+          in: query
           name: model_name
           required: false
           schema:
             anyOf:
               - type: string
               - type: "null"
+            description: Exact model name.
             title: Model Name
+        - description: Repeatable, any-of.
+          in: query
+          name: classifier
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/ProfileClassifier"
+                type: array
+              - type: "null"
+            description: Repeatable, any-of.
+            title: Classifier
+        - description: Exact; repeatable, any-of.
+          in: query
+          name: objective_descriptor
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  type: string
+                type: array
+              - type: "null"
+            description: Exact; repeatable, any-of.
+            title: Objective Descriptor
+        - description: Profile `MODEL_TASK`; repeatable.
+          in: query
+          name: task
+          required: false
+          schema:
+            anyOf:
+              - items:
+                  $ref: "#/components/schemas/ByomModelTask"
+                type: array
+              - type: "null"
+            description: Profile `MODEL_TASK`; repeatable.
+            title: Task
+        - description: Fuzzy search over logical name and model name.
+          in: query
+          name: q
+          required: false
+          schema:
+            anyOf:
+              - maxLength: 128
+                type: string
+              - type: "null"
+            description: Fuzzy search over logical name and model name.
+            title: Q
+        - description: Comma-separated keys from logical_name, model_name and classifier;
+            a `-` prefix sorts descending. Without `sort`, `q` orders by
+            relevance.
+          in: query
+          name: sort
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Comma-separated keys from logical_name, model_name and classifier;
+              a `-` prefix sorts descending. Without `sort`, `q` orders by
+              relevance.
+            title: Sort
         - in: query
           name: page
           required: false
@@ -2766,10 +3516,39 @@ components:
         - error
       title: ErrorEnvelope
       type: object
+    FacetCount:
+      description: One facet value and the number of rows carrying it before pagination.
+      properties:
+        count:
+          minimum: 1
+          title: Count
+          type: integer
+        value:
+          title: Value
+          type: string
+      required:
+        - value
+        - count
+      title: FacetCount
+      type: object
+    Facets:
+      additionalProperties:
+        items:
+          $ref: "#/components/schemas/FacetCount"
+        type: array
+      type: object
     HostedModelCard:
       description: Catalog-like runtime metadata plus serving endpoints for one Hosted
         Model instance.
       properties:
+        active_parameter_count:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Active parameters of a mixture-of-experts model, parsed from the
+            `A<n>` part of `model_size`.
+          readOnly: true
+          title: Active Parameter Count
         context_length_tokens:
           anyOf:
             - minimum: 1
@@ -2780,6 +3559,8 @@ components:
           anyOf:
             - type: string
             - type: "null"
+          description: Data type or precision, normalised to lowercase with no spaces and
+            the width last, e.g. `fp16`.
           title: Data Type
         description:
           anyOf:
@@ -2841,12 +3622,22 @@ components:
             - type: string
             - type: "null"
           title: Model Type
+        parameter_count:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Total parameters, parsed once from the `model_size` label.
+          readOnly: true
+          title: Parameter Count
         vendor:
           anyOf:
             - type: string
             - type: "null"
           description: Procured-model vendor, distributor, or provider.
           title: Vendor
+      required:
+        - parameter_count
+        - active_parameter_count
       title: HostedModelCard
       type: object
     HostedModelCardEndpoint:
@@ -2941,6 +3732,20 @@ components:
         - processor_version
       title: HuggingFaceProvenance
       type: object
+    InventoryListInclude:
+      description: Optional response sections a list request may ask for.
+      enum:
+        - facets
+      title: InventoryListInclude
+      type: string
+    InventoryTask:
+      description: Console-facing task vocabulary derived from endpoint capabilities.
+      enum:
+        - chat
+        - embeddings
+        - images
+      title: InventoryTask
+      type: string
     JsonValue: {}
     ModelDeploymentRequest:
       description: IMS tracking resource for an Envir Product Deployer request.
@@ -3243,6 +4048,92 @@ components:
         - resolved_digest
       title: OciProvenance
       type: object
+    OnDemandModelDeployment:
+      description: The submitted on-demand deployment request, without its placement
+        or Envir's free-form text.
+      properties:
+        configuration_id:
+          title: Configuration Id
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        deployed_product_id:
+          title: Deployed Product Id
+          type: string
+        organization_id:
+          title: Organization Id
+          type: string
+        phase:
+          $ref: "#/components/schemas/DeploymentPhase"
+        product_id:
+          title: Product Id
+          type: string
+        project_id:
+          title: Project Id
+          type: string
+        request_id:
+          title: Request Id
+          type: string
+        status:
+          $ref: "#/components/schemas/DeploymentLifecycleStatus"
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+        - request_id
+        - deployed_product_id
+        - organization_id
+        - project_id
+        - product_id
+        - configuration_id
+        - status
+        - phase
+        - created_at
+        - updated_at
+      title: OnDemandModelDeployment
+      type: object
+    OnDemandModelDeploymentRequest:
+      additionalProperties: false
+      description: >-
+        Select one authoritative Profile to deploy on the caller project's
+        on-demand capacity.
+
+
+        Onboarding owns placement, so it names no Environment, pool or flavor;
+        an on-demand endpoint is never open.
+      properties:
+        deployment_name:
+          minLength: 1
+          title: Deployment Name
+          type: string
+        model_access_key:
+          description: Access key required by clients of the deployed model endpoint.
+          format: password
+          title: Model Access Key
+          type: string
+          writeOnly: true
+        profile_logical_name:
+          minLength: 1
+          title: Profile Logical Name
+          type: string
+        replicas:
+          anyOf:
+            - additionalProperties:
+                $ref: "#/components/schemas/ReplicaRange"
+              type: object
+            - type: "null"
+          description: Instances to run, keyed by the Profile's roles, as for a private
+            deployment.
+          title: Replicas
+      required:
+        - deployment_name
+        - profile_logical_name
+        - model_access_key
+      title: OnDemandModelDeploymentRequest
+      type: object
     OpaqueSecretDeployment:
       description: Opaque-secret lifecycle identity plus its non-secret logical
         reference and the role it serves.
@@ -3378,6 +4269,21 @@ components:
         profile_logical_name:
           title: Profile Logical Name
           type: string
+        replicas:
+          anyOf:
+            - additionalProperties:
+                $ref: "#/components/schemas/ReplicaRange"
+              type: object
+            - type: "null"
+          description: "Instances the deployment was created to run, keyed by role, in the
+            deploy request's `replicas` shape. Read from the stored BYOM
+            configuration: one instance when it stores no count, absent when the
+            stored count is invalid."
+          examples:
+            - aggregated:
+                max: 2
+                min: 2
+          title: Replicas
         source_secret_deployment:
           anyOf:
             - $ref: "#/components/schemas/SourceSecretDeployment"
@@ -3399,6 +4305,12 @@ components:
     PrivateHostedModelPage:
       description: Paginated private Model Inventory response.
       properties:
+        facets:
+          anyOf:
+            - $ref: "#/components/schemas/Facets"
+            - type: "null"
+          description: Per-field value counts over the filtered set, present when
+            `include=facets` was requested.
         items:
           items:
             $ref: "#/components/schemas/PrivateHostedModel"
@@ -3414,6 +4326,28 @@ components:
           minimum: 1
           title: Page Size
           type: integer
+        snapshot_age_seconds:
+          anyOf:
+            - minimum: 0
+              type: number
+            - type: "null"
+          description: Age of that snapshot's data when this page was served; set only on
+            federation routes.
+          title: Snapshot Age Seconds
+        snapshot_at:
+          anyOf:
+            - format: date-time
+              type: string
+            - type: "null"
+          description: Source time of the resident snapshot this page was answered from.
+          title: Snapshot At
+        snapshot_version:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Digest of the whole view this page was cut from; set only on
+            federation routes.
+          title: Snapshot Version
         total:
           description: Total records matching the request before pagination.
           minimum: 0
@@ -3641,6 +4575,12 @@ components:
     ProfilePage:
       description: Paginated Profile Registry list response.
       properties:
+        facets:
+          anyOf:
+            - $ref: "#/components/schemas/Facets"
+            - type: "null"
+          description: Per-field value counts over the filtered set, present when
+            `include=facets` was requested.
         items:
           items:
             $ref: "#/components/schemas/Profile"
@@ -3656,6 +4596,28 @@ components:
           minimum: 1
           title: Page Size
           type: integer
+        snapshot_age_seconds:
+          anyOf:
+            - minimum: 0
+              type: number
+            - type: "null"
+          description: Age of that snapshot's data when this page was served; set only on
+            federation routes.
+          title: Snapshot Age Seconds
+        snapshot_at:
+          anyOf:
+            - format: date-time
+              type: string
+            - type: "null"
+          description: Source time of the resident snapshot this page was answered from.
+          title: Snapshot At
+        snapshot_version:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Digest of the whole view this page was cut from; set only on
+            federation routes.
+          title: Snapshot Version
         total:
           description: Total records matching the request before pagination.
           minimum: 0
@@ -3732,6 +4694,12 @@ components:
     PublicHostedModelPage:
       description: Paginated public Hosted Model response.
       properties:
+        facets:
+          anyOf:
+            - $ref: "#/components/schemas/Facets"
+            - type: "null"
+          description: Per-field value counts over the filtered set, present when
+            `include=facets` was requested.
         items:
           items:
             $ref: "#/components/schemas/PublicHostedModel"
@@ -3747,6 +4715,28 @@ components:
           minimum: 1
           title: Page Size
           type: integer
+        snapshot_age_seconds:
+          anyOf:
+            - minimum: 0
+              type: number
+            - type: "null"
+          description: Age of that snapshot's data when this page was served; set only on
+            federation routes.
+          title: Snapshot Age Seconds
+        snapshot_at:
+          anyOf:
+            - format: date-time
+              type: string
+            - type: "null"
+          description: Source time of the resident snapshot this page was answered from.
+          title: Snapshot At
+        snapshot_version:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Digest of the whole view this page was cut from; set only on
+            federation routes.
+          title: Snapshot Version
         total:
           description: Total records matching the request before pagination.
           minimum: 0
