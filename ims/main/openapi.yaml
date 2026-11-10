@@ -4257,7 +4257,11 @@ components:
             - type: "null"
           description: Provenance of `endpoint`. Present exactly when `endpoint` is.
         environment:
-          $ref: "#/components/schemas/DeploymentEnvironment"
+          anyOf:
+            - $ref: "#/components/schemas/DeploymentEnvironment"
+            - type: "null"
+          description: Envir environment the deployment runs in. Absent for an on-demand
+            deployment.
         model_card:
           anyOf:
             - $ref: "#/components/schemas/HostedModelCard"
@@ -4299,7 +4303,6 @@ components:
         - created_at
         - status
         - byom_deployment
-        - environment
       title: PrivateHostedModelInstance
       type: object
     PrivateHostedModelPage:
@@ -4483,8 +4486,12 @@ components:
       description: Private lifecycle identity for one Envir deployed product.
       properties:
         configuration_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Configuration id. Absent for an on-demand deployment, whose
+            configuration names its placement.
           title: Configuration Id
-          type: string
         customer_request_id:
           title: Customer Request Id
           type: string
@@ -4500,7 +4507,6 @@ components:
       required:
         - product_id
         - deployed_product_id
-        - configuration_id
         - deployment_request_id
         - customer_request_id
       title: ProductDeployment
