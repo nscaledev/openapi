@@ -6656,7 +6656,7 @@
         "type": "object"
       },
       "OnDemandModelDeployment": {
-        "description": "The submitted on-demand deployment request, without its placement or Envir's free-form text.\n\nIt carries no configuration id: Product Configurator answers one with the Environment and pool.",
+        "description": "The submitted on-demand deployment request, without its placement or Envir's free-form text.\n\nIt carries no configuration id: that configuration names the Environment and pool, so only IMS's trusted read\nreturns it.",
         "properties": {
           "created_at": {
             "format": "date-time",
