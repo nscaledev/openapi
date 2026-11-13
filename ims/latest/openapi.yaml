@@ -4251,8 +4251,10 @@ components:
         Envir's free-form text.
 
 
-        It carries no configuration id: Product Configurator answers one with
-        the Environment and pool.
+        It carries no configuration id: that configuration names the Environment
+        and pool, so only IMS's trusted read
+
+        returns it.
       properties:
         created_at:
           format: date-time
