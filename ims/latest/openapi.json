@@ -5881,6 +5881,20 @@
         "title": "DeploymentRequestOperation",
         "type": "string"
       },
+      "DeploymentState": {
+        "description": "What a private deployment is now, worked out by IMS from Envir's records (ADR-0003).\n\n`unavailable`, `stopping` and `stopped` are part of the contract but not returned yet: they wait on a\nready-replica reading and on stop and start.",
+        "enum": [
+          "starting",
+          "ready",
+          "unavailable",
+          "stopping",
+          "stopped",
+          "deleting",
+          "failed"
+        ],
+        "title": "DeploymentState",
+        "type": "string"
+      },
       "ErrorBody": {
         "description": "Simple preliminary IMS/Envir-style error payload.",
         "properties": {
@@ -6987,6 +7001,18 @@
             "title": "Profile Logical Name",
             "type": "string"
           },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Envir's code for why the deployment's current request is waiting, failed or was cancelled, as Envir gives it: today `capacity_unavailable`, `pod_unschedulable`, `container_waiting`, `crash_looping`, `admission_rejected`, `cancelled` or `unknown`. Envir may add codes; treat one you do not know as `unknown`. Absent when Envir gives none.",
+            "title": "Reason"
+          },
           "replicas": {
             "anyOf": [
               {
@@ -7020,6 +7046,17 @@
               }
             ],
             "description": "Source-model credential Secret IMS provisioned for an s3:// Profile that named none. Absent when the Profile carried its own reference or the source needs no credential."
+          },
+          "state": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeploymentState"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the deployment is now: `starting` until its first deploy succeeds, `ready` once deployed, `deleting` from an accepted delete until it ends, and `failed` when its first deploy failed. Absent when IMS could not read the deployment's current request from Envir."
           },
           "status": {
             "$ref": "#/components/schemas/DeploymentLifecycleStatus"
@@ -7336,6 +7373,12 @@
             "$ref": "#/components/schemas/ProfileClassifier",
             "default": "balanced",
             "description": "Classification of what this Profile is tuned for."
+          },
+          "dedicated_eligible": {
+            "default": false,
+            "description": "Platform approval for Dedicated deployment; only a published platform-owned Profile can authorize it.",
+            "title": "Dedicated Eligible",
+            "type": "boolean"
           },
           "inputs": {
             "additionalProperties": {
