@@ -4789,6 +4789,12 @@ components:
           $ref: "#/components/schemas/ProfileClassifier"
           default: balanced
           description: Classification of what this Profile is tuned for.
+        dedicated_eligible:
+          default: false
+          description: Platform approval for Dedicated deployment; only a published
+            platform-owned Profile can authorize it.
+          title: Dedicated Eligible
+          type: boolean
         inputs:
           additionalProperties:
             $ref: "#/components/schemas/JsonValue"
