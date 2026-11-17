@@ -4964,13 +4964,43 @@
         "description": "The provisioning state of a resource.",
         "type": "string",
         "enum": [
-          "unknown",
           "pending",
           "provisioning",
           "provisioned",
           "deprovisioning",
           "error"
         ]
+      },
+      "provisioningStatusReason": {
+        "description": "A closed, generic classification of a resource's provisioning state,\nfiner-grained than provisioningStatus. This vocabulary is owned by the\nplatform and is the same across all resources; domain-specific state\n(e.g. an instance's lifecycle phase) is carried on other mechanisms and\nnever appears here.",
+        "type": "string",
+        "enum": [
+          "Provisioning",
+          "Provisioned",
+          "Errored",
+          "Deprovisioning",
+          "Deprovisioned",
+          "DependencyNotReady",
+          "DependencyFailed",
+          "DependencyNotFound"
+        ]
+      },
+      "provisioningStatusDetail": {
+        "description": "Human-facing detail about the current provisioning state: a\nmachine-classifiable reason drawn from a closed vocabulary, and a\nuser-safe human-readable message. Derived from the resource's status and\nsupplements the coarse provisioningStatus; never stored.",
+        "type": "object",
+        "required": [
+          "reason",
+          "message"
+        ],
+        "properties": {
+          "reason": {
+            "$ref": "#/components/schemas/provisioningStatusReason"
+          },
+          "message": {
+            "description": "A user-safe, human-readable description of the provisioning state.",
+            "type": "string"
+          }
+        }
       },
       "resourceHealthStatus": {
         "description": "The health state of a resource.",
@@ -4981,6 +5011,32 @@
           "degraded",
           "error"
         ]
+      },
+      "healthStatusReason": {
+        "description": "A closed, generic classification of a resource's health — the raw health\ncondition reason, finer-grained than the coarse healthStatus. Owned by the\nplatform and the same across all resources.",
+        "type": "string",
+        "enum": [
+          "Healthy",
+          "Degraded",
+          "Unknown"
+        ]
+      },
+      "healthStatusDetail": {
+        "description": "Human-facing detail about the current health state: a machine-classifiable\nreason drawn from a closed vocabulary, and a user-safe human-readable\nmessage (e.g. \"2/12 nodes are down\"). Derived from the resource's status and\nsupplements the coarse healthStatus; never stored.",
+        "type": "object",
+        "required": [
+          "reason",
+          "message"
+        ],
+        "properties": {
+          "reason": {
+            "$ref": "#/components/schemas/healthStatusReason"
+          },
+          "message": {
+            "description": "A user-safe, human-readable description of the health state.",
+            "type": "string"
+          }
+        }
       },
       "resourceReadMetadata": {
         "description": "Metadata required by all resource reads.",
@@ -5003,8 +5059,14 @@
               "provisioningStatus": {
                 "$ref": "#/components/schemas/resourceProvisioningStatus"
               },
+              "provisioningStatusDetail": {
+                "$ref": "#/components/schemas/provisioningStatusDetail"
+              },
               "healthStatus": {
                 "$ref": "#/components/schemas/resourceHealthStatus"
+              },
+              "healthStatusDetail": {
+                "$ref": "#/components/schemas/healthStatusDetail"
               }
             }
           }
