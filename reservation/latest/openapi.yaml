@@ -237,6 +237,56 @@ paths:
           $ref: "#/components/responses/preconditionRequiredResponse"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
+  /api/v2/reservations/{reservationID}/units/add:
+    description: >-
+      Synchronously adds whole, named reservation units to a Reservation's
+
+      accepted claim. Add is atomic and all-or-nothing across the requested
+
+      units: if any requested unit does not resolve in the Reservation's
+
+      current scope, fails its claim policy or flavor scope, or is already
+
+      held, none are added and the request fails with structured reasons. The
+      requested units are identified by the opaque
+
+      free unit IDs the organization topology view gives unreserved units.
+    parameters:
+      - $ref: "#/components/parameters/reservationIDParameter"
+      - $ref: "#/components/parameters/ifMatchParameter"
+    post:
+      operationId: addReservationUnits
+      description: Add reservation units.
+      summary: Add reservation units
+      tags:
+        - Reservations
+      security:
+        - oauth2Authentication: []
+      requestBody:
+        $ref: "#/components/requestBodies/reservationUnitAddRequestBody"
+      responses:
+        "200":
+          $ref: "#/components/responses/reservationUnitAddResponse"
+        "400":
+          $ref: "#/components/responses/badRequestResponse"
+        "401":
+          $ref: "#/components/responses/unauthorizedResponse"
+        "403":
+          $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
+        "409":
+          $ref: "#/components/responses/conflictResponse"
+        "412":
+          $ref: "#/components/responses/preconditionFailedResponse"
+        "422":
+          $ref: "#/components/responses/reservationUnitAddIneligibleResponse"
+        "428":
+          $ref: "#/components/responses/preconditionRequiredResponse"
+        "500":
+          $ref: "#/components/responses/internalServerErrorResponse"
+        "503":
+          $ref: "#/components/responses/serviceUnavailableResponse"
   /api/v2/placements:
     description: |-
       Manages project scoped placements of hosts from reservations. A placement
@@ -1165,6 +1215,95 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/reservationUnitBlockerV2"
+    reservationUnitAddSpec:
+      description: Reservation units to add.
+      type: object
+      required:
+        - unitIds
+      properties:
+        unitIds:
+          description: >
+            Opaque, free reservation unit IDs to add, as discovered from the
+            organization topology view's unreserved pool. Not provider inventory
+            identifiers, device IDs, path labels, pod IDs, or the
+            Reservation-scoped handles release requests use.
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            type: string
+    reservationUnitAddRequest:
+      description: A request to add reservation units.
+      type: object
+      required:
+        - spec
+      properties:
+        spec:
+          $ref: "#/components/schemas/reservationUnitAddSpec"
+    addedUnitV2:
+      description: A reservation unit added by an add request.
+      type: object
+      required:
+        - id
+        - infrastructureRefs
+      properties:
+        id:
+          description: >
+            Opaque, Reservation-scoped accepted unit ID the added unit now
+            carries, for use as a release unit ID in later requests.
+          type: string
+        infrastructureRefs:
+          description: Ironic node UUIDs of the hosts that were added.
+          type: array
+          items:
+            type: string
+    reservationUnitAddResult:
+      description: The result of a reservation unit add request.
+      type: object
+      required:
+        - reservation
+        - addedUnits
+      properties:
+        reservation:
+          $ref: "#/components/schemas/reservationV2Read"
+        addedUnits:
+          type: array
+          items:
+            $ref: "#/components/schemas/addedUnitV2"
+    reservationUnitIneligibilityV2:
+      description: A requested reservation unit that cannot join the claim.
+      type: object
+      required:
+        - unitId
+        - reason
+      properties:
+        unitId:
+          description: The opaque, free reservation unit ID that was refused.
+          type: string
+        reason:
+          description: >
+            claim_policy: the unit has a host that fails the Reservation's claim
+            policy. flavor_scope: the unit's hosts do not match the
+            Reservation's device type. spine: the unit is outside the single
+            spine the Reservation's claim must occupy.
+          type: string
+          enum:
+            - claim_policy
+            - flavor_scope
+            - spine
+    reservationUnitAddIneligibleV2:
+      description: |-
+        Structured reasons an add request could not proceed. Returned
+        instead of any partial add: if any requested unit is ineligible,
+        nothing is added.
+      type: object
+      required:
+        - units
+      properties:
+        units:
+          type: array
+          items:
+            $ref: "#/components/schemas/reservationUnitIneligibilityV2"
     placementPolicyV2:
       description: |-
         Pack fills domains sequentially, maximising locality. Spread
@@ -2127,6 +2266,17 @@ components:
             spec:
               unitIds:
                 - 3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef
+    reservationUnitAddRequestBody:
+      description: A request to add reservation units.
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/reservationUnitAddRequest"
+          example:
+            spec:
+              unitIds:
+                - 3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef
     placementV2CreateRequest:
       description: A request to create a placement.
       required: true
@@ -2336,6 +2486,66 @@ components:
                     placementId: b8ce034e-fccb-4d6c-a0e0-af3e3f346715
                     serverIds:
                       - psrv-950ab3259a1443da
+    reservationUnitAddResponse:
+      description: A reservation unit add result.
+      headers:
+        ETag:
+          description: >
+            The Reservation's new accepted topology hash after this add, quoted
+            as a strong entity tag, for use as the next add or release request's
+            If-Match precondition.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/reservationUnitAddResult"
+          example:
+            reservation:
+              metadata:
+                id: a64f9269-36e0-4312-b8d1-52d93d569b7b
+                name: gb300-nvl72
+                organizationId: 9a8c6370-4065-4d4a-9da0-7678df40cd9d
+                projectId: e36c058a-8eba-4f5b-91f4-f6ffb983795c
+                creationTime: 2026-04-28T10:45:45Z
+                createdBy: john.doe@example.com
+                provisioningStatus: provisioned
+                healthStatus: healthy
+              spec:
+                regionId: c7568e2d-f9ab-453d-9a3a-51375f78426b
+                accelerator: GB300
+                unit: NVL72
+                count: 2
+              status:
+                machineFlavorId: g.72.gb300.pinned
+                claimedUnitCount: 3
+                topologyHash: sha256:9a1f9b6b4b9b0b4e7d9c6a5f3e2d1c0b8a7f6e5d4c3b2a1908f7e6d5c4b3a291
+                topologyObservedAt: 2026-05-14T10:05:00Z
+            addedUnits:
+              - id: 3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef
+                infrastructureRefs:
+                  - 00000000-0000-0000-0000-000000000003
+    reservationUnitAddIneligibleResponse:
+      description: |-
+        The add request could not proceed because one or more requested
+        units cannot join the Reservation's claim. No unit was added.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/reservationUnitAddIneligibleV2"
+          example:
+            units:
+              - unitId: 3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef
+                reason: spine
+    serviceUnavailableResponse:
+      description: |-
+        A dependency the request needs cannot currently be read, so the
+        request cannot be evaluated against current state. Nothing was
+        changed; retry later.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/error"
     preconditionFailedResponse:
       description: |-
         The If-Match precondition no longer matches the resource's current
