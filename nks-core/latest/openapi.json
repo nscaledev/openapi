@@ -2379,6 +2379,9 @@
           },
           "constraints": {
             "$ref": "#/components/schemas/nodePoolPlacementConstraintsV1"
+          },
+          "readinessPolicy": {
+            "$ref": "#/components/schemas/nodePoolPlacementReadinessPolicyV1"
           }
         }
       },
@@ -2416,6 +2419,25 @@
             "enum": [
               "fail",
               "bestEffort"
+            ]
+          }
+        }
+      },
+      "nodePoolPlacementReadinessPolicyV1": {
+        "description": "Immutable host readiness policy for a reservation-backed node pool's placement. When omitted, Prefer applies.",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode"
+        ],
+        "properties": {
+          "mode": {
+            "description": "Require selects only hosts that currently pass readiness checks; Prefer selects ready hosts first but may use other reserved hosts to satisfy the request; Ignore does not consider readiness.",
+            "type": "string",
+            "enum": [
+              "Require",
+              "Prefer",
+              "Ignore"
             ]
           }
         }
