@@ -4795,6 +4795,14 @@ components:
             platform-owned Profile can authorize it.
           title: Dedicated Eligible
           type: boolean
+        gpu_model:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: "Display name of the GPU one instance runs on, such as `B200`;
+            absent when the Profile does not state one. Not an id to place by:
+            `supported_flavor_ids` decides which pools can host the Profile."
+          title: Gpu Model
         inputs:
           additionalProperties:
             $ref: "#/components/schemas/JsonValue"
