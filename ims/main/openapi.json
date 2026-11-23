@@ -2851,7 +2851,7 @@
                 }
               }
             },
-            "description": "On-demand deployment is being set up"
+            "description": "On-demand deployment is not ready yet"
           },
           "422": {
             "content": {
