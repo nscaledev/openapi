@@ -5462,6 +5462,74 @@
   },
   "components": {
     "schemas": {
+      "AutoscalingMetric": {
+        "description": "What an autoscaled deployment measures to decide how many instances to run.",
+        "enum": [
+          "requests_in_flight"
+        ],
+        "title": "AutoscalingMetric",
+        "type": "string"
+      },
+      "AutoscalingSettings": {
+        "additionalProperties": false,
+        "description": "Autoscaling choices a deploy request makes, or a Profile offers as defaults. Every field is optional.",
+        "properties": {
+          "metric": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutoscalingMetric"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the deployment measures to decide how many instances to run. Defaults to `requests_in_flight`."
+          },
+          "scale_down_window_seconds": {
+            "anyOf": [
+              {
+                "maximum": 3600,
+                "minimum": 300,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How long demand must stay low before instances are removed, at least 300. Defaults to the Profile's value; when neither sets it, instances are removed after 300 seconds of lower demand.",
+            "title": "Scale Down Window Seconds"
+          },
+          "scale_up_window_seconds": {
+            "anyOf": [
+              {
+                "maximum": 3600,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How long demand must stay high before instances are added. Defaults to the Profile's value; when neither sets it, instances are added at once.",
+            "title": "Scale Up Window Seconds"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The average value of `metric` each instance should carry. Instances are added above it and removed below it. Defaults to the Profile's target, then 16.",
+            "title": "Target"
+          }
+        },
+        "title": "AutoscalingSettings",
+        "type": "object"
+      },
       "ByomModelTask": {
         "description": "OpenAI-compatible task exposed by BYOM 1.0.0.",
         "enum": [
@@ -5776,6 +5844,17 @@
         "additionalProperties": false,
         "description": "Inputs supplied by a caller to create one catalog-backed default Profile.",
         "properties": {
+          "autoscaling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutoscalingSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Autoscaling defaults for deployments of this Profile that run a range of instances. A deploy request's own `autoscaling` settings win, field by field; the platform defaults fill what neither sets."
+          },
           "classifier": {
             "$ref": "#/components/schemas/ProfileClassifier",
             "default": "balanced"
@@ -5894,6 +5973,56 @@
         ],
         "title": "DeploymentState",
         "type": "string"
+      },
+      "EffectiveAutoscaling": {
+        "additionalProperties": false,
+        "description": "The autoscaling settings one autoscaled deployment runs with, after every default is applied.",
+        "properties": {
+          "metric": {
+            "$ref": "#/components/schemas/AutoscalingMetric",
+            "description": "What the deployment measures to decide how many instances to run."
+          },
+          "scale_down_window_seconds": {
+            "anyOf": [
+              {
+                "maximum": 3600,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How long demand must stay low before instances are removed. Absent when no window was set.",
+            "title": "Scale Down Window Seconds"
+          },
+          "scale_up_window_seconds": {
+            "anyOf": [
+              {
+                "maximum": 3600,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How long demand must stay high before instances are added. Absent when no window was set.",
+            "title": "Scale Up Window Seconds"
+          },
+          "target": {
+            "description": "The average value of `metric` each instance should carry.",
+            "minimum": 1,
+            "title": "Target",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "metric",
+          "target"
+        ],
+        "title": "EffectiveAutoscaling",
+        "type": "object"
       },
       "ErrorBody": {
         "description": "Simple preliminary IMS/Envir-style error payload.",
@@ -6979,6 +7108,17 @@
         "additionalProperties": false,
         "description": "Select one authoritative Profile to deploy on the caller project's on-demand capacity.\n\nOnboarding owns placement, so it names no Environment, pool or flavor; an on-demand endpoint is never open.",
         "properties": {
+          "autoscaling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutoscalingSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "On-demand capacity runs a fixed replica count. Supplying this object or a replica range returns 400 autoscaling_not_supported_for_capacity. Choose a Reserved pool that supports autoscaling."
+          },
           "deployment_name": {
             "minLength": 1,
             "title": "Deployment Name",
@@ -7008,7 +7148,7 @@
                 "type": "null"
               }
             ],
-            "description": "Instances to run, keyed by the Profile's roles, as for a private deployment.",
+            "description": "Instances to run, keyed by the Profile's roles, as for a private deployment. On-demand capacity runs a fixed count: a role with `min` below `max` is refused.",
             "title": "Replicas"
           }
         },
@@ -7254,6 +7394,23 @@
       "PrivateHostedModelInstance": {
         "description": "IMS management metadata for one Profile-backed Envir DeployedProduct.",
         "properties": {
+          "autoscaling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EffectiveAutoscaling"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The autoscaling settings the deployment runs with, after the Profile's and the platform's defaults were applied. Present only when `replicas` has `min` below `max`; absent for a fixed count and when the stored settings are invalid.",
+            "examples": [
+              {
+                "metric": "requests_in_flight",
+                "target": 16
+              }
+            ]
+          },
           "byom_deployment": {
             "$ref": "#/components/schemas/ProductDeployment"
           },
@@ -7503,6 +7660,23 @@
         "additionalProperties": false,
         "description": "Select one authoritative Profile and one private Envir placement.",
         "properties": {
+          "autoscaling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutoscalingSettings"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How the deployment adds and removes instances when a role's `replicas` has `min` below `max`. Each setting left out takes the Profile's default, then the platform default. Refused when every role runs a fixed count, because nothing would apply it.",
+            "examples": [
+              {
+                "metric": "requests_in_flight",
+                "target": 16
+              }
+            ]
+          },
           "deployment_name": {
             "minLength": 1,
             "title": "Deployment Name",
@@ -7702,6 +7876,17 @@
       "Profile": {
         "description": "IMS-owned Profile domain model crossing the repository boundary.",
         "properties": {
+          "autoscaling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProfileAutoscalingDefaults"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Autoscaling defaults for deployments of this Profile that run a range of instances. A deploy request's own `autoscaling` settings win, field by field; the platform defaults fill what neither sets."
+          },
           "classifier": {
             "$ref": "#/components/schemas/ProfileClassifier",
             "default": "balanced",
@@ -7830,6 +8015,65 @@
           "performance"
         ],
         "title": "Profile",
+        "type": "object"
+      },
+      "ProfileAutoscalingDefaults": {
+        "description": "A Profile's autoscaling defaults as stored or federated, which may come from a newer IMS.\n\nA setting this version does not know is ignored rather than refused, so one new optional setting\ndoes not make the whole Profile unreadable here. A request stays strict: `AutoscalingSettings`\nrefuses an unknown setting.",
+        "properties": {
+          "metric": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AutoscalingMetric"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "What the deployment measures to decide how many instances to run. Defaults to `requests_in_flight`."
+          },
+          "scale_down_window_seconds": {
+            "anyOf": [
+              {
+                "maximum": 3600,
+                "minimum": 300,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How long demand must stay low before instances are removed, at least 300. Defaults to the Profile's value; when neither sets it, instances are removed after 300 seconds of lower demand.",
+            "title": "Scale Down Window Seconds"
+          },
+          "scale_up_window_seconds": {
+            "anyOf": [
+              {
+                "maximum": 3600,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "How long demand must stay high before instances are added. Defaults to the Profile's value; when neither sets it, instances are added at once.",
+            "title": "Scale Up Window Seconds"
+          },
+          "target": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The average value of `metric` each instance should carry. Instances are added above it and removed below it. Defaults to the Profile's target, then 16.",
+            "title": "Target"
+          }
+        },
+        "title": "ProfileAutoscalingDefaults",
         "type": "object"
       },
       "ProfileClassifier": {
