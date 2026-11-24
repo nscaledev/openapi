@@ -2738,6 +2738,166 @@
           }
         ],
         "summary": "Undeploy Private Model Instance"
+      },
+      "patch": {
+        "description": "Change a running private deployment's replicas, its autoscaling settings, or both, without deleting it. A field left out keeps its current value.",
+        "operationId": "update_private_model_instance_api_v1_model_inventory_private_instances__deployed_product_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deployed_product_id",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Deployed Product Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrivateModelInstanceUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelDeploymentRequest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Update Private Model Instance"
       }
     },
     "/api/v1/model-inventory/private/on-demand": {
@@ -7923,6 +8083,41 @@
         ],
         "title": "PrivateModelInstanceDeletionOutcome",
         "type": "string"
+      },
+      "PrivateModelInstanceUpdate": {
+        "additionalProperties": false,
+        "description": "Change a running deployment's instance range, its autoscaling settings, or both.",
+        "minProperties": 1,
+        "properties": {
+          "autoscaling": {
+            "$ref": "#/components/schemas/AutoscalingSettings",
+            "description": "How the deployment adds and removes instances, in the deploy request's `autoscaling` shape and under its rules. Given, it replaces every setting: one left out of it returns to the Profile's default, then the platform default, so `{}` returns them all. A scale window has no platform default, so one left out is no longer sent unless the Profile sets it. Left out, an autoscaled deployment keeps the settings it has, and a deployment that becomes autoscaled takes the defaults.",
+            "examples": [
+              {
+                "target": 8
+              }
+            ],
+            "title": "Autoscaling"
+          },
+          "replicas": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ReplicaRange"
+            },
+            "description": "Instances to run, keyed by the Profile's roles, in the deploy request's `replicas` shape and under its rules. Given, it replaces the whole range. Left out, the deployment keeps the range it has.",
+            "examples": [
+              {
+                "aggregated": {
+                  "max": 4,
+                  "min": 1
+                }
+              }
+            ],
+            "title": "Replicas",
+            "type": "object"
+          }
+        },
+        "title": "PrivateModelInstanceUpdate",
+        "type": "object"
       },
       "ProductDeployment": {
         "description": "Private lifecycle identity for one Envir deployed product.",
