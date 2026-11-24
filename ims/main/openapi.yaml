@@ -3752,10 +3752,11 @@ components:
         (ADR-0003).
 
 
-        `unavailable`, `stopping` and `stopped` are part of the contract but not
-        returned yet: they wait on a
+        `stopping` and `stopped` wait on stop and start. Fresh ready-replica
+        readings distinguish
 
-        ready-replica reading and on stop and start.
+        `ready` from `unavailable`; unknown readings leave current availability
+        absent.
       enum:
         - starting
         - ready
@@ -4056,6 +4057,50 @@ components:
       title: InventoryTask
       type: string
     JsonValue: {}
+    LiveReplicaCounts:
+      description: A workload reading and its successful collection time, retained
+        when counts become stale.
+      properties:
+        aggregated:
+          anyOf:
+            - $ref: "#/components/schemas/LiveReplicas"
+            - type: "null"
+        observed_at:
+          format: date-time
+          title: Observed At
+          type: string
+      required:
+        - observed_at
+      title: LiveReplicaCounts
+      type: object
+    LiveReplicas:
+      description: Fresh workload counts for the aggregated serving role; unknown
+        counts are absent.
+      properties:
+        ready:
+          anyOf:
+            - minimum: 0
+              type: integer
+            - type: "null"
+          description: Replicas ready to serve. Zero is a measured zero.
+          title: Ready
+        waiting_for_capacity:
+          anyOf:
+            - minimum: 0
+              type: integer
+            - type: "null"
+          description: Replicas that cannot start because the resource pool has no room,
+            as Envir measured. Zero is a measured zero; absent is unknown.
+          title: Waiting For Capacity
+        wanted:
+          anyOf:
+            - minimum: 0
+              type: integer
+            - type: "null"
+          description: Replicas the workload currently asks for, as Envir measured.
+          title: Wanted
+      title: LiveReplicas
+      type: object
     MeasurementAxis:
       description: The x axis every chart of a measurement shares.
       properties:
@@ -4864,6 +4909,21 @@ components:
             - type: "null"
           description: Envir environment the deployment runs in. Absent for an on-demand
             deployment.
+        live_replicas:
+          anyOf:
+            - $ref: "#/components/schemas/LiveReplicaCounts"
+            - type: "null"
+          description: Workload ready, wanted and capacity-waiting counts with Envir's
+            successful collection time. Counts are absent when older than three
+            minutes, future-dated or unknown; a stale valid reading retains
+            observed_at. Wanted is the workload's requested count, never the
+            configured maximum. Absent never means zero.
+          examples:
+            - aggregated:
+                ready: 2
+                waiting_for_capacity: 1
+                wanted: 3
+              observed_at: 2026-10-01T12:00:00Z
         model_card:
           anyOf:
             - $ref: "#/components/schemas/HostedModelCard"
@@ -4913,10 +4973,10 @@ components:
             - $ref: "#/components/schemas/DeploymentState"
             - type: "null"
           description: "What the deployment is now: `starting` until its first deploy
-            succeeds, `ready` once deployed, `deleting` from an accepted delete
-            until it ends, and `failed` when its first deploy failed. Absent
-            when IMS could not read the deployment's current request from
-            Envir."
+            succeeds, `ready` when a fresh reading shows a ready replica,
+            `unavailable` when it measures zero, `deleting` during an accepted
+            delete, and `failed` when its first deploy failed. Absent when
+            current availability or lifecycle is unknown."
         status:
           $ref: "#/components/schemas/DeploymentLifecycleStatus"
       required:
