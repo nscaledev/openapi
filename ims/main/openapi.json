@@ -4566,7 +4566,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProfilePage"
+                  "$ref": "#/components/schemas/ProfileResponsePage"
                 }
               }
             },
@@ -4839,7 +4839,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProfilePage"
+                  "$ref": "#/components/schemas/ProfileResponsePage"
                 }
               }
             },
@@ -5120,7 +5120,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Profile"
+                  "$ref": "#/components/schemas/ProfileResponse"
                 }
               }
             },
@@ -5393,7 +5393,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProfilePage"
+                  "$ref": "#/components/schemas/ProfileResponsePage"
                 }
               }
             },
@@ -5534,7 +5534,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Profile"
+                  "$ref": "#/components/schemas/ProfileResponse"
                 }
               }
             },
@@ -8363,6 +8363,33 @@
         "title": "ProfileAutoscalingDefaults",
         "type": "object"
       },
+      "ProfileAutoscalingSupport": {
+        "description": "Whether the Profile's GPU configuration is eligible for replica autoscaling.",
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why this shape is unsupported, or null for a supported shape.",
+            "title": "Reason"
+          },
+          "supported": {
+            "title": "Supported",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "supported",
+          "reason"
+        ],
+        "title": "ProfileAutoscalingSupport",
+        "type": "object"
+      },
       "ProfileClassifier": {
         "description": "IMS-owned classification of what a Profile is tuned for.",
         "enum": [
@@ -8374,8 +8401,199 @@
         "title": "ProfileClassifier",
         "type": "string"
       },
-      "ProfilePage": {
-        "description": "Paginated Profile Registry list response.",
+      "ProfilePerformance": {
+        "description": "Benchmark results for a Profile, as raw totals for each measured setup.",
+        "properties": {
+          "headline": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PerformanceHeadline"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Planned, not returned yet: the one number a Profile card shows, with what it measured."
+          },
+          "measurements": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/PerformanceMeasurement"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Planned, not returned yet: one entry per benchmarked workload and setup.",
+            "title": "Measurements"
+          },
+          "status": {
+            "description": "Documented values: `measured`, `not_measured`; an open string. Read a value you do not know as `not_measured`. Always `not_measured` today.",
+            "minLength": 1,
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "ProfilePerformance",
+        "type": "object"
+      },
+      "ProfileResponse": {
+        "description": "End-user Profile read with eligibility computed by the serving IMS.",
+        "properties": {
+          "autoscaling": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProfileAutoscalingDefaults"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Autoscaling defaults for deployments of this Profile that run a range of instances. A deploy request's own `autoscaling` settings win, field by field; the platform defaults fill what neither sets."
+          },
+          "autoscaling_support": {
+            "$ref": "#/components/schemas/ProfileAutoscalingSupport",
+            "description": "Whether this replica shape can autoscale, independent of the rollout switch or selected capacity.",
+            "readOnly": true
+          },
+          "classifier": {
+            "$ref": "#/components/schemas/ProfileClassifier",
+            "default": "balanced",
+            "description": "Classification of what this Profile is tuned for."
+          },
+          "dedicated_eligible": {
+            "default": false,
+            "description": "Platform approval for Dedicated deployment; only a published platform-owned Profile can authorize it.",
+            "title": "Dedicated Eligible",
+            "type": "boolean"
+          },
+          "default": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "True on the published Profile of a model a consumer pre-selects; IMS does not check that only one sets it. A display hint only: it is not the canonical default Profile a catalog artifact creates, and it has no effect on creation or placement.",
+            "title": "Default"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "One customer-facing line on what the Profile is for; absent when the Profile does not state one.",
+            "title": "Description"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Customer-facing name, such as `Chat application`; absent when the Profile does not state one.",
+            "title": "Display Name"
+          },
+          "gpu_model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Display name of the GPU one instance runs on, such as `B200`; absent when the Profile does not state one. Not an id to place by: `supported_flavor_ids` decides which pools can host the Profile.",
+            "title": "Gpu Model"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Inputs",
+            "type": "object"
+          },
+          "logical_name": {
+            "title": "Logical Name",
+            "type": "string"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "objective_descriptor": {
+            "title": "Objective Descriptor",
+            "type": "string"
+          },
+          "objective_values": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Objective Values",
+            "type": "object"
+          },
+          "performance": {
+            "$ref": "#/components/schemas/ProfilePerformance",
+            "description": "Benchmark results. Today IMS returns `{\"status\": \"not_measured\"}` on every Profile; `headline` and `measurements` are the planned shape and are not returned yet.",
+            "readOnly": true
+          },
+          "product_id": {
+            "title": "Product Id",
+            "type": "string"
+          },
+          "roles": {
+            "$ref": "#/components/schemas/ProfileRoles",
+            "description": "The instance roles this Profile describes. An `aggregated` instance serves both prefill and decode. A deployment chooses how many instances of each role to run."
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "supported_flavor_ids": {
+            "description": "Nscale compute flavor IDs that can host this Profile; resolve their metadata through the Nscale List Flavors API.",
+            "items": {
+              "minLength": 1,
+              "pattern": "^\\S(?:.*\\S)?$",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Supported Flavor Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "product_id",
+          "logical_name",
+          "model_name",
+          "inputs",
+          "objective_descriptor",
+          "objective_values",
+          "supported_flavor_ids",
+          "roles",
+          "source",
+          "performance"
+        ],
+        "title": "ProfileResponse",
+        "type": "object"
+      },
+      "ProfileResponsePage": {
+        "description": "Paginated end-user Profile response with computed eligibility.",
         "properties": {
           "facets": {
             "anyOf": [
@@ -8390,7 +8608,7 @@
           },
           "items": {
             "items": {
-              "$ref": "#/components/schemas/Profile"
+              "$ref": "#/components/schemas/ProfileResponse"
             },
             "title": "Items",
             "type": "array"
@@ -8465,49 +8683,7 @@
           "page_size",
           "total_pages"
         ],
-        "title": "ProfilePage",
-        "type": "object"
-      },
-      "ProfilePerformance": {
-        "description": "Benchmark results for a Profile, as raw totals for each measured setup.",
-        "properties": {
-          "headline": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/PerformanceHeadline"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Planned, not returned yet: the one number a Profile card shows, with what it measured."
-          },
-          "measurements": {
-            "anyOf": [
-              {
-                "items": {
-                  "$ref": "#/components/schemas/PerformanceMeasurement"
-                },
-                "type": "array"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Planned, not returned yet: one entry per benchmarked workload and setup.",
-            "title": "Measurements"
-          },
-          "status": {
-            "description": "Documented values: `measured`, `not_measured`; an open string. Read a value you do not know as `not_measured`. Always `not_measured` today.",
-            "minLength": 1,
-            "title": "Status",
-            "type": "string"
-          }
-        },
-        "required": [
-          "status"
-        ],
-        "title": "ProfilePerformance",
+        "title": "ProfileResponsePage",
         "type": "object"
       },
       "ProfileRole": {
