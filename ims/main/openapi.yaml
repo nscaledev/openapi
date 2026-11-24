@@ -1597,7 +1597,8 @@ paths:
   /api/v1/model-inventory/private/instances/{deployed_product_id}:
     delete:
       description: Queue live BYOM undeployment, or acknowledge a failed instance
-        whose cleanup Envir confirmed.
+        whose cleanup Envir confirmed. Undeploying a serving instance can cut
+        in-flight inference requests and removes its inference URL.
       operationId: undeploy_private_model_instance_api_v1_model_inventory_private_instances__deployed_product_id__delete
       parameters:
         - in: path
@@ -1803,6 +1804,198 @@ paths:
       security:
         - HTTPBearer: []
       summary: Update Private Model Instance
+  /api/v1/model-inventory/private/instances/{deployed_product_id}/start:
+    post:
+      description: Queue a start of a stopped private deployment on a reserved pool
+        using its existing configuration.
+      operationId: start_private_model_instance_api_v1_model_inventory_private_instances__deployed_product_id__start_post
+      parameters:
+        - in: path
+          name: deployed_product_id
+          required: true
+          schema:
+            minLength: 1
+            title: Deployed Product Id
+            type: string
+        - description: Organization scope selector; required when access control is
+            enforced.
+          in: header
+          name: X-Organization-Id
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Organization scope selector; required when access control is
+              enforced.
+            title: X-Organization-Id
+        - description: Project scope selector; required when access control is enforced
+            for project- or environment-scoped grants.
+          in: header
+          name: X-Project-Id
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Project scope selector; required when access control is enforced
+              for project- or environment-scoped grants.
+            title: X-Project-Id
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelDeploymentRequest"
+          description: Successful Response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Stop or start unavailable
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Validation Error
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal Server Error
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Service Unavailable
+      security:
+        - HTTPBearer: []
+      summary: Start Private Model Instance
+  /api/v1/model-inventory/private/instances/{deployed_product_id}/stop:
+    post:
+      description: Queue a stop of a private deployment on a reserved pool, retaining
+        its endpoint URL and configuration. A stop is immediate once KServe
+        applies it, so a request in flight can end mid-response and the stopped
+        deployment's URL does not serve inference traffic.
+      operationId: stop_private_model_instance_api_v1_model_inventory_private_instances__deployed_product_id__stop_post
+      parameters:
+        - in: path
+          name: deployed_product_id
+          required: true
+          schema:
+            minLength: 1
+            title: Deployed Product Id
+            type: string
+        - description: Organization scope selector; required when access control is
+            enforced.
+          in: header
+          name: X-Organization-Id
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Organization scope selector; required when access control is
+              enforced.
+            title: X-Organization-Id
+        - description: Project scope selector; required when access control is enforced
+            for project- or environment-scoped grants.
+          in: header
+          name: X-Project-Id
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            description: Project scope selector; required when access control is enforced
+              for project- or environment-scoped grants.
+            title: X-Project-Id
+      responses:
+        "202":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelDeploymentRequest"
+          description: Successful Response
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Stop or start unavailable
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Unauthorized
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Not Found
+        "409":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Conflict
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Validation Error
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Internal Server Error
+        "503":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+          description: Service Unavailable
+      security:
+        - HTTPBearer: []
+      summary: Stop Private Model Instance
   /api/v1/model-inventory/private/on-demand:
     post:
       description: Deploy one Hosted Model from an authoritative Profile onto the
@@ -3845,6 +4038,8 @@ components:
         - update
         - upgrade
         - delete
+        - stop
+        - start
       title: DeploymentRequestOperation
       type: string
     DeploymentState:
@@ -3853,11 +4048,11 @@ components:
         (ADR-0003).
 
 
-        `stopping` and `stopped` wait on stop and start. Fresh ready-replica
-        readings distinguish
+        Stop and start use Envir's active requests and stored stopped mode. For
+        deployed reserved
 
-        `ready` from `unavailable`; unknown readings leave current availability
-        absent.
+        instances, fresh ready-replica readings distinguish `ready` from
+        `unavailable`.
       enum:
         - starting
         - ready
@@ -4997,7 +5192,8 @@ components:
           anyOf:
             - type: string
             - type: "null"
-          description: Inference endpoint. Absent while the deployment is not serving.
+          description: Inference endpoint, retained while stopped. Absent before
+            publication or after the owner ends.
           title: Endpoint
         endpoint_visibility:
           anyOf:
@@ -5073,11 +5269,13 @@ components:
           anyOf:
             - $ref: "#/components/schemas/DeploymentState"
             - type: "null"
-          description: "What the deployment is now: `starting` until its first deploy
-            succeeds, `ready` when a fresh reading shows a ready replica,
-            `unavailable` when it measures zero, `deleting` during an accepted
-            delete, and `failed` when its first deploy failed. Absent when
-            current availability or lifecycle is unknown."
+          description: What the deployment is now. `starting` during its first deploy or a
+            start, `stopping` while stopping, `stopped` once its pods are gone,
+            `deleting` during deletion, and `failed` when its first deploy
+            failed. A deployed on-demand instance is `ready`. For a deployed
+            reserved instance, a fresh reading gives `ready` when a replica is
+            ready and `unavailable` when none are ready. Absent when current
+            availability or lifecycle is unknown.
         status:
           $ref: "#/components/schemas/DeploymentLifecycleStatus"
       required:
