@@ -815,7 +815,7 @@
         }
       },
       "put": {
-        "description": "Updates a project.",
+        "description": "Updates a project.  The request replaces the name, the description, the\ntags and groupIDs.  To add a group ID, the caller needs\norganization-level identity:projects update permission.  To remove the\nID of a group that exists, the caller needs the same permission.\nClearing groupIDs removes each stored ID.  Removing the ID of a group\nthat no longer exists needs only project-scoped update permission.\nReordering the IDs or repeating an ID does not change groupIDs.  A\ncaller with only project-scoped update permission can change the name,\nthe description and the tags.  If that caller adds an ID, or removes\nthe ID of a group that exists, the response is 403.",
         "summary": "Update project",
         "tags": [
           "Projects"
