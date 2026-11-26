@@ -42,6 +42,8 @@ That last check exists because sanitization only removes what a source repo expl
 
 `main` requires the `test` and `check` status checks to pass and blocks force-pushes/deletions, but admins are exempt from required checks (`enforce_admins: false`) — deliberately, since the action pushes straight to `main` with no PR, and a brand-new commit can never have a passing check recorded against it before it lands. Whatever account `OPENAPI_PUBLISH_TOKEN` belongs to needs admin or maintain access here, or its pushes will be rejected the same way a non-admin's would be.
 
+Each publish to `main` (including the `<service>/latest/` update a release makes) sends an `openapi-published` `repository_dispatch` to [`nscale-sdk-go`](https://github.com/nscaledev/nscale-sdk-go), which regenerates the affected Go clients and opens PRs. See [`notify-sdk.yml`](.github/workflows/notify-sdk.yml).
+
 ## Local development
 
 Node 20+, no global installs required:
