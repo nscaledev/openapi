@@ -3507,7 +3507,7 @@
             "$ref": "#/components/schemas/serverNetworkList"
           },
           "userData": {
-            "description": "UserData contains base64-encoded configuration information or scripts to use upon launch.",
+            "description": "UserData contains base64-encoded configuration information or scripts to use upon launch.\nOn update this field is accepted but ignored, preserving the stored value.\nUse the v2 API to change user data.",
             "type": "string",
             "format": "byte"
           }
@@ -3837,7 +3837,7 @@
             "$ref": "#/components/schemas/serverV2Networking"
           },
           "userData": {
-            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. Cloud-init part-handlers (#part-handler) are rejected,\nas the payload or as a top-level MIME part. On update the field is replaced wholesale: omitting\nit, or supplying null or an empty string, clears the stored value. A changed value is not\napplied to the running guest — it takes effect only when the server is next rebuilt\n(image change) or recreated.",
+            "description": "Contains base64-encoded configuration information or scripts to use upon launch.\nThe format of the data is governed by the cloud-init standard, and may be a script,\na MIME multipart archive, etc. Cloud-init part-handlers (#part-handler) are rejected,\nas the payload or as a top-level MIME part. On update the field is replaced wholesale: omitting\nit, or supplying null or an empty string, clears the stored value. Where the region enables it,\na changed value triggers an in-place rebuild using the supplied cloud-init payload, except that\na server whose user data the region has not yet recorded has the new value recorded without a rebuild. Otherwise\na changed value is not applied to the running guest, and takes effect only when the server is\nrecreated.",
             "type": "string",
             "format": "byte"
           },
