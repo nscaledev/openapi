@@ -1,4 +1,4 @@
-# inference — latest (v0.27.0)
+# inference — latest (v0.28.0)
 
 [Open in Swagger UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/nscaledev/openapi/main/inference/latest/openapi.yaml)
 
