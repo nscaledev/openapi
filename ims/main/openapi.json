@@ -6227,6 +6227,110 @@
         "title": "CatalogedModelPage",
         "type": "object"
       },
+      "ChartAxis": {
+        "description": "One axis of one chart. Charts never share an axis.",
+        "properties": {
+          "scale": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Documented values: `linear`, `log`; an open string. Draw an absent scale, or one you do not know, as `linear`.",
+            "title": "Scale"
+          },
+          "title": {
+            "description": "Axis label, such as `Request concurrency`.",
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Unit of the axis values, such as `tokens/s per replica`.",
+            "title": "Unit"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "ChartAxis",
+        "type": "object"
+      },
+      "ChartPoint": {
+        "description": "One measured point of a line.",
+        "properties": {
+          "x": {
+            "description": "Position on the chart's x axis.",
+            "minimum": 0,
+            "title": "X",
+            "type": "number"
+          },
+          "y": {
+            "description": "Position on the chart's y axis.",
+            "minimum": 0,
+            "title": "Y",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "ChartPoint",
+        "type": "object"
+      },
+      "ChartSeries": {
+        "description": "One line of a chart: one statistic across the measured points.",
+        "properties": {
+          "legend_value": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Number shown beside the line's legend entry, chosen by the backend. Absent when none is shown.",
+            "title": "Legend Value"
+          },
+          "points": {
+            "description": "Points in drawing order; a line has at least one.",
+            "items": {
+              "$ref": "#/components/schemas/ChartPoint"
+            },
+            "minItems": 1,
+            "title": "Points",
+            "type": "array"
+          },
+          "statistic": {
+            "description": "Statistic the line draws, such as `p50`; an open string.",
+            "minLength": 1,
+            "title": "Statistic",
+            "type": "string"
+          }
+        },
+        "required": [
+          "statistic",
+          "points"
+        ],
+        "title": "ChartSeries",
+        "type": "object"
+      },
       "ConsumedResource": {
         "description": "Desired allocation range and observed actual amount for one compute resource type.\n\nPrivate BYOM inventory leaves `observed` absent until Envir has measured it.",
         "properties": {
@@ -6946,58 +7050,22 @@
         "title": "LiveReplicas",
         "type": "object"
       },
-      "MeasurementAxis": {
-        "description": "The x axis every chart of a measurement shares.",
-        "properties": {
-          "metric": {
-            "description": "What the axis counts. Documented values: `requests_in_flight`, `agents`; an open string. Label a value you do not know by `title`.",
-            "minLength": 1,
-            "title": "Metric",
-            "type": "string"
-          },
-          "title": {
-            "description": "Axis label, such as `Request concurrency`.",
-            "minLength": 1,
-            "title": "Title",
-            "type": "string"
-          }
-        },
-        "required": [
-          "metric",
-          "title"
-        ],
-        "title": "MeasurementAxis",
-        "type": "object"
-      },
       "MeasurementChart": {
-        "description": "One chart a consumer draws as given from a measurement's points.",
+        "description": "One chart a consumer draws as given, on its own axes.",
         "properties": {
-          "metric": {
-            "description": "The point metric charted, such as `ttft`; an open string. Skip a chart whose metric is unknown.",
+          "primary_statistic": {
+            "description": "The `statistic` of the main line, whose `legend_value` is the chart's prominent number.",
             "minLength": 1,
-            "title": "Metric",
+            "title": "Primary Statistic",
             "type": "string"
           },
-          "scale": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Axis scale, such as `log`.",
-            "title": "Scale"
-          },
-          "statistics": {
-            "description": "Statistics drawn, such as `p50`, `p90`, `p99`, `mean`.",
+          "series": {
+            "description": "Lines drawn on the chart, one per statistic; a chart has at least one.",
             "items": {
-              "minLength": 1,
-              "type": "string"
+              "$ref": "#/components/schemas/ChartSeries"
             },
-            "title": "Statistics",
+            "minItems": 1,
+            "title": "Series",
             "type": "array"
           },
           "title": {
@@ -7006,191 +7074,23 @@
             "title": "Title",
             "type": "string"
           },
-          "unit": {
-            "description": "Unit of the charted values, such as `s`.",
-            "minLength": 1,
-            "title": "Unit",
-            "type": "string"
+          "x_axis": {
+            "$ref": "#/components/schemas/ChartAxis",
+            "description": "This chart's x axis."
+          },
+          "y_axis": {
+            "$ref": "#/components/schemas/ChartAxis",
+            "description": "This chart's y axis."
           }
         },
         "required": [
-          "metric",
           "title",
-          "unit",
-          "statistics"
+          "x_axis",
+          "y_axis",
+          "primary_statistic",
+          "series"
         ],
         "title": "MeasurementChart",
-        "type": "object"
-      },
-      "MeasurementPoint": {
-        "description": "Results at one concurrency. A metric not measured is absent, never zero.",
-        "properties": {
-          "concurrency": {
-            "description": "Position on the x axis: requests in flight or agents.",
-            "minimum": 0,
-            "title": "Concurrency",
-            "type": "integer"
-          },
-          "error_rate": {
-            "anyOf": [
-              {
-                "minimum": 0,
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Share of requests that failed at this point.",
-            "title": "Error Rate"
-          },
-          "input_throughput": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "minimum": 0,
-                  "type": "number"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Input tokens per second, total for the measured setup.",
-            "title": "Input Throughput"
-          },
-          "output_throughput": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "minimum": 0,
-                  "type": "number"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Output tokens per second, total for the measured setup.",
-            "title": "Output Throughput"
-          },
-          "speed_per_user": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "minimum": 0,
-                  "type": "number"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Output tokens per second one request sees.",
-            "title": "Speed Per User"
-          },
-          "ttft": {
-            "anyOf": [
-              {
-                "additionalProperties": {
-                  "minimum": 0,
-                  "type": "number"
-                },
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Time to first token, s.",
-            "title": "Ttft"
-          },
-          "valid": {
-            "description": "Whether the point met the benchmark's validity rules.",
-            "title": "Valid",
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "concurrency",
-          "valid"
-        ],
-        "title": "MeasurementPoint",
-        "type": "object"
-      },
-      "MeasurementProvenance": {
-        "description": "What was measured. Every number it describes is a total for this setup.",
-        "properties": {
-          "gpus": {
-            "description": "Total GPUs in the measured setup.",
-            "minimum": 0,
-            "title": "Gpus",
-            "type": "integer"
-          },
-          "measured_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "When it was measured.",
-            "title": "Measured At"
-          },
-          "replicas": {
-            "additionalProperties": {
-              "minimum": 0,
-              "type": "integer"
-            },
-            "description": "Instances of each role in the measured setup, such as `{\"aggregated\": 1}`.",
-            "title": "Replicas",
-            "type": "object"
-          },
-          "run_id": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Opaque id of the benchmark run that produced the measurement, to trace a number back to its run.",
-            "title": "Run Id"
-          },
-          "suite": {
-            "anyOf": [
-              {
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Benchmark suite and version that produced the measurement.",
-            "title": "Suite"
-          },
-          "workload": {
-            "description": "Workload measured, such as `1,000 tokens in, 1,000 out, no prompt reuse`.",
-            "minLength": 1,
-            "title": "Workload",
-            "type": "string"
-          }
-        },
-        "required": [
-          "workload",
-          "replicas",
-          "gpus"
-        ],
-        "title": "MeasurementProvenance",
         "type": "object"
       },
       "ModelDeploymentRequest": {
@@ -7817,15 +7717,11 @@
       "PerformanceHeadline": {
         "description": "The one number a Profile card shows, standing alone with what it measured.",
         "properties": {
-          "concurrency": {
-            "description": "Requests in flight when `value` was measured.",
-            "minimum": 0,
-            "title": "Concurrency",
-            "type": "integer"
-          },
-          "provenance": {
-            "$ref": "#/components/schemas/MeasurementProvenance",
-            "description": "What was measured."
+          "byline": {
+            "description": "One line of small print stating the conditions measured, such as `1,000 in / 1,000 out · values at concurrency 1 · 1 replica of 8× B200 · vLLM 0.32.0 · 2 Nov 2026`.",
+            "minLength": 1,
+            "title": "Byline",
+            "type": "string"
           },
           "title": {
             "description": "What the number is, such as `Output speed`.",
@@ -7840,7 +7736,7 @@
             "type": "string"
           },
           "value": {
-            "description": "The number, a raw total for the setup in `provenance`.",
+            "description": "The number, a raw total for the setup its byline names.",
             "minimum": 0,
             "title": "Value",
             "type": "number"
@@ -7850,8 +7746,7 @@
           "title",
           "value",
           "unit",
-          "concurrency",
-          "provenance"
+          "byline"
         ],
         "title": "PerformanceHeadline",
         "type": "object"
@@ -7859,43 +7754,32 @@
       "PerformanceMeasurement": {
         "description": "One benchmarked workload on one setup; a second workload or setup is a second measurement.",
         "properties": {
+          "byline": {
+            "description": "One line of small print stating the conditions measured, such as `1,000 in / 1,000 out · values at concurrency 1 · 1 replica of 8× B200 · vLLM 0.32.0 · 2 Nov 2026`.",
+            "minLength": 1,
+            "title": "Byline",
+            "type": "string"
+          },
           "charts": {
-            "description": "Charts a consumer draws as given.",
+            "description": "Charts a consumer draws as given, in order; a measurement has at least one.",
             "items": {
               "$ref": "#/components/schemas/MeasurementChart"
             },
+            "minItems": 1,
             "title": "Charts",
             "type": "array"
-          },
-          "points": {
-            "description": "Results, one per concurrency.",
-            "items": {
-              "$ref": "#/components/schemas/MeasurementPoint"
-            },
-            "title": "Points",
-            "type": "array"
-          },
-          "provenance": {
-            "$ref": "#/components/schemas/MeasurementProvenance",
-            "description": "What was measured."
           },
           "title": {
             "description": "Name of the measurement, such as `Chat`.",
             "minLength": 1,
             "title": "Title",
             "type": "string"
-          },
-          "x_axis": {
-            "$ref": "#/components/schemas/MeasurementAxis",
-            "description": "The axis every chart shares."
           }
         },
         "required": [
           "title",
-          "provenance",
-          "x_axis",
-          "charts",
-          "points"
+          "byline",
+          "charts"
         ],
         "title": "PerformanceMeasurement",
         "type": "object"
@@ -8719,7 +8603,7 @@
                 "type": "null"
               }
             ],
-            "description": "Planned, not returned yet: the one number a Profile card shows, with what it measured."
+            "description": "Planned, not returned yet: the one number a Profile card shows, with its byline."
           },
           "measurements": {
             "anyOf": [
