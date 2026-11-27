@@ -115,6 +115,8 @@ paths:
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
         "500":
           $ref: "#/components/responses/internalServerErrorResponse"
     put:
@@ -133,6 +135,8 @@ paths:
           $ref: "#/components/responses/unauthorizedResponse"
         "403":
           $ref: "#/components/responses/forbiddenResponse"
+        "404":
+          $ref: "#/components/responses/notFoundResponse"
         "409":
           $ref: "#/components/responses/conflictResponse"
         "500":

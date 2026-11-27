@@ -1,4 +1,4 @@
-# identity — latest (v1.25.0)
+# identity — latest (v1.26.0)
 
 [Open in Swagger UI](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/nscaledev/openapi/main/identity/latest/openapi.yaml)
 

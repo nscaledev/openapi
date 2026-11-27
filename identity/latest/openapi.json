@@ -109,6 +109,9 @@
           "403": {
             "$ref": "#/components/responses/forbiddenResponse"
           },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
           "500": {
             "$ref": "#/components/responses/internalServerErrorResponse"
           }
@@ -137,6 +140,9 @@
           },
           "403": {
             "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
           },
           "409": {
             "$ref": "#/components/responses/conflictResponse"
