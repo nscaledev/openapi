@@ -1,0 +1,6061 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IMS",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/model-catalog": {
+      "get": {
+        "description": "List public procured models from the Model Catalog.",
+        "operationId": "list_public_model_catalog_api_v1_model_catalog_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name_prefix",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name Prefix"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogedModelPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Public Model Catalog"
+      }
+    },
+    "/api/v1/model-catalog/private": {
+      "get": {
+        "description": "List private procured models within the caller's scope.",
+        "operationId": "list_private_model_catalog_api_v1_model_catalog_private_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name_prefix",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name Prefix"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogedModelPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Private Model Catalog"
+      }
+    },
+    "/api/v1/model-catalog/private/{model_name}": {
+      "get": {
+        "description": "Get a private procured model by exact model_name within the caller's scope.",
+        "operationId": "get_private_model_catalog_api_v1_model_catalog_private__model_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_name",
+            "required": true,
+            "schema": {
+              "title": "Model Name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogedModel"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Private Model Catalog"
+      }
+    },
+    "/api/v1/model-catalog/procurements": {
+      "get": {
+        "description": "List retained model procurements within the caller's tenant scope.",
+        "operationId": "list_model_procurements_api_v1_model_catalog_procurements_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelProcurementPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Model Procurements"
+      },
+      "post": {
+        "description": "Queue a Hugging Face model for procurement into the caller's private Model Catalog.",
+        "operationId": "create_model_procurement_api_v1_model_catalog_procurements_post",
+        "parameters": [
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelProcurementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelProcurement"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Model Procurement"
+      }
+    },
+    "/api/v1/model-catalog/procurements/{job_id}": {
+      "delete": {
+        "description": "Request idempotent cancellation of one model procurement within the caller's tenant scope.",
+        "operationId": "cancel_model_procurement_api_v1_model_catalog_procurements__job_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "minLength": 1,
+              "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+              "title": "Job Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelProcurement"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Cancel Model Procurement"
+      },
+      "get": {
+        "description": "Get one retained model procurement within the caller's tenant scope.",
+        "operationId": "get_model_procurement_api_v1_model_catalog_procurements__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "minLength": 1,
+              "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+              "title": "Job Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelProcurement"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Model Procurement"
+      }
+    },
+    "/api/v1/model-catalog/procurements/{job_id}/progress": {
+      "get": {
+        "description": "Poll live structured progress for one model procurement.",
+        "operationId": "get_model_procurement_progress_api_v1_model_catalog_procurements__job_id__progress_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "maxLength": 63,
+              "minLength": 1,
+              "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+              "title": "Job Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelProcurementProgress"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Model Procurement Progress"
+      }
+    },
+    "/api/v1/model-catalog/public": {
+      "get": {
+        "description": "List public procured models from the Model Catalog.",
+        "operationId": "list_public_model_catalog_api_v1_model_catalog_public_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name_prefix",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name Prefix"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogedModelPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Public Model Catalog"
+      }
+    },
+    "/api/v1/model-catalog/public/{model_name}": {
+      "get": {
+        "description": "Get a public procured model by exact model_name.",
+        "operationId": "get_public_model_catalog_api_v1_model_catalog_public__model_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_name",
+            "required": true,
+            "schema": {
+              "title": "Model Name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogedModel"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Public Model Catalog"
+      }
+    },
+    "/api/v1/model-inventory": {
+      "get": {
+        "description": "List public Hosted Models.",
+        "operationId": "list_public_model_inventory_api_v1_model_inventory_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name_prefix",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name Prefix"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicHostedModelPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Public Model Inventory"
+      }
+    },
+    "/api/v1/model-inventory/private": {
+      "get": {
+        "description": "List private BYOM Hosted Models within the caller's scope, including deployments that are not serving. Successful inactive records are omitted. Optional filters narrow the listing to one environment and to an any-of set of deployment statuses.",
+        "operationId": "list_private_model_inventory_api_v1_model_inventory_private_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name_prefix",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name Prefix"
+            }
+          },
+          {
+            "in": "query",
+            "name": "environment_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Environment Id"
+            }
+          },
+          {
+            "description": "Repeatable any-of filter on deployment status. Every status is reported when omitted.",
+            "in": "query",
+            "name": "deployment_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/DeploymentLifecycleStatus"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Repeatable any-of filter on deployment status. Every status is reported when omitted.",
+              "title": "Deployment Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateHostedModelPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Private Model Inventory"
+      },
+      "post": {
+        "description": "Deploy one private Hosted Model from an authoritative Profile.",
+        "operationId": "deploy_private_model_api_v1_model_inventory_private_post",
+        "parameters": [
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrivateModelDeploymentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelDeploymentRequest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Deploy Private Model"
+      }
+    },
+    "/api/v1/model-inventory/private/instances/{deployed_product_id}": {
+      "delete": {
+        "description": "Queue BYOM undeployment and report any endpoint Secret left for operator cleanup.",
+        "operationId": "undeploy_private_model_instance_api_v1_model_inventory_private_instances__deployed_product_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "deployed_product_id",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Deployed Product Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "force",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Force",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateModelUndeploymentRequests"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Undeploy Private Model Instance"
+      }
+    },
+    "/api/v1/model-inventory/private/{model_name}": {
+      "get": {
+        "description": "Get a private Hosted Model by name or return matching deployed model names for a prefix.",
+        "operationId": "get_private_model_inventory_api_v1_model_inventory_private__model_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_name",
+            "required": true,
+            "schema": {
+              "title": "Model Name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PrivateHostedModel"
+                    },
+                    {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  ],
+                  "title": "Response Get Private Model Inventory Api V1 Model Inventory Private  Model Name  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Private Model Inventory"
+      }
+    },
+    "/api/v1/model-inventory/public": {
+      "get": {
+        "description": "List public Hosted Models.",
+        "operationId": "list_public_model_inventory_api_v1_model_inventory_public_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name_prefix",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name Prefix"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicHostedModelPage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Public Model Inventory"
+      }
+    },
+    "/api/v1/model-inventory/public/{model_name}": {
+      "get": {
+        "description": "Get a public Hosted Model by name or return matching deployed model names for a prefix.",
+        "operationId": "get_public_model_inventory_api_v1_model_inventory_public__model_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "model_name",
+            "required": true,
+            "schema": {
+              "title": "Model Name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PublicHostedModel"
+                    },
+                    {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    }
+                  ],
+                  "title": "Response Get Public Model Inventory Api V1 Model Inventory Public  Model Name  Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Public Model Inventory"
+      }
+    },
+    "/api/v1/model-inventory/requests/{request_id}": {
+      "get": {
+        "description": "Get one private model deployment request.",
+        "operationId": "get_model_deployment_request_api_v1_model_inventory_requests__request_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "environment_id",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "title": "Environment Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelDeploymentRequest"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Model Deployment Request"
+      }
+    },
+    "/api/v1/model-inventory/unreferenced-endpoint-secrets": {
+      "get": {
+        "description": "List endpoint Secrets in scope that no private Hosted Model references.",
+        "operationId": "list_unreferenced_endpoint_secrets_api_v1_model_inventory_unreferenced_endpoint_secrets_get",
+        "parameters": [
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UnreferencedOpaqueSecret"
+                  },
+                  "title": "Response List Unreferenced Endpoint Secrets Api V1 Model Inventory Unreferenced Endpoint Secrets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Unreferenced Endpoint Secrets"
+      }
+    },
+    "/api/v1/profiles": {
+      "get": {
+        "description": "List public Profiles.",
+        "operationId": "list_public_profiles_api_v1_profiles_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfilePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Public Profiles"
+      }
+    },
+    "/api/v1/profiles/private": {
+      "get": {
+        "description": "List private Profiles within the caller's scope.",
+        "operationId": "list_private_profiles_api_v1_profiles_private_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfilePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Private Profiles"
+      },
+      "post": {
+        "description": "Create the private default Profile for a validated Model Catalog artifact.",
+        "operationId": "create_private_default_profile_api_v1_profiles_private_post",
+        "parameters": [
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDefaultProfileRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Private Default Profile"
+      }
+    },
+    "/api/v1/profiles/private/{logical_name}": {
+      "get": {
+        "description": "Get a private Profile by logical_name within the caller's scope.",
+        "operationId": "get_private_profile_api_v1_profiles_private__logical_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "logical_name",
+            "required": true,
+            "schema": {
+              "title": "Logical Name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Private Profile"
+      }
+    },
+    "/api/v1/profiles/public": {
+      "get": {
+        "description": "List public Profiles.",
+        "operationId": "list_public_profiles_api_v1_profiles_public_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "model_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Model Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "required": false,
+            "schema": {
+              "default": 1,
+              "minimum": 1,
+              "title": "Page",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "page_size",
+            "required": false,
+            "schema": {
+              "default": 10,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Page Size",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfilePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Public Profiles"
+      }
+    },
+    "/api/v1/profiles/public/{logical_name}": {
+      "get": {
+        "description": "Get a public Profile by logical_name.",
+        "operationId": "get_public_profile_api_v1_profiles_public__logical_name__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "logical_name",
+            "required": true,
+            "schema": {
+              "title": "Logical Name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Organization scope selector; required when access control is enforced.",
+            "in": "header",
+            "name": "X-Organization-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Organization scope selector; required when access control is enforced.",
+              "title": "X-Organization-Id"
+            }
+          },
+          {
+            "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+            "in": "header",
+            "name": "X-Project-Id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Project scope selector; required when access control is enforced for project- or environment-scoped grants.",
+              "title": "X-Project-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Public Profile"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ByomModelTask": {
+        "description": "OpenAI-compatible task exposed by BYOM 1.0.0.",
+        "enum": [
+          "chat",
+          "embeddings",
+          "images"
+        ],
+        "title": "ByomModelTask",
+        "type": "string"
+      },
+      "ByomRuntimeBackend": {
+        "description": "Runtime backends supported by BYOM 1.0.0.",
+        "enum": [
+          "vllm",
+          "sglang",
+          "generic"
+        ],
+        "title": "ByomRuntimeBackend",
+        "type": "string"
+      },
+      "ByomRuntimeProfile": {
+        "description": "Compute profiles supported by BYOM 1.0.0.",
+        "enum": [
+          "amd-gpu",
+          "nvidia-gpu",
+          "cpu-arm64",
+          "cpu-amd64"
+        ],
+        "title": "ByomRuntimeProfile",
+        "type": "string"
+      },
+      "CatalogedModel": {
+        "additionalProperties": false,
+        "description": "Procured model record served by the read-only Model Catalog.",
+        "properties": {
+          "context_length_tokens": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Maximum context length in tokens.",
+            "title": "Context Length Tokens"
+          },
+          "data_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Human-facing serving data type, such as 16 FP.",
+            "title": "Data Type"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Human-facing model description.",
+            "title": "Description"
+          },
+          "developer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Model developer when supplied by model metadata or derivable from the model namespace.",
+            "title": "Developer"
+          },
+          "display_name": {
+            "default": "",
+            "description": "Human-facing catalog model name, derived from model_name when not supplied by model metadata.",
+            "title": "Display Name",
+            "type": "string"
+          },
+          "files_size_mb": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Total model file size in megabytes when supplied by catalog metadata.",
+            "title": "Files Size Mb"
+          },
+          "last_updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Date-time when the catalog metadata or backing model artifact set was last updated.",
+            "title": "Last Updated At"
+          },
+          "licenses": {
+            "description": "License identifiers or names supplied by catalog metadata.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Licenses",
+            "type": "array"
+          },
+          "model_name": {
+            "description": "Stable catalog key used by exact and prefix model-catalog lookups.",
+            "title": "Model Name",
+            "type": "string"
+          },
+          "model_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Human-facing model size, such as 70B.",
+            "title": "Model Size"
+          },
+          "model_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Human-facing model capability type.",
+            "title": "Model Type"
+          },
+          "provenance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HuggingFaceProvenance"
+              },
+              {
+                "$ref": "#/components/schemas/OciProvenance"
+              },
+              {
+                "$ref": "#/components/schemas/PublicOciProvenance"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Immutable upstream provenance for cards created by the procurement or registration workflow. A public projection of an OCI card omits the registry and repository.",
+            "title": "Provenance"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "vendor": {
+            "default": "Nscale",
+            "description": "Model vendor. IMS-created catalog cards are vended by Nscale.",
+            "title": "Vendor",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_name",
+          "source"
+        ],
+        "title": "CatalogedModel",
+        "type": "object"
+      },
+      "CatalogedModelPage": {
+        "description": "Paginated Model Catalog list response.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CatalogedModel"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "description": "One-based page number requested by the caller.",
+            "minimum": 1,
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "description": "Maximum number of records returned per page.",
+            "minimum": 1,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "description": "Total records matching the request before pagination.",
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "total_pages": {
+            "description": "Total pages available at the selected page size.",
+            "minimum": 0,
+            "title": "Total Pages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "total_pages"
+        ],
+        "title": "CatalogedModelPage",
+        "type": "object"
+      },
+      "ConsumedResource": {
+        "description": "Desired allocation range and observed actual amount for one compute resource type.\n\n`observed` is absent when no live figure is available.",
+        "properties": {
+          "desired": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConsumedResourceRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "observed": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Observed"
+          }
+        },
+        "title": "ConsumedResource",
+        "type": "object"
+      },
+      "ConsumedResourceRange": {
+        "description": "Minimum and maximum amounts, as quantity strings (for example \"2\" or \"8Gi\").",
+        "properties": {
+          "max": {
+            "title": "Max",
+            "type": "string"
+          },
+          "min": {
+            "title": "Min",
+            "type": "string"
+          }
+        },
+        "required": [
+          "min",
+          "max"
+        ],
+        "title": "ConsumedResourceRange",
+        "type": "object"
+      },
+      "ConsumedResources": {
+        "description": "Compute a Hosted Model instance consumes, by resource type.",
+        "properties": {
+          "gpus": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConsumedResource"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "title": "ConsumedResources",
+        "type": "object"
+      },
+      "CreateDefaultProfileRequest": {
+        "additionalProperties": false,
+        "description": "Inputs supplied by a caller to create one catalog-backed default Profile.",
+        "properties": {
+          "classifier": {
+            "$ref": "#/components/schemas/ProfileClassifier",
+            "default": "balanced"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "objective_descriptor": {
+            "default": "default",
+            "minLength": 1,
+            "title": "Objective Descriptor",
+            "type": "string"
+          },
+          "objective_values": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Objective Values",
+            "type": "object"
+          },
+          "product_id": {
+            "minLength": 1,
+            "title": "Product Id",
+            "type": "string"
+          },
+          "runtime_inputs": {
+            "$ref": "#/components/schemas/PublicProfileInputsV100"
+          },
+          "supported_flavor_ids": {
+            "items": {
+              "minLength": 1,
+              "pattern": "^\\S(?:.*\\S)?$",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Supported Flavor Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "model_name",
+          "product_id",
+          "supported_flavor_ids"
+        ],
+        "title": "CreateDefaultProfileRequest",
+        "type": "object"
+      },
+      "DeploymentEnvironment": {
+        "description": "Environment identity attached to one private deployment instance.",
+        "properties": {
+          "environment_id": {
+            "title": "Environment Id",
+            "type": "string"
+          },
+          "environment_name": {
+            "title": "Environment Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "environment_id",
+          "environment_name"
+        ],
+        "title": "DeploymentEnvironment",
+        "type": "object"
+      },
+      "DeploymentLifecycleStatus": {
+        "description": "Envir deployment request lifecycle status.",
+        "enum": [
+          "pending",
+          "in_progress",
+          "succeeded",
+          "failed",
+          "cancelled"
+        ],
+        "title": "DeploymentLifecycleStatus",
+        "type": "string"
+      },
+      "DeploymentPhase": {
+        "description": "Envir deployment request execution phase.",
+        "enum": [
+          "queued",
+          "starting",
+          "running",
+          "cancellation_pending",
+          "undeploying",
+          "succeeded",
+          "failed",
+          "cancelled"
+        ],
+        "title": "DeploymentPhase",
+        "type": "string"
+      },
+      "DeploymentRequestOperation": {
+        "description": "Envir deployment operations represented by IMS.",
+        "enum": [
+          "create",
+          "update",
+          "upgrade",
+          "delete"
+        ],
+        "title": "DeploymentRequestOperation",
+        "type": "string"
+      },
+      "ErrorBody": {
+        "description": "Simple preliminary IMS/Envir-style error payload.",
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "ErrorEnvelope": {
+        "description": "Top-level error envelope returned by IMS management APIs.",
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorEnvelope",
+        "type": "object"
+      },
+      "HostedModelCard": {
+        "description": "Catalog-like runtime metadata plus serving endpoints for one Hosted Model instance.",
+        "properties": {
+          "context_length_tokens": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Context Length Tokens"
+          },
+          "data_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Type"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "developer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Original model developer or lab when supplied.",
+            "title": "Developer"
+          },
+          "display_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Human-facing model name.",
+            "title": "Display Name"
+          },
+          "endpoints": {
+            "items": {
+              "$ref": "#/components/schemas/HostedModelCardEndpoint"
+            },
+            "title": "Endpoints",
+            "type": "array"
+          },
+          "files_size_mb": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Approximate total model file size in decimal megabytes for display.",
+            "title": "Files Size Mb"
+          },
+          "last_updated_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Last update time for the backing model artifact set when supplied.",
+            "title": "Last Updated At"
+          },
+          "licenses": {
+            "description": "License identifiers or names supplied by model metadata.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Licenses",
+            "type": "array"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Stable model key from catalog metadata or the CRD modelId.",
+            "title": "Model Name"
+          },
+          "model_size": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Parameter-size label, such as 70B or 235B A22B for total and active MoE parameters.",
+            "title": "Model Size"
+          },
+          "model_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Type"
+          },
+          "vendor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Procured-model vendor, distributor, or provider.",
+            "title": "Vendor"
+          }
+        },
+        "title": "HostedModelCard",
+        "type": "object"
+      },
+      "HostedModelCardEndpoint": {
+        "description": "OpenAI-compatible endpoint metadata exposed on a Hosted Model runtime card.",
+        "properties": {
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "uri": {
+            "title": "Uri",
+            "type": "string"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/HostedModelCardEndpointVisibility"
+          }
+        },
+        "required": [
+          "name",
+          "uri",
+          "visibility"
+        ],
+        "title": "HostedModelCardEndpoint",
+        "type": "object"
+      },
+      "HostedModelCardEndpointVisibility": {
+        "description": "Endpoint exposure classes from the AI CRD ModelCard contract.",
+        "enum": [
+          "private",
+          "public"
+        ],
+        "title": "HostedModelCardEndpointVisibility",
+        "type": "string"
+      },
+      "HuggingFaceProcurementSource": {
+        "additionalProperties": false,
+        "description": "End-user Hugging Face snapshot request translated into one processor Job.",
+        "properties": {
+          "repository_id": {
+            "maxLength": 96,
+            "minLength": 1,
+            "title": "Repository Id",
+            "type": "string"
+          },
+          "revision": {
+            "default": "main",
+            "title": "Revision",
+            "type": "string"
+          },
+          "source": {
+            "const": "hugging_face",
+            "default": "hugging_face",
+            "title": "Source",
+            "type": "string"
+          },
+          "token": {
+            "anyOf": [
+              {
+                "format": "password",
+                "maxLength": 4096,
+                "type": "string",
+                "writeOnly": true
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional raw Hugging Face token used only by the processor Job.",
+            "title": "Token"
+          }
+        },
+        "required": [
+          "repository_id"
+        ],
+        "title": "HuggingFaceProcurementSource",
+        "type": "object"
+      },
+      "HuggingFaceProvenance": {
+        "additionalProperties": false,
+        "description": "Safe origin identity for one processor-resolved Hugging Face snapshot.",
+        "properties": {
+          "origin": {
+            "const": "hugging_face",
+            "default": "hugging_face",
+            "title": "Origin",
+            "type": "string"
+          },
+          "processor_version": {
+            "title": "Processor Version",
+            "type": "string"
+          },
+          "repository_id": {
+            "maxLength": 96,
+            "minLength": 1,
+            "title": "Repository Id",
+            "type": "string"
+          },
+          "requested_revision": {
+            "title": "Requested Revision",
+            "type": "string"
+          },
+          "resolved_commit": {
+            "pattern": "^[0-9a-f]{40}$",
+            "title": "Resolved Commit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "repository_id",
+          "requested_revision",
+          "resolved_commit",
+          "processor_version"
+        ],
+        "title": "HuggingFaceProvenance",
+        "type": "object"
+      },
+      "JsonValue": {},
+      "ModelDeploymentRequest": {
+        "description": "IMS tracking resource for an Envir Product Deployer request.",
+        "properties": {
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "deployed_product_id": {
+            "title": "Deployed Product Id",
+            "type": "string"
+          },
+          "deployment_request_url": {
+            "title": "Deployment Request Url",
+            "type": "string"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "environment_id": {
+            "title": "Environment Id",
+            "type": "string"
+          },
+          "force": {
+            "title": "Force",
+            "type": "boolean"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "operation": {
+            "$ref": "#/components/schemas/DeploymentRequestOperation"
+          },
+          "organization_id": {
+            "title": "Organization Id",
+            "type": "string"
+          },
+          "output_values": {
+            "items": {
+              "$ref": "#/components/schemas/OutputValueProjection"
+            },
+            "title": "Output Values",
+            "type": "array"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/DeploymentPhase"
+          },
+          "product_id": {
+            "title": "Product Id",
+            "type": "string"
+          },
+          "project_id": {
+            "title": "Project Id",
+            "type": "string"
+          },
+          "provisioning_state": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Provisioning State",
+            "type": "object"
+          },
+          "request_id": {
+            "title": "Request Id",
+            "type": "string"
+          },
+          "resolved_resource_pool_id": {
+            "title": "Resolved Resource Pool Id",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DeploymentLifecycleStatus"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "deployed_product_id",
+          "operation",
+          "environment_id",
+          "organization_id",
+          "project_id",
+          "product_id",
+          "configuration_id",
+          "resolved_resource_pool_id",
+          "force",
+          "status",
+          "phase",
+          "message",
+          "provisioning_state",
+          "output_values",
+          "created_at",
+          "updated_at",
+          "deployment_request_url"
+        ],
+        "title": "ModelDeploymentRequest",
+        "type": "object"
+      },
+      "ModelProcurement": {
+        "additionalProperties": false,
+        "description": "Safe current state for one tenant-owned procurement.",
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ended At"
+          },
+          "job_id": {
+            "maxLength": 63,
+            "minLength": 1,
+            "pattern": "^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "phase": {
+            "$ref": "#/components/schemas/ModelProcurementPhase"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          }
+        },
+        "required": [
+          "job_id",
+          "model_name",
+          "phase",
+          "message",
+          "created_at"
+        ],
+        "title": "ModelProcurement",
+        "type": "object"
+      },
+      "ModelProcurementPage": {
+        "description": "Paginated tenant-owned procurement Jobs retained by Kubernetes.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ModelProcurement"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "description": "One-based page number requested by the caller.",
+            "minimum": 1,
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "description": "Maximum number of records returned per page.",
+            "minimum": 1,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "description": "Total records matching the request before pagination.",
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "total_pages": {
+            "description": "Total pages available at the selected page size.",
+            "minimum": 0,
+            "title": "Total Pages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "total_pages"
+        ],
+        "title": "ModelProcurementPage",
+        "type": "object"
+      },
+      "ModelProcurementPhase": {
+        "description": "Domain lifecycle exposed without leaking Kubernetes terminology or state.",
+        "enum": [
+          "queued",
+          "running",
+          "succeeded",
+          "failed",
+          "cancelled"
+        ],
+        "title": "ModelProcurementPhase",
+        "type": "string"
+      },
+      "ModelProcurementProgress": {
+        "additionalProperties": false,
+        "description": "Current procurement state with every retained structured progress event.",
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ModelProcurementProgressEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "procurement": {
+            "$ref": "#/components/schemas/ModelProcurement"
+          }
+        },
+        "required": [
+          "procurement",
+          "events"
+        ],
+        "title": "ModelProcurementProgress",
+        "type": "object"
+      },
+      "ModelProcurementProgressEvent": {
+        "additionalProperties": false,
+        "description": "Safe processor progress event projected from retained Job logs.",
+        "properties": {
+          "completed": {
+            "minimum": 0,
+            "title": "Completed",
+            "type": "integer"
+          },
+          "message": {
+            "default": "",
+            "maxLength": 2048,
+            "title": "Message",
+            "type": "string"
+          },
+          "sequence": {
+            "minimum": 0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "stage": {
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Stage",
+            "type": "string"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          },
+          "total": {
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "unit": {
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Unit",
+            "type": "string"
+          }
+        },
+        "required": [
+          "timestamp",
+          "sequence",
+          "stage",
+          "completed",
+          "total",
+          "unit"
+        ],
+        "title": "ModelProcurementProgressEvent",
+        "type": "object"
+      },
+      "ModelProcurementRequest": {
+        "additionalProperties": false,
+        "description": "Create one private Model Catalog procurement from an external source.",
+        "properties": {
+          "disk_space": {
+            "default": "50Gi",
+            "description": "Processor ephemeral-storage request, limit, and workspace capacity.",
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^[1-9][0-9]*(?:Ki|Mi|Gi|Ti|Pi|Ei|k|M|G|T|P|E)?$",
+            "title": "Disk Space",
+            "type": "string"
+          },
+          "model_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Catalog key. When omitted, the Hugging Face repository id is used.",
+            "title": "Model Name"
+          },
+          "source": {
+            "$ref": "#/components/schemas/HuggingFaceProcurementSource"
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "title": "ModelProcurementRequest",
+        "type": "object"
+      },
+      "OciProvenance": {
+        "additionalProperties": false,
+        "description": "Origin identity for one model already published to an OCI registry.\n\nIt carries no processor version because no IMS processor produced these bytes: the registry's\nown content-addressed manifest digest is the immutability proof.",
+        "properties": {
+          "origin": {
+            "const": "oci",
+            "default": "oci",
+            "title": "Origin",
+            "type": "string"
+          },
+          "registry": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Registry",
+            "type": "string"
+          },
+          "repository": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Repository",
+            "type": "string"
+          },
+          "requested_reference": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Requested Reference",
+            "type": "string"
+          },
+          "resolved_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Resolved Digest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "registry",
+          "repository",
+          "requested_reference",
+          "resolved_digest"
+        ],
+        "title": "OciProvenance",
+        "type": "object"
+      },
+      "OpaqueSecretDeployment": {
+        "description": "Opaque-secret lifecycle identity plus its non-secret logical reference.",
+        "properties": {
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "string"
+          },
+          "customer_request_id": {
+            "title": "Customer Request Id",
+            "type": "string"
+          },
+          "deployed_product_id": {
+            "title": "Deployed Product Id",
+            "type": "string"
+          },
+          "deployment_request_id": {
+            "title": "Deployment Request Id",
+            "type": "string"
+          },
+          "product_id": {
+            "title": "Product Id",
+            "type": "string"
+          },
+          "secret_ref": {
+            "title": "Secret Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "deployed_product_id",
+          "configuration_id",
+          "deployment_request_id",
+          "customer_request_id",
+          "secret_ref"
+        ],
+        "title": "OpaqueSecretDeployment",
+        "type": "object"
+      },
+      "OutputValueProjection": {
+        "description": "One Envir Product Deployer output value projection.",
+        "properties": {
+          "output_field_id": {
+            "title": "Output Field Id",
+            "type": "string"
+          },
+          "semantic_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Type"
+          },
+          "value": {
+            "$ref": "#/components/schemas/JsonValue"
+          },
+          "value_type": {
+            "title": "Value Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "output_field_id",
+          "value",
+          "value_type"
+        ],
+        "title": "OutputValueProjection",
+        "type": "object"
+      },
+      "PrivateHostedModel": {
+        "description": "Grouped private inventory response with deployment metadata on each instance.",
+        "properties": {
+          "instances": {
+            "items": {
+              "$ref": "#/components/schemas/PrivateHostedModelInstance"
+            },
+            "title": "Instances",
+            "type": "array"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "source": {
+            "const": "private",
+            "default": "private",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_name",
+          "instances"
+        ],
+        "title": "PrivateHostedModel",
+        "type": "object"
+      },
+      "PrivateHostedModelInstance": {
+        "description": "IMS management metadata for one Profile-backed Envir DeployedProduct.",
+        "properties": {
+          "byom_deployment": {
+            "$ref": "#/components/schemas/ProductDeployment"
+          },
+          "consumed_resources": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConsumedResources"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "deployment_name": {
+            "title": "Deployment Name",
+            "type": "string"
+          },
+          "endpoint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Inference endpoint. Absent while the deployment is not serving.",
+            "title": "Endpoint"
+          },
+          "endpoint_visibility": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HostedModelCardEndpointVisibility"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Provenance of `endpoint`. Present exactly when `endpoint` is."
+          },
+          "environment": {
+            "$ref": "#/components/schemas/DeploymentEnvironment"
+          },
+          "model_card": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HostedModelCard"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "opaque_secret_deployment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpaqueSecretDeployment"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile_logical_name": {
+            "title": "Profile Logical Name",
+            "type": "string"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DeploymentLifecycleStatus"
+          }
+        },
+        "required": [
+          "deployment_name",
+          "profile_logical_name",
+          "created_at",
+          "status",
+          "byom_deployment",
+          "environment"
+        ],
+        "title": "PrivateHostedModelInstance",
+        "type": "object"
+      },
+      "PrivateHostedModelPage": {
+        "description": "Paginated private Model Inventory response.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PrivateHostedModel"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "description": "One-based page number requested by the caller.",
+            "minimum": 1,
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "description": "Maximum number of records returned per page.",
+            "minimum": 1,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "description": "Total records matching the request before pagination.",
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "total_pages": {
+            "description": "Total pages available at the selected page size.",
+            "minimum": 0,
+            "title": "Total Pages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "total_pages"
+        ],
+        "title": "PrivateHostedModelPage",
+        "type": "object"
+      },
+      "PrivateModelDeploymentRequest": {
+        "additionalProperties": false,
+        "description": "Select one authoritative Profile and one private Envir placement.",
+        "properties": {
+          "deployment_name": {
+            "minLength": 1,
+            "title": "Deployment Name",
+            "type": "string"
+          },
+          "environment_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Environment Id"
+          },
+          "model_access_key": {
+            "anyOf": [
+              {
+                "format": "password",
+                "type": "string",
+                "writeOnly": true
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional access key required by clients of the deployed model endpoint.",
+            "title": "Model Access Key",
+            "writeOnly": true
+          },
+          "preferred_flavor_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Flavor Id"
+          },
+          "profile_logical_name": {
+            "minLength": 1,
+            "title": "Profile Logical Name",
+            "type": "string"
+          },
+          "resource_pool_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resource Pool Id"
+          }
+        },
+        "required": [
+          "deployment_name",
+          "profile_logical_name"
+        ],
+        "title": "PrivateModelDeploymentRequest",
+        "type": "object"
+      },
+      "PrivateModelUndeploymentRequests": {
+        "description": "Queued BYOM undeployment plus any endpoint Secret an operator must remove.",
+        "properties": {
+          "byom_undeployment_request": {
+            "$ref": "#/components/schemas/ModelDeploymentRequest"
+          },
+          "opaque_secret_cleanup_required": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OpaqueSecretDeployment"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Endpoint Secret that outlives this model. IMS does not delete it because Envir cannot prove no other product references it. Remove it once nothing does."
+          }
+        },
+        "required": [
+          "byom_undeployment_request"
+        ],
+        "title": "PrivateModelUndeploymentRequests",
+        "type": "object"
+      },
+      "ProductDeployment": {
+        "description": "Private lifecycle identity for one Envir deployed product.",
+        "properties": {
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "string"
+          },
+          "customer_request_id": {
+            "title": "Customer Request Id",
+            "type": "string"
+          },
+          "deployed_product_id": {
+            "title": "Deployed Product Id",
+            "type": "string"
+          },
+          "deployment_request_id": {
+            "title": "Deployment Request Id",
+            "type": "string"
+          },
+          "product_id": {
+            "title": "Product Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "deployed_product_id",
+          "configuration_id",
+          "deployment_request_id",
+          "customer_request_id"
+        ],
+        "title": "ProductDeployment",
+        "type": "object"
+      },
+      "Profile": {
+        "description": "IMS-owned Profile domain model crossing the repository boundary.",
+        "properties": {
+          "classifier": {
+            "$ref": "#/components/schemas/ProfileClassifier",
+            "default": "balanced",
+            "description": "Classification of what this Profile is tuned for."
+          },
+          "inputs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/JsonValue"
+            },
+            "title": "Inputs",
+            "type": "object"
+          },
+          "logical_name": {
+            "title": "Logical Name",
+            "type": "string"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "objective_descriptor": {
+            "title": "Objective Descriptor",
+            "type": "string"
+          },
+          "objective_values": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Objective Values",
+            "type": "object"
+          },
+          "product_id": {
+            "title": "Product Id",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          },
+          "supported_flavor_ids": {
+            "description": "Nscale compute flavor IDs that can host this Profile; resolve their metadata through the Nscale List Flavors API.",
+            "items": {
+              "minLength": 1,
+              "pattern": "^\\S(?:.*\\S)?$",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Supported Flavor Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "product_id",
+          "logical_name",
+          "model_name",
+          "inputs",
+          "objective_descriptor",
+          "objective_values",
+          "supported_flavor_ids",
+          "source"
+        ],
+        "title": "Profile",
+        "type": "object"
+      },
+      "ProfileClassifier": {
+        "description": "IMS-owned classification of what a Profile is tuned for.",
+        "enum": [
+          "balanced",
+          "latency-optimized",
+          "throughput-optimized",
+          "custom"
+        ],
+        "title": "ProfileClassifier",
+        "type": "string"
+      },
+      "ProfilePage": {
+        "description": "Paginated Profile Registry list response.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Profile"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "description": "One-based page number requested by the caller.",
+            "minimum": 1,
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "description": "Maximum number of records returned per page.",
+            "minimum": 1,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "description": "Total records matching the request before pagination.",
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "total_pages": {
+            "description": "Total pages available at the selected page size.",
+            "minimum": 0,
+            "title": "Total Pages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "total_pages"
+        ],
+        "title": "ProfilePage",
+        "type": "object"
+      },
+      "PublicHostedModel": {
+        "description": "Public-safe Hosted Model shape served by public and federation routes.",
+        "properties": {
+          "instances": {
+            "items": {
+              "$ref": "#/components/schemas/PublicHostedModelInstance"
+            },
+            "title": "Instances",
+            "type": "array"
+          },
+          "model_name": {
+            "title": "Model Name",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/Source"
+          }
+        },
+        "required": [
+          "model_name",
+          "instances",
+          "source"
+        ],
+        "title": "PublicHostedModel",
+        "type": "object"
+      },
+      "PublicHostedModelInstance": {
+        "description": "Public-safe instance data for one deployed product exposing a Hosted Model.",
+        "properties": {
+          "endpoint": {
+            "title": "Endpoint",
+            "type": "string"
+          },
+          "model_card": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HostedModelCard"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "endpoint"
+        ],
+        "title": "PublicHostedModelInstance",
+        "type": "object"
+      },
+      "PublicHostedModelPage": {
+        "description": "Paginated public Hosted Model response.",
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PublicHostedModel"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "page": {
+            "description": "One-based page number requested by the caller.",
+            "minimum": 1,
+            "title": "Page",
+            "type": "integer"
+          },
+          "page_size": {
+            "description": "Maximum number of records returned per page.",
+            "minimum": 1,
+            "title": "Page Size",
+            "type": "integer"
+          },
+          "total": {
+            "description": "Total records matching the request before pagination.",
+            "minimum": 0,
+            "title": "Total",
+            "type": "integer"
+          },
+          "total_pages": {
+            "description": "Total pages available at the selected page size.",
+            "minimum": 0,
+            "title": "Total Pages",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size",
+          "total_pages"
+        ],
+        "title": "PublicHostedModelPage",
+        "type": "object"
+      },
+      "PublicOciProvenance": {
+        "additionalProperties": false,
+        "description": "Registry provenance re-presented publicly, carrying identity without location.\n\nA registry host and repository path name Nscale's own infrastructure, so a published card states\nwhat the artifact is and not where it is kept. This is a separate variant rather than nullable\nfields on `OciProvenance` so a public projection *cannot* carry a location by construction, and\nso a stored artifact can never validate without one.",
+        "properties": {
+          "origin": {
+            "const": "oci",
+            "default": "oci",
+            "title": "Origin",
+            "type": "string"
+          },
+          "requested_reference": {
+            "maxLength": 255,
+            "minLength": 1,
+            "title": "Requested Reference",
+            "type": "string"
+          },
+          "resolved_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Resolved Digest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requested_reference",
+          "resolved_digest"
+        ],
+        "title": "PublicOciProvenance",
+        "type": "object"
+      },
+      "PublicProfileInputsV100": {
+        "additionalProperties": false,
+        "description": "End-user Profile choices for ``nscale://ai/products/byom/1.0.0``.",
+        "properties": {
+          "CPU_COUNT": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpu Count"
+          },
+          "CPU_KV_CACHE_GIB": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpu Kv Cache Gib"
+          },
+          "CPU_MEMORY_GIB": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cpu Memory Gib"
+          },
+          "DATA_PARALLEL_SIZE": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Parallel Size"
+          },
+          "DECODE_CONTEXT_PARALLEL_SIZE": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decode Context Parallel Size"
+          },
+          "ENABLE_EXPERT_PARALLEL": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enable Expert Parallel"
+          },
+          "GENERIC_ENDPOINT_AUTH_ENV_VAR": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generic Endpoint Auth Env Var"
+          },
+          "GENERIC_RUNTIME_ARGS": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generic Runtime Args"
+          },
+          "GENERIC_RUNTIME_COMMAND": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generic Runtime Command"
+          },
+          "GENERIC_RUNTIME_ENV": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generic Runtime Env"
+          },
+          "GPU_COUNT": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gpu Count"
+          },
+          "GPU_MEMORY_UTILIZATION": {
+            "anyOf": [
+              {
+                "maximum": 1,
+                "minimum": 0.01,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gpu Memory Utilization"
+          },
+          "HF_CACHE_SIZE_GIB": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hf Cache Size Gib"
+          },
+          "IMAGE_PULL_SECRET_REF": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Image Pull Secret Ref"
+          },
+          "MAX_MODEL_LEN": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Model Len"
+          },
+          "MODEL_ENDPOINT_AUTH_ENV_VAR": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Endpoint Auth Env Var"
+          },
+          "MODEL_TASK": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ByomModelTask"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "PIPELINE_PARALLEL_SIZE": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pipeline Parallel Size"
+          },
+          "PREFILL_CONTEXT_PARALLEL_SIZE": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prefill Context Parallel Size"
+          },
+          "READINESS_FAILURE_THRESHOLD": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readiness Failure Threshold"
+          },
+          "READINESS_INITIAL_DELAY_SECONDS": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readiness Initial Delay Seconds"
+          },
+          "READINESS_PERIOD_SECONDS": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readiness Period Seconds"
+          },
+          "RUNTIME_BACKEND": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ByomRuntimeBackend"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "RUNTIME_PROFILE": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ByomRuntimeProfile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "SERVING_RUNTIME_IMAGE": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serving Runtime Image"
+          },
+          "SGLANG_EXTRA_ARGS": {
+            "anyOf": [
+              {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sglang Extra Args"
+          },
+          "SHM_SIZE_GIB": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shm Size Gib"
+          },
+          "TENSOR_PARALLEL_SIZE": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tensor Parallel Size"
+          },
+          "VLLM_EXTRA_ARGS": {
+            "anyOf": [
+              {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vllm Extra Args"
+          }
+        },
+        "title": "PublicProfileInputsV100",
+        "type": "object"
+      },
+      "Source": {
+        "description": "IMS-owned public/private entity source axis.",
+        "enum": [
+          "public",
+          "private"
+        ],
+        "title": "Source",
+        "type": "string"
+      },
+      "UnreferencedOpaqueSecret": {
+        "description": "One endpoint Secret deployment that no readable model in scope references.\n\nThe customer request id is deliberately absent: it is only knowable from the referencing BYOM\nconfiguration, and reading the Secret's own configuration would materialize its raw value.",
+        "properties": {
+          "configuration_id": {
+            "title": "Configuration Id",
+            "type": "string"
+          },
+          "deployed_product_id": {
+            "title": "Deployed Product Id",
+            "type": "string"
+          },
+          "deployment_request_id": {
+            "title": "Deployment Request Id",
+            "type": "string"
+          },
+          "environment": {
+            "$ref": "#/components/schemas/DeploymentEnvironment"
+          },
+          "product_id": {
+            "title": "Product Id",
+            "type": "string"
+          },
+          "secret_ref": {
+            "title": "Secret Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "product_id",
+          "deployed_product_id",
+          "configuration_id",
+          "deployment_request_id",
+          "secret_ref",
+          "environment"
+        ],
+        "title": "UnreferencedOpaqueSecret",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "description": "Nscale identity bearer token",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  }
+}
