@@ -449,6 +449,68 @@
         }
       }
     },
+    "/api/v2/reservations/{reservationID}/units": {
+      "description": "Synchronously releases and adds whole, named reservation units in one\nrequest. The request is atomic across both lists: either every requested\nrelease and add is applied to the Reservation's accepted claim, or the\nclaim is unchanged. The release always applies before the add, whatever\norder the body names them in, so one request can move a Reservation onto\ndifferent units, including onto another spine. Both lists identify units\nthe same way: by the opaque unit node IDs the organization topology view\ngives them, whether the unit is free or already held by this\nReservation. Release is limited to the Reservation's own claim, an\noccupied unit refuses the whole request, and every added unit must be\nfree and pass the Reservation's claim policy, flavor scope and\nsingle-spine scope. Every patch reads current topology once, after\nthe claim and If-Match checks pass: both lists name the unit node IDs\nthat topology shows, and the release list resolves by the devices of\nthe named unit that the Reservation's claim holds, so a release-only\npatch that cannot read Fleet Manager is refused with 503 and releases\nnothing.",
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/reservationIDParameter"
+        },
+        {
+          "$ref": "#/components/parameters/ifMatchParameter"
+        }
+      ],
+      "patch": {
+        "operationId": "patchReservationUnits",
+        "description": "Release and add reservation units.",
+        "summary": "Patch reservation units",
+        "tags": [
+          "Reservations"
+        ],
+        "security": [
+          {
+            "oauth2Authentication": []
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/reservationUnitPatchRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/reservationUnitPatchResponse"
+          },
+          "400": {
+            "$ref": "#/components/responses/badRequestResponse"
+          },
+          "401": {
+            "$ref": "#/components/responses/unauthorizedResponse"
+          },
+          "403": {
+            "$ref": "#/components/responses/forbiddenResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/notFoundResponse"
+          },
+          "409": {
+            "$ref": "#/components/responses/conflictResponse"
+          },
+          "412": {
+            "$ref": "#/components/responses/preconditionFailedResponse"
+          },
+          "422": {
+            "$ref": "#/components/responses/reservationUnitPatchRefusalResponse"
+          },
+          "428": {
+            "$ref": "#/components/responses/preconditionRequiredResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/internalServerErrorResponse"
+          },
+          "503": {
+            "$ref": "#/components/responses/serviceUnavailableResponse"
+          }
+        }
+      }
+    },
     "/api/v2/placements": {
       "description": "Manages project scoped placements of hosts from reservations. A placement\nconsumes capacity from a reservation and drives pinned Region server\ncreation for each selected host.",
       "get": {
@@ -1699,7 +1761,7 @@
         ],
         "properties": {
           "unitId": {
-            "description": "Opaque, Reservation-scoped release unit ID that was blocked.",
+            "description": "The unit ID the request named for the blocked unit: a Reservation-scoped handle for POST units/release, a unit node ID for a unit patch.\n",
             "type": "string"
           },
           "consumers": {
@@ -1792,6 +1854,122 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/addedUnitV2"
+            }
+          }
+        }
+      },
+      "reservationUnitPatchSpec": {
+        "description": "Reservation units to release and to add, in one request.",
+        "type": "object",
+        "properties": {
+          "releaseUnitIds": {
+            "description": "Opaque unit node IDs to release: the id of each domain node the organization topology view marks as this Reservation's. Released before the added units are applied, whatever order they are named in. Not the Reservation-scoped handles POST units/release takes, provider inventory identifiers, device IDs, or path labels.\n",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "addUnitIds": {
+            "description": "Opaque unit node IDs to add, from the free unit nodes of the organization topology view in the Reservation's scope. The same ID kind as releaseUnitIds; no ID may appear in both lists.\n",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "reservationUnitPatchRequest": {
+        "description": "A request to release and add reservation units.",
+        "type": "object",
+        "required": [
+          "spec"
+        ],
+        "properties": {
+          "spec": {
+            "$ref": "#/components/schemas/reservationUnitPatchSpec"
+          }
+        }
+      },
+      "patchedUnitV2": {
+        "description": "A reservation unit released or added by a patch request.",
+        "type": "object",
+        "required": [
+          "id",
+          "infrastructureRefs"
+        ],
+        "properties": {
+          "id": {
+            "description": "Opaque unit node ID the request named, so the caller can correlate the response with its request without another topology read.\n",
+            "type": "string"
+          },
+          "infrastructureRefs": {
+            "description": "Ironic node UUIDs of the hosts the request released or added.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "reservationUnitPatchResult": {
+        "description": "The result of a reservation unit patch request.",
+        "type": "object",
+        "required": [
+          "reservation",
+          "releasedUnits",
+          "addedUnits"
+        ],
+        "properties": {
+          "reservation": {
+            "$ref": "#/components/schemas/reservationV2Read"
+          },
+          "releasedUnits": {
+            "description": "Units released by this request; empty when it named none.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/patchedUnitV2"
+            }
+          },
+          "addedUnits": {
+            "description": "Units added by this request; empty when it named none.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/patchedUnitV2"
+            }
+          }
+        }
+      },
+      "reservationUnitPatchRefusalV2": {
+        "description": "Structured reasons a patch request could not proceed, naming the one\nlist it failed on. Nothing was applied: the other list, if any, was\nnot touched either.",
+        "type": "object",
+        "required": [
+          "list",
+          "blockers",
+          "units"
+        ],
+        "properties": {
+          "list": {
+            "description": "The list that refused the request. release: the release list, with its blockers. add: the add list, with its ineligible units.\n",
+            "type": "string",
+            "enum": [
+              "release",
+              "add"
+            ]
+          },
+          "blockers": {
+            "description": "Blocking units when list is release; empty otherwise. One entry per occupied requested unit.\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reservationUnitBlockerV2"
+            }
+          },
+          "units": {
+            "description": "Ineligible units when list is add; empty otherwise. One entry per refused unit.\n",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/reservationUnitIneligibilityV2"
             }
           }
         }
@@ -2900,6 +3078,27 @@
           }
         }
       },
+      "reservationUnitPatchRequestBody": {
+        "description": "A request to release and add reservation units.",
+        "required": true,
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationUnitPatchRequest"
+            },
+            "example": {
+              "spec": {
+                "releaseUnitIds": [
+                  "3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef"
+                ],
+                "addUnitIds": [
+                  "7d1e4c9a2b6f8012345678901234567890abcdef1234567890abcdef12345678"
+                ]
+              }
+            }
+          }
+        }
+      },
       "reservationUnitAddRequestBody": {
         "description": "A request to add reservation units.",
         "required": true,
@@ -3274,6 +3473,110 @@
                   "reason": "spine"
                 }
               ]
+            }
+          }
+        }
+      },
+      "reservationUnitPatchResponse": {
+        "description": "A reservation unit patch result.",
+        "headers": {
+          "ETag": {
+            "description": "The Reservation's new accepted topology hash after this request, quoted as a strong entity tag, for use as the next add, release or patch request's If-Match precondition.\n",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationUnitPatchResult"
+            },
+            "example": {
+              "reservation": {
+                "metadata": {
+                  "id": "a64f9269-36e0-4312-b8d1-52d93d569b7b",
+                  "name": "gb300-nvl72",
+                  "organizationId": "9a8c6370-4065-4d4a-9da0-7678df40cd9d",
+                  "projectId": "e36c058a-8eba-4f5b-91f4-f6ffb983795c",
+                  "creationTime": "2026-04-28T10:45:45Z",
+                  "createdBy": "john.doe@example.com",
+                  "provisioningStatus": "provisioned",
+                  "healthStatus": "healthy"
+                },
+                "spec": {
+                  "regionId": "c7568e2d-f9ab-453d-9a3a-51375f78426b",
+                  "accelerator": "GB300",
+                  "unit": "NVL72",
+                  "count": 2
+                },
+                "status": {
+                  "machineFlavorId": "g.72.gb300.pinned",
+                  "claimedUnitCount": 2,
+                  "topologyHash": "sha256:9a1f9b6b4b9b0b4e7d9c6a5f3e2d1c0b8a7f6e5d4c3b2a1908f7e6d5c4b3a291",
+                  "topologyObservedAt": "2026-05-14T10:05:00Z"
+                }
+              },
+              "releasedUnits": [
+                {
+                  "id": "3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef",
+                  "infrastructureRefs": [
+                    "00000000-0000-0000-0000-000000000003"
+                  ]
+                }
+              ],
+              "addedUnits": [
+                {
+                  "id": "7d1e4c9a2b6f8012345678901234567890abcdef1234567890abcdef12345678",
+                  "infrastructureRefs": [
+                    "00000000-0000-0000-0000-000000000005"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "reservationUnitPatchRefusalResponse": {
+        "description": "The patch request could not proceed because one of its lists refused\nit. The body names that list: blockers for a release the request could\nnot make, ineligible units for an add it could not make. Nothing was\nreleased and nothing was added.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/reservationUnitPatchRefusalV2"
+            },
+            "examples": {
+              "releaseBlocked": {
+                "value": {
+                  "list": "release",
+                  "blockers": [
+                    {
+                      "unitId": "3f9c2b1a7e4d5f60918273645afbecd0192837465fabcde0123456789abcdef",
+                      "consumers": [
+                        {
+                          "type": "placement",
+                          "placementId": "b8ce034e-fccb-4d6c-a0e0-af3e3f346715",
+                          "serverIds": [
+                            "psrv-950ab3259a1443da"
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "units": []
+                }
+              },
+              "addIneligible": {
+                "value": {
+                  "list": "add",
+                  "blockers": [],
+                  "units": [
+                    {
+                      "unitId": "7d1e4c9a2b6f8012345678901234567890abcdef1234567890abcdef12345678",
+                      "reason": "spine"
+                    }
+                  ]
+                }
+              }
             }
           }
         }
